@@ -22,6 +22,8 @@ const std::string WHITESPACE = " \n\r\t\f\v";
 #define FUNC_EXIT()
 #endif
 
+
+//---------------------------Helper Function Implementation-----------------------------
 string _ltrim(const std::string& s)
 {
   size_t start = s.find_first_not_of(WHITESPACE);
@@ -93,36 +95,7 @@ size_t index_of_redirection(const char* cmd_line) {
 }
 
 
-// TODO: Add your implementation for classes in Commands.h 
-
-SmallShell::SmallShell() {
-// TODO: add your implementation
-}
-
-SmallShell::~SmallShell() {
-// TODO: add your implementation
-}
-
-
-void ChpromptCommand::execute() {
-    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
-    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
-
-    strcpy(cmd_copy, cmd_line);
-    _removeBackgroundSign(cmd_copy);
-    int len = _parseCommandLine(cmd_copy, parsed_cmd);
-
-    if (len == 1){
-        // string tmp = "smash";
-        this->smash->setName("smash");
-    }
-    else{
-        this->smash->setName(parsed_cmd[1]);
-    }
-    delete[] cmd_copy;
-    deleteParsedCmd(parsed_cmd, len);
-}
-
+//------------------------------ Inherited from Command ---------------------------------------
 PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), err_flag(false){
     string cmd_s(cmd_line);
     if(cmd_s[cmd_s.find_first_of("|") + 1] == '&'){// stderr pipe
@@ -151,28 +124,53 @@ PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_
     strcpy(right_cmd, right_tmp.c_str());
 }
 
+// Child process runs dup2
 void child_fd_dup2(int fd, bool is_left, bool err_flag=false){
+    int index_in_fdt = 0;
     if(is_left){
-        if(err_flag){
-            if(dup2(fd, 2) == -1){
-                perror("smash error: dup failed");
-                return;
-            }
-        }
-        else{
-            if(dup2(fd, 1) == -1){
-                perror("smash error: dup failed");
-                return;
-            }
-        }
+        index_in_fdt = (err_flag) ? 2 : 1;
     }
-    else{
-        if(dup2(fd, 0) == -1){
-            perror("smash error: dup failed");
-            return;
-        }
+    if(dup2(fd, index_in_fdt) == -1){
+        perror("smash error: dup failed");
+        return;
     }
 }
+
+// RETURN ERROR VALUES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// new child process opens pipe and executes command
+void run_child_process(bool is_left, bool err_flag, int fd[]){
+    int index_in_fdt = 0, to_dup = fd[0];
+    if (is_left){
+        to_dup = fd[1];
+        index_in_fdt = (err_flag) ? 2 : 1;
+    }
+
+    setpgrp();
+    child_fd_dup2(to_dup, is_left, err_flag)
+
+    if(close(fd[0]) == -1 || close(fd[1]) == -1){
+         perror("smash error: close failed");
+        return;
+    }
+
+    char* cmd = (is_left) ? left_cmd : right_cmd;
+    string cmd_str (cmd);
+
+    // not sure why this is needed, will check later
+    if(!cmd_str.compare("showpid")){
+        char* new_str = new char[strlen(cmd) + 3];
+        strcpy(new_str, cmd);
+        strcat(new_str, " $");
+        delete[] cmd; // do we need this?
+        cmd = cmd_str;
+    }
+    smash->executeCommand(cmd);
+    if(close(index_in_fdt) == -1){
+        perror("smash error: close failed");
+        return;
+    }
+}
+
 
 void PipeCommand::execute() {
     int fd[2];
@@ -180,76 +178,24 @@ void PipeCommand::execute() {
         perror("smash error: pipe failed");
         return;
     }
-    pid_t left = fork();
-    if(left == -1){//failed
+    pid_t left_pid = fork();
+    if(left_pid == -1){                             // fork failed
         perror("smash error: fork failed");
         return;
     }
-    else if(left == 0){//left child
-        setpgrp();
-        child_fd_dup2(fd[1], true, err_flag)
 
-        if(close(fd[0]) == -1 || close(fd[1]) == -1){
-            perror("smash error: close failed");
-            return;
-        }
-
-        string left_cmd_str(left_cmd);
-        // left_cmd_str = left_cmd_str.substr(0, tmp.find_first_of(WHITESPACE));
-
-        // not sure why this is needed, will check later
-        if(!left_cmd_str.compare("showpid")){
-            char* new_left = new char[strlen(left_cmd) + 3];
-            strcpy(new_left, left_cmd);
-            strcat(new_left, " $");
-            delete[] left_cmd;
-            left_cmd = new_left;
-        }
-        smash->executeCommand(left_cmd);
-        if(err_flag){
-            if(close(2) == -1){
-                perror("smash error: close failed");
-                return;
-            }
-        }
-        else{
-            if(close(1) == -1){
-                perror("smash error: close failed");
-                return;
-            }
-        }
+    else if(left_pid == 0){                         // left child
+        run_child_process(true, err_flag, fd);
         exit(0);
     }
 
-    pid_t right = fork();
-    if(right == -1){//failed
+    pid_t right_pid = fork();
+    if(right_pid == -1){                            // fork failed
         perror("smash error: fork failed");
         return;
     }
-    else if(right == 0){//right child
-        setpgrp();
-        child_fd_dup2(fd[0], false)
-
-        if(close(fd[0]) == -1 || close(fd[1]) == -1){
-            perror("smash error: close failed");
-            return;
-        }
-
-        string tmp(right_cmd);
-        // tmp = tmp.substr(0, tmp.find_first_of(WHITESPACE));
-
-        if(tmp.compare("showpid") == 0){
-            char* new_left = new char[strlen(right_cmd) + 3];
-            strcpy(new_left, right_cmd);
-            strcat(new_left, " $");
-            delete[] right_cmd;
-            right_cmd = new_left;
-        }
-        smash->executeCommand(right_cmd);
-        if(close(0) == -1){
-            perror("smash error: close failed");
-            return;
-        }
+    else if(right_pid == 0){                        // right child
+        run_child_process(false, err_flag, fd);
         exit(0);
     }
 
@@ -267,6 +213,28 @@ void PipeCommand::execute() {
 }
 
 
+//------------------------------ Inherited from BuiltInCommand ---------------------------------------
+
+void ChpromptCommand::execute() {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
+
+    strcpy(cmd_copy, cmd_line);
+    _removeBackgroundSign(cmd_copy);
+    int len = _parseCommandLine(cmd_copy, parsed_cmd);
+
+    if (len == 1){
+        // string tmp = "smash";
+        this->smash->setName("smash");
+    }
+    else{
+        this->smash->setName(parsed_cmd[1]);
+    }
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, len);
+}
+
+//------------------------------ SmallShell Implementation ---------------------------------------
 
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
@@ -286,4 +254,15 @@ void SmallShell::executeCommand(const char *cmd_line) {
   // Command* cmd = CreateCommand(cmd_line);
   // cmd->execute();
   // Please note that you must fork smash process for some commands (e.g., external commands....)
+}
+
+
+// TODO: Add your implementation for classes in Commands.h 
+
+SmallShell::SmallShell() {
+// TODO: add your implementation
+}
+
+SmallShell::~SmallShell() {
+// TODO: add your implementation
 }
