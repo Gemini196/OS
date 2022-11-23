@@ -54,6 +54,15 @@ int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_EXIT()
 }
 
+void deleteParsedCmd(char** parsed_cmd, int len){
+    if(parsed_cmd == nullptr){
+        return;
+    }
+    for(int i = 0; i < len; i++){
+        delete parsed_cmd[i];
+    }
+}
+
 bool _isBackgroundCommand(const char* cmd_line) {
   const string str(cmd_line);
   return str[str.find_last_not_of(WHITESPACE)] == '&';
@@ -77,6 +86,13 @@ void _removeBackgroundSign(char* cmd_line) {
   cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
 
+
+size_t index_of_redirection(const char* cmd_line) {
+    const string str(cmd_line);
+    return str.find_first_of('>');
+}
+
+
 // TODO: Add your implementation for classes in Commands.h 
 
 SmallShell::SmallShell() {
@@ -88,101 +104,169 @@ SmallShell::~SmallShell() {
 }
 
 
-ChpromptCommand::~ChpromptCommand(){}
-
 void ChpromptCommand::execute() {
-    char** parsed_cmd = new char*[21];
-    char* new_cmd = new char[COMMAND_ARGS_MAX_LENGTH];
-    int len = _parseCommandLine(cmd_line, parsed_cmd);
-    size_t pos = _isRedirectionCommand(cmd_line);
-    string cmd(cmd_line);
-    if(pos != string::npos){
-        for(int i = 1; i < 21 && parsed_cmd[i]; i++){
-            char redirection1[2] = ">";
-            char redirection2[3] = ">>";
-            if(strcmp(parsed_cmd[i], redirection1) == 0){
-                string cmd_tmp(cmd_line);
-                cmd_tmp = cmd_tmp.substr(pos + 1, string::npos);
-                cmd_tmp = _ltrim(cmd_tmp);
-                const char* output_file = cmd_tmp.c_str();
-                int fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0666);
-                if(fd == -1){
-                    perror("smash error: open failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                };
-                if(close(1) == -1){
-                    perror("smash error: close failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                if(dup(fd) == -1){
-                    perror("smash error: dup failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                if(close(fd) == -1){
-                    perror("smash error: close failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                break;
-            }
-            else if(strcmp(parsed_cmd[i], redirection2) == 0){
-                string cmd_tmp(cmd_line);
-                cmd_tmp = cmd_tmp.substr(pos + 2, string::npos);
-                cmd_tmp = _ltrim(cmd_tmp);
-                const char* output_file = cmd_tmp.c_str();
-                int fd = open(output_file, O_APPEND | O_WRONLY | O_CREAT, 0666);
-                if(fd == -1){
-                    perror("smash error: open failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                if(close(1) == -1){
-                    perror("smash error: close failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                if(dup(fd) == -1){
-                    perror("smash error: dup failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                if(close(fd) == -1){
-                    perror("smash error: close failed");
-                    delete[] new_cmd;
-                    _deleteParse(parsed_cmd, len);
-                    return;
-                }
-                break;
-            }
-        }
-        cmd = cmd.substr(0, pos - 1);
-        cmd = _trim(cmd);
-    }
-    cmd_line = cmd.c_str();
-    strcpy(new_cmd, cmd_line);
-    removeAmpersand(new_cmd);
-    len = _parseCommandLine(new_cmd, parsed_cmd);
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
+
+    strcpy(cmd_copy, cmd_line);
+    _removeBackgroundSign(cmd_copy);
+    int len = _parseCommandLine(cmd_copy, parsed_cmd);
 
     if (len == 1){
-        string tmp = "smash";
-        this->smash->setName(tmp);
+        // string tmp = "smash";
+        this->smash->setName("smash");
     }
     else{
         this->smash->setName(parsed_cmd[1]);
     }
-    delete[] new_cmd;
-    _deleteParse(parsed_cmd, len);
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, len);
 }
+
+PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), err_flag(false){
+    string cmd_s(cmd_line);
+    if(cmd_s[cmd_s.find_first_of("|") + 1] == '&'){// stderr pipe
+        err_flag = true;
+    }
+    string right_tmp;
+    if(err_flag){
+        right_tmp = cmd_s.substr(cmd_s.find_first_of("|") + 2, string::npos);
+    }
+    else{
+        right_tmp = cmd_s.substr(cmd_s.find_first_of("|") + 1, string::npos);
+    }
+    right_tmp = _trim(right_tmp);
+    string left_tmp;
+    if(cmd_s.find_first_of("|") == 0){
+        left_tmp = "";
+    }
+    else{
+        left_tmp = cmd_s.substr(0, cmd_s.find_first_of("|"));
+    }
+    left_tmp = _trim(left_tmp);
+
+    left_cmd = new char [left_tmp.length()+1];
+    strcpy(left_cmd, left_tmp.c_str());
+    right_cmd = new char [right_tmp.length()+1];
+    strcpy(right_cmd, right_tmp.c_str());
+}
+
+void child_fd_dup2(int fd, bool is_left, bool err_flag=false){
+    if(is_left){
+        if(err_flag){
+            if(dup2(fd, 2) == -1){
+                perror("smash error: dup failed");
+                return;
+            }
+        }
+        else{
+            if(dup2(fd, 1) == -1){
+                perror("smash error: dup failed");
+                return;
+            }
+        }
+    }
+    else{
+        if(dup2(fd, 0) == -1){
+            perror("smash error: dup failed");
+            return;
+        }
+    }
+}
+
+void PipeCommand::execute() {
+    int fd[2];
+    if(pipe(fd) == -1){
+        perror("smash error: pipe failed");
+        return;
+    }
+    pid_t left = fork();
+    if(left == -1){//failed
+        perror("smash error: fork failed");
+        return;
+    }
+    else if(left == 0){//left child
+        setpgrp();
+        child_fd_dup2(fd[1], true, err_flag)
+
+        if(close(fd[0]) == -1 || close(fd[1]) == -1){
+            perror("smash error: close failed");
+            return;
+        }
+
+        string left_cmd_str(left_cmd);
+        // left_cmd_str = left_cmd_str.substr(0, tmp.find_first_of(WHITESPACE));
+
+        // not sure why this is needed, will check later
+        if(!left_cmd_str.compare("showpid")){
+            char* new_left = new char[strlen(left_cmd) + 3];
+            strcpy(new_left, left_cmd);
+            strcat(new_left, " $");
+            delete[] left_cmd;
+            left_cmd = new_left;
+        }
+        smash->executeCommand(left_cmd);
+        if(err_flag){
+            if(close(2) == -1){
+                perror("smash error: close failed");
+                return;
+            }
+        }
+        else{
+            if(close(1) == -1){
+                perror("smash error: close failed");
+                return;
+            }
+        }
+        exit(0);
+    }
+
+    pid_t right = fork();
+    if(right == -1){//failed
+        perror("smash error: fork failed");
+        return;
+    }
+    else if(right == 0){//right child
+        setpgrp();
+        child_fd_dup2(fd[0], false)
+
+        if(close(fd[0]) == -1 || close(fd[1]) == -1){
+            perror("smash error: close failed");
+            return;
+        }
+
+        string tmp(right_cmd);
+        // tmp = tmp.substr(0, tmp.find_first_of(WHITESPACE));
+
+        if(tmp.compare("showpid") == 0){
+            char* new_left = new char[strlen(right_cmd) + 3];
+            strcpy(new_left, right_cmd);
+            strcat(new_left, " $");
+            delete[] right_cmd;
+            right_cmd = new_left;
+        }
+        smash->executeCommand(right_cmd);
+        if(close(0) == -1){
+            perror("smash error: close failed");
+            return;
+        }
+        exit(0);
+    }
+
+    // parent
+    int status;
+    if(close(fd[0]) == -1 || close(fd[1]) == -1){
+        perror("smash error: close failed");
+        return;
+    }
+    if(waitpid(left, &status, WUNTRACED) == -1 ||
+        waitpid(right, &status, WUNTRACED) == -1){
+        perror("smash error: wait failed");
+        return;
+    }
+}
+
+
 
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)

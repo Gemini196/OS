@@ -17,7 +17,7 @@ protected:
     SmallShell* smash;
  public:
   Command(const char* cmd_line);
-  Command(const char* cmd_line, SmallShell* smash);
+  Command(const char* cmd_line, SmallShell* smash): cmd_line(cmd_line), smash(smash){};
   virtual ~Command();
   virtual void execute() = 0;
   //virtual void prepare();
@@ -78,6 +78,29 @@ class ShowPidCommand : public BuiltInCommand {
   void execute() override;
 };
 
+class ChpromptCommand: public BuiltInCommand{
+public:
+    ChpromptCommand(const char* cmd_line);
+    ChpromptCommand(const char* cmd_line, SmallShell* smash);
+    virtual ~ChpromptCommand();
+    void execute() override;
+};
+
+class PipeCommand : public Command {
+    char* left_cmd;
+    char* right_cmd;
+    bool err_flag;
+public:
+    PipeCommand(const char* cmd_line, SmallShell* smash);
+    virtual ~PipeCommand() {
+        delete[] left_cmd;
+        delete[] right_cmd;
+    }
+    void execute() override;
+};
+
+
+
 class JobsList;
 class QuitCommand : public BuiltInCommand {
 // TODO: Add your data members
@@ -122,9 +145,10 @@ class JobsList {
   JobsList():curr_max_job_id(0){
       jobs_list = new std::list<JobEntry*>;
   }
-  ~JobsList(
-          delete jobs_list
-          );
+  ~JobsList(){
+      delete jobs_list
+  }
+  );
   void addJob(Command* cmd, int pid,  bool is_stopped){
       JobsList::JobEntry* new_job =
 
