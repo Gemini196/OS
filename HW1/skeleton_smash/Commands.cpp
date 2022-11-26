@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include "Commands.h"
+#include <fcntl.h>
 
 using namespace std;
 
@@ -96,6 +97,13 @@ size_t index_of_redirection(const char* cmd_line) {
 
 
 //------------------------------ Inherited from Command ---------------------------------------
+
+
+//==============================================================================================//
+//-------------------------------SPECIAL COMMANDS IMPLEMENTATION--------------------------------//
+//==============================================================================================//
+
+//IO redirection
 PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), err_flag(false){
     string cmd_s(cmd_line);
     if(cmd_s[cmd_s.find_first_of("|") + 1] == '&'){// stderr pipe
@@ -118,9 +126,11 @@ PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_
     }
     left_tmp = _trim(left_tmp);
 
+
     left_cmd = new char [left_tmp.length()+1];
-    strcpy(left_cmd, left_tmp.c_str());
     right_cmd = new char [right_tmp.length()+1];
+
+    strcpy(left_cmd, left_tmp.c_str());
     strcpy(right_cmd, right_tmp.c_str());
 }
 
@@ -137,7 +147,7 @@ void child_fd_dup2(int fd, bool is_left, bool err_flag=false){
 }
 
 // new child process opens pipe and executes command
-int PipeCommand::run_child_process(bool is_left, bool err_flag, int fd[]){
+int PipeCommand::run_child_process(bool is_left, int fd[]){
     int index_in_fdt = 0, to_dup = fd[0];            // define fdt indexes
     if (is_left){                                    // change fdt indexes for left
         to_dup = fd[1];
@@ -185,7 +195,7 @@ void PipeCommand::execute() {
     }
 
     else if(left_pid == 0){                         // left child
-        if (run_child_process(true, err_flag, fd)==0)
+        if (run_child_process(true, fd)==0)
             exit(0);
         return;
     }
@@ -196,7 +206,7 @@ void PipeCommand::execute() {
         return;
     }
     else if(right_pid == 0){                        // right child
-        if (run_child_process(false, err_flag, fd)==0)
+        if (run_child_process(false, fd)==0)
             exit(0);
         return;
     }
@@ -216,111 +226,74 @@ void PipeCommand::execute() {
 
 
 RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), is_append(false){
-    string cmd_s(cmd_line), right_tmp, left_tmp;
-    
-    if(cmd_s[cmd_s.find_first_of(">>") + 1] == '&')// stderr pipe
+    string cmd_s(cmd_line), command = "", file;
+    int cmd_end_index = cmd_s.find_first_of(">");
+    int filepath_start_index = cmd_end_index + 1;
+
+    //if append   (default: override)
+    if(cmd_s[filepath_start_index] == '>'){
         is_append = true;
+        filepath++;
+    }
 
-    if(is_append)
-        right_tmp = cmd_s.substr(cmd_s.find_first_of(">>") + 2, string::npos);
-    else
-        right_tmp = cmd_s.substr(cmd_s.find_first_of(">") + 1, string::npos);
-    
-    if(cmd_s.find_first_of(">") == 0)
-        left_tmp = "";
-    
-    else
-        left_tmp = cmd_s.substr(0, cmd_s.find_first_of(">"));
-   
-    right_tmp = _trim(right_tmp);
-    left_tmp = _trim(left_tmp);
+    if (cmd_end_index != 0)
+        command = cmd_s.substr(0, cmd_end_index);
+    file = cmd_s.substr(filepath_start_index, string::npos);
 
-    left_cmd = new char [left_tmp.length()+1];
-    strcpy(left_cmd, left_tmp.c_str());
-    right_cmd = new char [right_tmp.length()+1];
-    strcpy(right_cmd, right_tmp.c_str());
+    command = _trim(command);
+    file = _trim(file);
+
+
+    cmd = new char [command.length()+1];
+    filepath = new char [file.length()+1];
+
+    strcpy(cmd, command.c_str());
+    strcpy(filepath, file.c_str());
 }
 
 
-// new child process opens pipe and executes command
-/*
-int RedirectionCommand::run_child_process(bool is_left, bool err_flag, int fd[]){
-    int index_in_fdt = 0, to_dup = fd[0];            // define fdt indexes
-    if (is_left){                                    // change fdt indexes for left
-        to_dup = fd[1];
-        index_in_fdt = (err_flag) ? 2 : 1;
-    }
-
-    setpgrp();
-    child_fd_dup2(to_dup, is_left, err_flag);
-
-    if(close(fd[0]) == -1 || close(fd[1]) == -1){
-        perror("smash error: close failed");
-        return -1;
-    }
-
-    char* cmd = (is_left) ? left_cmd : right_cmd;
-    string cmd_str(cmd);
-
-    // not sure why this is needed, will check later
-    if(!cmd_str.compare("showpid")){
-        char* new_cmd = new char[strlen(cmd) + 3];
-        strcpy(new_cmd, cmd);
-        strcat(new_cmd, " $");
-        delete[] cmd; // do we need this?
-        cmd = new_cmd;
-    }
-    smash->executeCommand(cmd);
-    if(close(index_in_fdt) == -1){
-        perror("smash error: close failed");
-        return -1;
-    }
-    return 0;
-}*/
-
-/*
 void RedirectionCommand::execute() {
-    int fd[2];                                       //fd[0]-read, fd[1]-write
-    if(pipe(fd) == -1){
-        perror("smash error: pipe failed");
-        return;
-    }
-    pid_t left_pid = fork();
-    if(left_pid == -1){                             // fork left failed
-        perror("smash error: fork failed");
+    int file_flags = O_WRONLY | O_CREAT;
+    if (is_append)                      // append ">>"
+        file_flags |= O_APPEND;
+    else                                // override ">"
+        file_flags |= O_APPEND;
+
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH; // file permissions
+
+    int fd = open(filepath, file_flags, mode);
+    if (fd == -1) {
+        perror("smash error: open failed");
         return;
     }
 
-    else if(left_pid == 0){                         // left child
-        if (run_child_process(true, err_flag, fd)==0)
-            exit(0);
+    int stdout_copy = dup(1); 
+    if(stdout_copy == -1) {              //backup the stdout entry in fdt
+        perror("smash error: dup failed");
+        if (close(fd) == -1)             //backup failed? - ABORT!!
+            perror("smash error: close failed");
+        return;
+    }
+    if (dup2(fd, 1) == -1) {            // replace stout entry content with our file
+        perror("smash error: dup2 failed");
+        if (close(fd) == -1)            // action failed? - ABORT!
+            perror("smash error: close failed");
         return;
     }
 
-    pid_t right_pid = fork();
-    if(right_pid == -1){                            // fork failed
-        perror("smash error: fork failed");
-        return;
-    }
-    else if(right_pid == 0){                        // right child
-        if (run_child_process(false, err_flag, fd)==0)
-            exit(0);
-        return;
-    }
+    smash->executeCommand(cmd);         // write into file
+    
+    if (dup2(stdout_copy, 1) == -1)     // restore stdout to its rightful place
+        perror("smash error: dup2 failed");
 
-    // parent
-    int status;
-    if(close(fd[0]) == -1 || close(fd[1]) == -1){
+    if (close(stdout_copy) == -1)       // close the backup index you've created
         perror("smash error: close failed");
-        return;
-    }
-    if(waitpid(left_pid, &status, WUNTRACED) == -1 ||
-        waitpid(right_pid, &status, WUNTRACED) == -1){
-        perror("smash error: wait failed");
-        return;
-    }
+
+    if (close(fd) == -1)                // close the file
+        perror("smash error: close failed");
+
 }
-*/
+
 
 
 //------------------------------ Inherited from BuiltInCommand ---------------------------------------

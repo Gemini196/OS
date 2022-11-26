@@ -60,20 +60,19 @@ class PipeCommand : public Command {
         delete[] right_cmd;            // WHY IS THIS HERE?????????????????????????????????
     }
     void execute() override;
-    int run_child_process(bool is_left, bool err_flag, int fd[]);
+    int run_child_process(bool is_left, int fd[]);
 };
 
 class RedirectionCommand : public Command {
     public:
-    char* left_cmd;
-    char* right_cmd;
+    char* cmd;
+    char* filepath;
     bool is_append;
   public:
     RedirectionCommand(const char* cmd_line, SmallShell* smash);
     //explicit RedirectionCommand(const char* cmd_line);
     virtual ~RedirectionCommand() {}
     void execute() override;
-    int run_child_process(bool is_left, bool is_append, int fd[]);
     //void prepare() override;
     //void cleanup() override;
 };
