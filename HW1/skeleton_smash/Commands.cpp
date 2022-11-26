@@ -369,7 +369,31 @@ void ChangeDirCommand::execute() {
 }
 
 
+// NOA - TO DO!!
+/*
+// fg
+ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs)
+{
 
+}
+
+void ForegroundCommand::execute()
+{
+
+}
+
+
+//Quit
+QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs)
+{
+
+}
+
+void QuitCommand::execute()
+{
+
+}
+*/
 
 //------------------------------ SmallShell Implementation ---------------------------------------
 
