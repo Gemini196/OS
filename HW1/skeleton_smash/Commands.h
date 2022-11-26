@@ -83,6 +83,7 @@ class ChangeDirCommand : public BuiltInCommand {
 // TODO: Add your data members public:
   public:
     ChangeDirCommand(const char* cmd_line, char** plastPwd);
+    ChangeDirCommand(const char* cmd_line, SmallShell* smash);
     virtual ~ChangeDirCommand() {}
     void execute() override;
 };
@@ -97,6 +98,7 @@ class GetCurrDirCommand : public BuiltInCommand {
 class ShowPidCommand : public BuiltInCommand {
   public:
     ShowPidCommand(const char* cmd_line);
+    ShowPidCommand(const char* cmd_line, SmallShell* smash);
     virtual ~ShowPidCommand() {}
     void execute() override;
 };
@@ -232,21 +234,23 @@ class SmallShell {
   
   public:
     string smash_name;
-    string parent_dir;
+    string parent_dir;      // DO WE NEED THIS??
+    char* last_working_dir;
     JobsList* jobs_list;
     pid_t fg_pid;
+    pid_t smash_pid;
 
     Command *CreateCommand(const char* cmd_line);
     Command *CreateCommand(const char* cmd_line, SmallShell* smash);
     SmallShell(SmallShell const&)      = delete; // disable copy ctor
     void operator=(SmallShell const&)  = delete; // disable = operator
-    static SmallShell& getInstance() // make SmallShell singleton
+    static SmallShell& getInstance() // make SmallShell singleton           //WHAT IS GOING ON HERE??!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     {
       static SmallShell instance; // Guaranteed to be destroyed.
       // Instantiated on first use.
       return instance;
     }
-    ~SmallShell() = default; // IS THIS OK?
+    ~SmallShell(); 
     void executeCommand(const char* cmd_line);
     string getName() {return smash_name;};
     void setName(const string& new_name) {smash_name = new_name;};

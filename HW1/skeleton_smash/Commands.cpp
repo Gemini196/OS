@@ -294,9 +294,12 @@ void RedirectionCommand::execute() {
 
 }
 
+//=========================================================================================//
+//-----------------------------Inherited from BuiltInCommand-------------------------------//
+//=========================================================================================//
 
-
-//------------------------------ Inherited from BuiltInCommand ---------------------------------------
+//Chprompt
+ChpromptCommand::ChpromptCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
 
 void ChpromptCommand::execute() {
     char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
@@ -304,9 +307,9 @@ void ChpromptCommand::execute() {
 
     strcpy(cmd_copy, cmd_line);
     _removeBackgroundSign(cmd_copy);
-    int len = _parseCommandLine(cmd_copy, parsed_cmd);
+    int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
 
-    if (len == 1){
+    if (num_of_args == 1){
         // string tmp = "smash";
         this->smash->setName("smash");
     }
@@ -314,14 +317,77 @@ void ChpromptCommand::execute() {
         this->smash->setName(parsed_cmd[1]);
     }
     delete[] cmd_copy;
-    deleteParsedCmd(parsed_cmd, len);
+    deleteParsedCmd(parsed_cmd, num_of_args);
 }
+
+
+// ShowPid
+ShowPidCommand::ShowPidCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
+
+void ShowPidCommand::execute() {
+  cout << "smash pid is " << smash->smash_pid << endl;
+}
+
+//ChangeDir
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
+
+void ChangeDirCommand::execute() {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];        // args array
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];     // copy of the unparsed command
+
+    strcpy(cmd_copy, cmd_line);
+    _removeBackgroundSign(cmd_copy);
+    int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
+    
+    if (num_of_args > 2)
+        perror("smash error: cd: too many arguments");
+
+    // change current dir to last working dir
+    else if (strcmp(parsed_cmd[1], "-") == 0){
+        if (smash->last_working_dir == "")
+            perror("smash error: cd: OLDPWD not set");
+
+        // change current working dir to last working dir using chdir system call
+        else if (chdir(smash->last_working_dir)==-1)
+            perror("smash error: chdir failed");
+    }
+
+    // change current dir to new working dir using chdir system call
+    else{
+        string new_dir(parsed_cmd[1]);
+        if (chdir(parsed_cmd[1]) == -1)
+            perror("smash error: chdir failed");
+        else {
+            delete[] smash->last_working_dir;                           // update the value of last_working_dir
+            smash->last_working_dir = new char [new_dir.length()];
+            strcpy(smash->last_working_dir, new_dir.c_str());
+        }
+    }
+
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, num_of_args);
+}
+
+
+
 
 //------------------------------ SmallShell Implementation ---------------------------------------
 
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
+
+SmallShell::SmallShell() {
+// TODO: add your 
+
+// don't forget to fill the smash_pid property!!
+// don't forget to set working dir properties to: ""
+}
+
+SmallShell::~SmallShell() {
+// TODO: add your implementation
+}
+
 Command* SmallShell::CreateCommand(const char* cmd_line) {
     string command(cmd_line);
     if(command.compare("") == 0)
@@ -343,10 +409,3 @@ void SmallShell::executeCommand(const char* cmd_line){
 
 // TODO: Add your implementation for classes in Commands.h 
 
-SmallShell::SmallShell() {
-// TODO: add your implementation
-}
-
-SmallShell::~SmallShell() {
-// TODO: add your implementation
-}
