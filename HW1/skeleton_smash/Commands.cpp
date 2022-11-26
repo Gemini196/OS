@@ -136,57 +136,58 @@ void child_fd_dup2(int fd, bool is_left, bool err_flag=false){
     }
 }
 
-// RETURN ERROR VALUES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // new child process opens pipe and executes command
-void run_child_process(bool is_left, bool err_flag, int fd[]){
-    int index_in_fdt = 0, to_dup = fd[0];
-    if (is_left){
+int PipeCommand::run_child_process(bool is_left, bool err_flag, int fd[]){
+    int index_in_fdt = 0, to_dup = fd[0];            // define fdt indexes
+    if (is_left){                                    // change fdt indexes for left
         to_dup = fd[1];
         index_in_fdt = (err_flag) ? 2 : 1;
     }
 
     setpgrp();
-    child_fd_dup2(to_dup, is_left, err_flag)
+    child_fd_dup2(to_dup, is_left, err_flag);
 
     if(close(fd[0]) == -1 || close(fd[1]) == -1){
-         perror("smash error: close failed");
-        return;
+        perror("smash error: close failed");
+        return -1;
     }
 
     char* cmd = (is_left) ? left_cmd : right_cmd;
-    string cmd_str (cmd);
+    string cmd_str(cmd);
 
     // not sure why this is needed, will check later
     if(!cmd_str.compare("showpid")){
-        char* new_str = new char[strlen(cmd) + 3];
-        strcpy(new_str, cmd);
-        strcat(new_str, " $");
+        char* new_cmd = new char[strlen(cmd) + 3];
+        strcpy(new_cmd, cmd);
+        strcat(new_cmd, " $");
         delete[] cmd; // do we need this?
-        cmd = cmd_str;
+        cmd = new_cmd;
     }
     smash->executeCommand(cmd);
     if(close(index_in_fdt) == -1){
         perror("smash error: close failed");
-        return;
+        return -1;
     }
+    return 0;
 }
 
 
 void PipeCommand::execute() {
-    int fd[2];
+    int fd[2];                                       //fd[0]-read, fd[1]-write
     if(pipe(fd) == -1){
         perror("smash error: pipe failed");
         return;
     }
     pid_t left_pid = fork();
-    if(left_pid == -1){                             // fork failed
+    if(left_pid == -1){                             // fork left failed
         perror("smash error: fork failed");
         return;
     }
 
     else if(left_pid == 0){                         // left child
-        run_child_process(true, err_flag, fd);
-        exit(0);
+        if (run_child_process(true, err_flag, fd)==0)
+            exit(0);
+        return;
     }
 
     pid_t right_pid = fork();
@@ -195,8 +196,9 @@ void PipeCommand::execute() {
         return;
     }
     else if(right_pid == 0){                        // right child
-        run_child_process(false, err_flag, fd);
-        exit(0);
+        if (run_child_process(false, err_flag, fd)==0)
+            exit(0);
+        return;
     }
 
     // parent
@@ -205,12 +207,120 @@ void PipeCommand::execute() {
         perror("smash error: close failed");
         return;
     }
-    if(waitpid(left, &status, WUNTRACED) == -1 ||
-        waitpid(right, &status, WUNTRACED) == -1){
+    if(waitpid(left_pid, &status, WUNTRACED) == -1 ||
+        waitpid(right_pid, &status, WUNTRACED) == -1){
         perror("smash error: wait failed");
         return;
     }
 }
+
+
+RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), is_append(false){
+    string cmd_s(cmd_line), right_tmp, left_tmp;
+    
+    if(cmd_s[cmd_s.find_first_of(">>") + 1] == '&')// stderr pipe
+        is_append = true;
+
+    if(is_append)
+        right_tmp = cmd_s.substr(cmd_s.find_first_of(">>") + 2, string::npos);
+    else
+        right_tmp = cmd_s.substr(cmd_s.find_first_of(">") + 1, string::npos);
+    
+    if(cmd_s.find_first_of(">") == 0)
+        left_tmp = "";
+    
+    else
+        left_tmp = cmd_s.substr(0, cmd_s.find_first_of(">"));
+   
+    right_tmp = _trim(right_tmp);
+    left_tmp = _trim(left_tmp);
+
+    left_cmd = new char [left_tmp.length()+1];
+    strcpy(left_cmd, left_tmp.c_str());
+    right_cmd = new char [right_tmp.length()+1];
+    strcpy(right_cmd, right_tmp.c_str());
+}
+
+
+// new child process opens pipe and executes command
+/*
+int RedirectionCommand::run_child_process(bool is_left, bool err_flag, int fd[]){
+    int index_in_fdt = 0, to_dup = fd[0];            // define fdt indexes
+    if (is_left){                                    // change fdt indexes for left
+        to_dup = fd[1];
+        index_in_fdt = (err_flag) ? 2 : 1;
+    }
+
+    setpgrp();
+    child_fd_dup2(to_dup, is_left, err_flag);
+
+    if(close(fd[0]) == -1 || close(fd[1]) == -1){
+        perror("smash error: close failed");
+        return -1;
+    }
+
+    char* cmd = (is_left) ? left_cmd : right_cmd;
+    string cmd_str(cmd);
+
+    // not sure why this is needed, will check later
+    if(!cmd_str.compare("showpid")){
+        char* new_cmd = new char[strlen(cmd) + 3];
+        strcpy(new_cmd, cmd);
+        strcat(new_cmd, " $");
+        delete[] cmd; // do we need this?
+        cmd = new_cmd;
+    }
+    smash->executeCommand(cmd);
+    if(close(index_in_fdt) == -1){
+        perror("smash error: close failed");
+        return -1;
+    }
+    return 0;
+}*/
+
+/*
+void RedirectionCommand::execute() {
+    int fd[2];                                       //fd[0]-read, fd[1]-write
+    if(pipe(fd) == -1){
+        perror("smash error: pipe failed");
+        return;
+    }
+    pid_t left_pid = fork();
+    if(left_pid == -1){                             // fork left failed
+        perror("smash error: fork failed");
+        return;
+    }
+
+    else if(left_pid == 0){                         // left child
+        if (run_child_process(true, err_flag, fd)==0)
+            exit(0);
+        return;
+    }
+
+    pid_t right_pid = fork();
+    if(right_pid == -1){                            // fork failed
+        perror("smash error: fork failed");
+        return;
+    }
+    else if(right_pid == 0){                        // right child
+        if (run_child_process(false, err_flag, fd)==0)
+            exit(0);
+        return;
+    }
+
+    // parent
+    int status;
+    if(close(fd[0]) == -1 || close(fd[1]) == -1){
+        perror("smash error: close failed");
+        return;
+    }
+    if(waitpid(left_pid, &status, WUNTRACED) == -1 ||
+        waitpid(right_pid, &status, WUNTRACED) == -1){
+        perror("smash error: wait failed");
+        return;
+    }
+}
+*/
 
 
 //------------------------------ Inherited from BuiltInCommand ---------------------------------------
@@ -239,16 +349,17 @@ void ChpromptCommand::execute() {
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
-Command * SmallShell::CreateCommand(const char* cmd_line) {
-    if(command.compare("") == 0){
+Command* SmallShell::CreateCommand(const char* cmd_line) {
+    string command(cmd_line);
+    if(command.compare("") == 0)
         return nullptr;
-    }
-    if (command.compare("chprompt") == 0) {
+    
+    if (command.compare("chprompt") == 0) 
         return new ChpromptCommand(cmd_line, this);
   return nullptr;
 }
 
-void SmallShell::executeCommand(const char *cmd_line) {
+void SmallShell::executeCommand(const char* cmd_line){
   // TODO: Add your implementation here
   // for example:
   // Command* cmd = CreateCommand(cmd_line);

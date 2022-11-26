@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <stdbool>
+#include <stdbool.h>
 #include <list>
 #include <wait.h>
 
@@ -12,11 +12,16 @@ using namespace std;
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 
+// forward declaration
+class SmallShell;
+class JobsList;
 
+//----------------------------------------------------------------------------------
 class Command {
-  protected:
+  public:
     const char* cmd_line;
     SmallShell* smash;
+
   public:
     Command(const char* cmd_line);
     Command(const char* cmd_line, SmallShell* smash): cmd_line(cmd_line), smash(smash){};
@@ -55,14 +60,20 @@ class PipeCommand : public Command {
         delete[] right_cmd;            // WHY IS THIS HERE?????????????????????????????????
     }
     void execute() override;
+    int run_child_process(bool is_left, bool err_flag, int fd[]);
 };
 
 class RedirectionCommand : public Command {
- // TODO: Add your data members
+    public:
+    char* left_cmd;
+    char* right_cmd;
+    bool is_append;
   public:
-    explicit RedirectionCommand(const char* cmd_line);
+    RedirectionCommand(const char* cmd_line, SmallShell* smash);
+    //explicit RedirectionCommand(const char* cmd_line);
     virtual ~RedirectionCommand() {}
     void execute() override;
+    int run_child_process(bool is_left, bool is_append, int fd[]);
     //void prepare() override;
     //void cleanup() override;
 };
@@ -99,7 +110,6 @@ class ChpromptCommand: public BuiltInCommand{
       void execute() override;
 };
 
-class JobsList;
 class QuitCommand : public BuiltInCommand {
   // TODO: Add your data members
   public:
@@ -174,7 +184,7 @@ class KillCommand : public BuiltInCommand {
 class JobsList {
 
   class JobEntry {
-    protected:
+    public:
         int job_id;
         int pid;
         time_t time_inserted;
@@ -182,7 +192,7 @@ class JobsList {
         bool is_stopped;
     public:
         JobEntry(int job_id, int pid, time_t time_inserted, string& command, bool is_stopped = false):
-              job_id(job_id), pid(pid), time_inserted(time_insterted), command(command), is_stopped(stopped){};
+              job_id(job_id), pid(pid), time_inserted(time_inserted), command(command), is_stopped(is_stopped){};
         JobEntry(JobEntry& job):
               job_id(job.job_id), pid(job.pid), time_inserted(job.time_inserted), command(string(job.command)), is_stopped(job.is_stopped){};
         ~JobEntry() = default;
@@ -201,7 +211,7 @@ class JobsList {
         delete jobs_list;
     }
     void addJob(Command* cmd, int pid, bool is_stopped){
-        JobsList::JobEntry* new_job =
+        //JobsList::JobEntry* new_job =
     }
     void printJobsList();
     void killAllJobs();
