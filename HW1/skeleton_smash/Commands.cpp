@@ -95,6 +95,12 @@ size_t index_of_redirection(const char* cmd_line) {
     return str.find_first_of('>');
 }
 
+bool _isNumber(string str) {
+    for (int i = 0; i < str.length(); i++)
+        if (isdigit(str[i]) == false)
+            return false; 
+    return true;
+}
 
 //------------------------------ Inherited from Command ---------------------------------------
 
@@ -369,20 +375,73 @@ void ChangeDirCommand::execute() {
 }
 
 
-// NOA - TO DO!!
-/*
 // fg
-ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs)
-{
-
-}
+ForegroundCommand::ForegroundCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
 
 void ForegroundCommand::execute()
 {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];        // args array
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];     // copy of the unparsed command
+    int id_to_remove = -1;
 
+    strcpy(cmd_copy, cmd_line);
+    int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
+
+    if (num_of_args > 2)                                    // too many args
+        perror("smash error: fg: invalid arguments");
+
+    else if (num_of_args == 1)                              // no args
+    {
+        if (smash->jobs_list->isEmpty())
+            perror("smash error: fg: jobs list is empty");  
+        else
+            id_to_remove = smash->jobs_list->curr_max_job_id;
+    }
+
+    else {                                                  // single arg
+        string arg(parsed_cmd[1]);
+        if (!_isNumber(arg))                                
+            perror("smash error: fg: invalid arguments");
+        else
+            sscanf(parsed_cmd[1], "%d", &id_to_remove);
+    }
+
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, num_of_args);
+
+    if (id_to_remove != -1)                                 
+    {
+         if (smash->jobs_list->getJobById(id_to_remove) == nullptr){    // job to remove doesn't exist
+            fprintf(stderr, "smash error: fg: job-id %d does not exist", id_to_remove);
+            perror("");                                                 // is this neccessary?..
+        }
+             
+        else {
+            if(smash->jobs_list->getJobById(id_to_remove)->is_stopped){  // continue job if stopped
+                if(kill(id_to_remove, SIGCONT) == -1) {
+                    perror("smash error: kill failed");
+                    return;
+                }
+            }
+            // REMOVE JOB
+            int pid = smash->jobs_list->getJobById(id_to_remove)->pid, child_status = -1;
+            smash->fg_pid = pid;
+
+            string cmd_s  = smash->jobs_list->getJobById(id_to_remove)->command;  // replace current running command with fg command
+            delete(cmd_line);
+            char cmd_line[cmd_s.length()];
+            strcpy(cmd_line, cmd_s.c_str());
+
+            smash->jobs_list->removeJobById(id_to_remove);                        // remove the job from joblist
+            waitpid(id_to_remove, &child_status, WUNTRACED); // waitpid failure? or something
+            smash->fg_pid = smash->smash_pid;                                     // the fg job finished - the fg job now is the smash itself
+        }
+    }
 }
 
 
+// NOA - to do!!
+/*
 //Quit
 QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs)
 {

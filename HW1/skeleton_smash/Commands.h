@@ -132,6 +132,7 @@ class ForegroundCommand : public BuiltInCommand {
  // TODO: Add your data members
   public:
     ForegroundCommand(const char* cmd_line, JobsList* jobs);
+    ForegroundCommand(const char* cmd_line, SmallShell* smash);
     virtual ~ForegroundCommand() {}
     void execute() override;
 };
@@ -183,7 +184,7 @@ class KillCommand : public BuiltInCommand {
 //------------------------------ Job Class ---------------------------------------
 
 class JobsList {
-
+  public:
   class JobEntry {
     public:
         int job_id;
@@ -218,9 +219,10 @@ class JobsList {
     void killAllJobs();
     void removeFinishedJobs();
     JobEntry * getJobById(int jobId);
-    void removeJobById(int jobId);
-    JobEntry * getLastJob(int* lastJobId);
+    void removeJobById(int jobId);            // Update new max if needed!!!
+    JobEntry * getLastJob(int* lastJobId);    //what?...
     JobEntry *getLastStoppedJob(int *jobId);
+    bool isEmpty();
     // TODO: Add extra methods or modify exisitng ones as needed
 };
 
