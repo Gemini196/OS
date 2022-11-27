@@ -184,8 +184,8 @@ class KillCommand : public BuiltInCommand {
 //------------------------------ Job Class ---------------------------------------
 
 class JobsList {
-  public:
-  class JobEntry {
+public:
+    class JobEntry {
     public:
         int job_id;
         int pid;
@@ -193,38 +193,125 @@ class JobsList {
         string command;
         bool is_stopped;
     public:
-        JobEntry(int job_id, int pid, time_t time_inserted, string& command, bool is_stopped = false):
-              job_id(job_id), pid(pid), time_inserted(time_inserted), command(command), is_stopped(is_stopped){};
-        JobEntry(JobEntry& job):
-              job_id(job.job_id), pid(job.pid), time_inserted(job.time_inserted), command(string(job.command)), is_stopped(job.is_stopped){};
+        JobEntry(int job_id, int pid, time_t time_inserted, string &command, bool is_stopped = false) :
+                job_id(job_id), pid(pid), time_inserted(time_inserted), command(command), is_stopped(is_stopped) {};
+
+        JobEntry(JobEntry &job) :
+                job_id(job.job_id), pid(job.pid), time_inserted(job.time_inserted), command(string(job.command)),
+                is_stopped(job.is_stopped) {};
+
         ~JobEntry() = default;
-        bool operator==(const JobsList::JobEntry& job){return job_id == job.job_id;}
-        bool operator>=(const JobsList::JobEntry& job){return job_id >= job.job_id;}
-  };
-  
-  public:
-    std::list<JobEntry*>* jobs_list;
+
+        bool operator==(const JobsList::JobEntry &job) { return job_id == job.job_id; }
+
+        bool operator>=(const JobsList::JobEntry &job) { return job_id >= job.job_id; }
+
+    };
+
+public:
+    std::list<JobEntry *> *jobs_list;
     int curr_max_job_id;
 
-    JobsList():curr_max_job_id(0){
-        jobs_list = new std::list<JobEntry*>;
+    JobsList() : curr_max_job_id(0) {
+        jobs_list = new std::list<JobEntry *>;
     }
-    ~JobsList(){
+
+    ~JobsList() {
         delete jobs_list;
     }
-    void addJob(Command* cmd, int pid, bool is_stopped){
+
+    void addJob(Command *cmd, int pid, bool is_stopped) {
         //JobsList::JobEntry* new_job =
     }
-    void printJobsList();
+
+    oid printJobsList(){
+        auto list_start = list->begin();
+        auto list_end = list->end();
+        for(; list_start != list_end; ++list_start){
+            cout << "[" << (*list_start)->job_id << "] " ;
+            cout << (*list_start)->command << " : " << (*list_start)->pid;
+            time_t i_time;
+            if(time(&i_time) == ((time_t)-1)){
+                perror("smash error: time failed");
+            }
+            cout << " " << difftime(i_time, (*list_start)->time_inserted) << " secs";
+            if ((*list_start)->stopped){
+                cout << " (stopped)";
+            }
+            cout << endl;
+        }
+    };
+
     void killAllJobs();
-    void removeFinishedJobs();
-    JobEntry * getJobById(int jobId);
-    void removeJobById(int jobId);            // Update new max if needed!!!
-    JobEntry * getLastJob(int* lastJobId);    //what?...
+
+    void updateMaxJobId(){
+        auto it = list->begin();
+        auto end = list->end();
+        int max_id = 0;
+        while (it != end){
+            if((*it)->job_id >= max_id){
+                max_id = (*it)->job_id;
+            }
+            it++;
+        }
+        max_job_id = max_id;
+    };
+
+
+    void removeFinishedJobs() {
+        auto first = list->begin();
+        auto last = list->end();
+        if (*first == nullptr) {
+            return;
+        }
+        while (first != last) {
+            auto pid = (*first)->pid;
+            int status = waitpid(pid, nullptr, WNOHANG);
+            if (status > 0) {
+                removeJobById((*(first++))->job_id);
+            } else {
+                first++;
+            }
+        }
+    };
+
+    JobEntry * getJobById(int jobId){
+        auto first = list->begin();
+        auto last = list->end();
+        if(*first == nullptr){
+            return nullptr;
+        }
+        while (first!=last) {
+            if ((*first)->job_id == jobId){
+                return *first;
+            }
+            ++first;
+        }
+        return *last;
+    };
+
+    JobEntry *getLastJob(int *lastJobId);    //what?...
     JobEntry *getLastStoppedJob(int *jobId);
+
     bool isEmpty();
-    // TODO: Add extra methods or modify exisitng ones as needed
+
+    void removeJobById(int jobId) {
+        auto first = list->begin();
+        if (*first == nullptr) {
+            return;
+        }
+        JobEntry *job = getJobById(jobId);
+        if (job->job_id == jobId) {//remove jobID and update new max_job_id
+            list->remove(job);
+            delete job;
+            updateMaxJobId();
+        }
+
+    };
 };
+extern bool compareJobs(JobsList::JobEntry* job1, JobsList::JobEntry* job2){
+    return job1->job_id < job2->job_id;
+}
 
 
 //------------------------------ SmallShell ---------------------------------------

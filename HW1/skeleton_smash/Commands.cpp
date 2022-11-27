@@ -74,7 +74,7 @@ bool _isBackgroundCommand(const char* cmd_line) {
 void _removeBackgroundSign(char* cmd_line) {
   const string str(cmd_line);
   // find last character other than spaces
-  unsigned int idx = str.find_last_not_of(WHITESPACE);
+  size_t idx = str.find_last_not_of(WHITESPACE);
   // if all characters are spaces then return
   if (idx == string::npos) {
     return;
@@ -331,8 +331,19 @@ void ChpromptCommand::execute() {
 ShowPidCommand::ShowPidCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
 
 void ShowPidCommand::execute() {
-  cout << "smash pid is " << smash->smash_pid << endl;
+  cout << "smash pid is " << smash->smashs_pid << endl;
 }
+
+//pwd
+GetCurrDirCommand::GetCurrDirCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+
+void GetCurrDirCommand::execute() {
+    char* buff = get_current_dir_name();
+    string path(buff);
+    cout << path << endl;
+    free(buff);
+}
+
 
 //ChangeDir
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
@@ -369,11 +380,19 @@ void ChangeDirCommand::execute() {
             strcpy(smash->last_working_dir, new_dir.c_str());
         }
     }
-
     delete[] cmd_copy;
     deleteParsedCmd(parsed_cmd, num_of_args);
 }
 
+//jobs
+
+obsCommand::JobsCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+
+void JobsCommand::execute() {
+    smash->jobs_list->removeFinishedJobs();
+    smash->jobs_list->list->sort(compareJobs);
+    smash->jobs_list->printJobsList();
+}
 
 // fg
 ForegroundCommand::ForegroundCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
@@ -439,6 +458,94 @@ void ForegroundCommand::execute()
     }
 }
 
+//bg
+
+
+BackgroundCommand::BackgroundCommand(const char *cmd_line, SmallShell *smash): BuiltInCommand(cmd_line, smash){}
+
+
+void BackgroundCommand::execute() {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
+    int num_of_args = _parseCommandLine(cmd_line, parsed_cmd);
+
+    strcpy(cmd_copy, cmd_line);
+    _removeBackgroundSign(cmd_copy);
+
+    if(num_of_args > 2){//too many args
+        cerr << "smash error: bg: invalid arguments" << endl;
+        delete[] cmd_copy;
+        _deleteParse(parsed_cmd, num_of_args);
+        return;
+    }
+
+    else if (len == 2){// 1 arguments
+        string job_id(parsed_cmd[1]);
+        if(job_id.find_first_not_of("-0123456789") != string::npos){ // bad arg
+            cerr << "smash error: bg: invalid arguments" << endl;
+            delete[] cmd_copy;
+            _deleteParse(parsed_cmd, num_of_args);
+            return;
+        }
+
+        else{ //all good
+            JobsList::JobEntry* job = smash->jobs_list->getJobById(stoi(job_id));
+            if(job != *(smash->jobs_list->list->end())) { // found the job
+                if(!(job->stopped)){
+                    cerr << "smash error: bg: job-id " << job_id << " is already running in the background" << endl;
+                    delete[] cmd_copy;
+                    _deleteParse(parsed_cmd, num_of_args);
+                    return;
+                }
+                else{
+                    cout << job->command << " : " << job->pid << endl;
+                    if(kill(job->pid, SIGCONT) == -1){
+                        perror("smash error: kill failed");
+                        delete[] cmd_copy;
+                        _deleteParse(parsed_cmd, num_of_args);
+                        return;
+                    }
+                    else{
+                        job->stopped = false;
+                    }
+                }
+            }
+            else{ // job id not found
+                cerr << "smash error: bg: job-id " << job_id << " does not exist" << endl;
+                delete[] cmd_copy;
+                _deleteParse(parsed_cmd, num_of_args);
+                return;
+            }
+        }
+
+    }
+    else{ // len == 1, no arguments, get max_job_id to bg
+        // check if there are no stopped jobs
+
+        int job_id;
+        JobsList::JobEntry* job = smash->jobs_list->getLastStoppedJob(&job_id);
+        if(job_id == 0){
+            cerr << "smash error: bg: there is no stopped jobs to resume" << endl;
+            delete[] cmd_copy;
+            _deleteParse(parsed_cmd, num_of_args);
+            return;
+        }
+        else{
+            cout << job->command << " : " << job->job_id << endl;
+            if(kill(job->pid, SIGCONT) == -1){
+                perror("smash error: kill failed");
+                delete[] cmd_copy;
+                _deleteParse(parsed_cmd, num_of_args);
+                return;
+            }
+            else{
+                job->stopped = false;
+            }
+        }
+    }
+    delete[] cmd_copy;
+    _deleteParse(parsed_cmd, num_of_args);
+}
 
 // NOA - to do!!
 /*
