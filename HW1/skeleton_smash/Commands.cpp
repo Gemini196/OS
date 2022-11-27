@@ -231,7 +231,7 @@ void PipeCommand::execute() {
 }
 
 
-RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), is_append(false){
+RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), is_append(false), filepath(nullptr){
     string cmd_s(cmd_line), command = "", file;
     int cmd_end_index = cmd_s.find_first_of(">");
     int filepath_start_index = cmd_end_index + 1;
@@ -263,7 +263,7 @@ void RedirectionCommand::execute() {
     if (is_append)                      // append ">>"
         file_flags |= O_APPEND;
     else                                // override ">"
-        file_flags |= O_APPEND;
+        file_flags |= O_TRUNC;
 
     mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH; // file permissions
 
@@ -350,7 +350,7 @@ void ChangeDirCommand::execute() {
 
     // change current dir to last working dir
     else if (strcmp(parsed_cmd[1], "-") == 0){
-        if (smash->last_working_dir == "")
+        if (smash->last_working_dir == nullptr)
             perror("smash error: cd: OLDPWD not set");
 
         // change current working dir to last working dir using chdir system call
@@ -460,11 +460,11 @@ void QuitCommand::execute()
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 
-SmallShell::SmallShell() {
+SmallShell::SmallShell():last_working_dir(nullptr) {
 // TODO: add your 
 
 // don't forget to fill the smash_pid property!!
-// don't forget to set working dir properties to: ""
+// don't forget to set working dir properties to: nullptr
 }
 
 SmallShell::~SmallShell() {

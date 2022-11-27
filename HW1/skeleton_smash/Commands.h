@@ -236,7 +236,7 @@ class SmallShell {
   
   public:
     string smash_name;
-    string parent_dir;      // DO WE NEED THIS??
+    //string parent_dir;      // DO WE NEED THIS??
     char* last_working_dir;
     JobsList* jobs_list;
     pid_t fg_pid;
