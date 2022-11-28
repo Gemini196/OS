@@ -24,7 +24,7 @@ const std::string WHITESPACE = " \n\r\t\f\v";
 #endif
 
 
-//---------------------------Helper Function Implementation-----------------------------
+//---------------------------Helper Function Implementation-------------------------------------------
 string _ltrim(const std::string& s)
 {
   size_t start = s.find_first_not_of(WHITESPACE);
@@ -105,7 +105,49 @@ bool _isNumber(string str) {
 }
 
 
-//------------------------------ Inherited from Command ---------------------------------------
+//------------------------------ Inherited from Command ----------------------------------------------
+
+void ExternalCommand::execute() {
+    char** parsed_cmd = new char*[21];
+    char *cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
+    strcpy(cmd_copy, cmd_line);
+    int num_of_args = _parseCommandLine(cmd_line, parsed_cmd);
+
+    int child_status = 0;
+    pid_t pid;
+    pid = fork();
+    
+    if (pid == -1) // fork failed
+    {     
+        perror("smash error: fork failed");
+        return;
+    }
+
+    if (pid == 0) // child process
+    {
+        setpgrp();
+        char* bash_args[] = {(char*)"/bin/bash", (char*)"-c", cmd_copy ,NULL};
+        if (execv("/bin/bash", bash_args) == -1)
+        {
+            perror("smash error: execv failed");
+            exit(1); //exit child's process
+        }
+        exit(0);
+    }
+
+    // parent
+    smash->smash_pid = getpid();
+    if(_isBackgroundCommand(cmd_line)) //do in background
+    {
+        // HOW DO I CONTINUE??
+        //smash->jobs_list->addJob(, pid, false);  // add to job list 
+    }
+    else { // do in foreground
+        smash->fg_pid = pid;
+        waitpid(pid, &child_status, WUNTRACED); // waitpid failure? or something
+        smash->fg_pid = smash->smash_pid;
+    }
+}
 
 
 //==============================================================================================//
@@ -114,27 +156,22 @@ bool _isNumber(string str) {
 
 //IO redirection
 PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), err_flag(false){
-    string cmd_s(cmd_line);
-    if(cmd_s[cmd_s.find_first_of("|") + 1] == '&'){// stderr pipe
-        err_flag = true;
-    }
-    string right_tmp;
-    if(err_flag){
+    string cmd_s(cmd_line), right_tmp, left_tmp;
+    if(cmd_s[cmd_s.find_first_of("|") + 1] == '&') // stderr pipe
+        err_flag = true;   
+    
+    if(err_flag)
         right_tmp = cmd_s.substr(cmd_s.find_first_of("|") + 2, string::npos);
-    }
-    else{
+    else
         right_tmp = cmd_s.substr(cmd_s.find_first_of("|") + 1, string::npos);
-    }
-    right_tmp = _trim(right_tmp);
-    string left_tmp;
-    if(cmd_s.find_first_of("|") == 0){
-        left_tmp = "";
-    }
-    else{
-        left_tmp = cmd_s.substr(0, cmd_s.find_first_of("|"));
-    }
-    left_tmp = _trim(left_tmp);
 
+    right_tmp = _trim(right_tmp);
+    if(cmd_s.find_first_of("|") == 0)
+        left_tmp = "";
+    else
+        left_tmp = cmd_s.substr(0, cmd_s.find_first_of("|"));
+
+    left_tmp = _trim(left_tmp);
 
     left_cmd = new char [left_tmp.length()+1];
     right_cmd = new char [right_tmp.length()+1];
@@ -189,7 +226,6 @@ int PipeCommand::run_child_process(bool is_left, int fd[]){
     }
     return 0;
 }
-
 
 void PipeCommand::execute() {
     int fd[2];                                       //fd[0]-read, fd[1]-write
@@ -303,7 +339,6 @@ void RedirectionCommand::execute() {
 
 }
 
-BuiltInCommand::BuiltInCommand(const char* cmd_line, SmallShell* smash) : Command(cmd_line, smash){}
 
 //=========================================================================================//
 //-----------------------------Inherited from BuiltInCommand-------------------------------//
@@ -563,12 +598,144 @@ void QuitCommand::execute()
     delete smash;
 }
 
+//--------------------------------------- Jobs Implementation ----------------------------------------
 
-//------------------------------ SmallShell Implementation ---------------------------------------
+JobsList::JobsList() : curr_max_job_id(0) {
+    jobs_list = new std::list<JobEntry *>;
+}
 
-/**
-* Creates and returns a pointer to Command class which matches the given command line (cmd_line)
+JobsList::~JobsList() {
+    delete jobs_list;
+}
+
+
+// CHECK THIS OUT
+/*
+void JobsList::addJob(Command *cmd, int pid, bool is_stopped=false) {
+    JobsList::JobEntry* new_job = new JobsList::JobEntry(curr_max_job_id, pid, time(), cmd, is_stopped);
+    new_job->is_stopped = is_stopped;
+    jobs_list->push_back(new_job);
+    curr_max_job_id++;
+}
 */
+
+
+bool JobsList::isEmpty() {
+    return jobs_list->empty();
+}
+
+void JobsList::printJobsList(){
+    auto list_start = jobs_list->begin();
+    auto list_end = jobs_list->end();
+    for(; list_start != list_end; ++list_start){
+        cout << "[" << (*list_start)->job_id << "] " ;
+        cout << (*list_start)->command << " : " << (*list_start)->pid;
+        time_t i_time;
+        if(time(&i_time) == ((time_t)-1)){
+            perror("smash error: time failed");
+        }
+        cout << " " << difftime(i_time, (*list_start)->time_inserted) << " secs";
+        if ((*list_start)->is_stopped){
+            cout << " (stopped)";
+        }
+        cout << endl;
+    }
+}
+
+void JobsList::killAllJobs(){
+    auto list_start = jobs_list->begin();
+    auto list_end = jobs_list->end();
+    for(; list_start != list_end; ++list_start){
+        cout << "[" << (*list_start)->job_id << "] " ;
+        cout << (*list_start)->command << " : " << (*list_start)->pid;
+        cout << endl;
+            if(kill((*list_start)->pid, SIGKILL) == -1){
+            perror("smash error: kill failed");
+            removeJobById((*list_start)->job_id);
+        }
+    }
+}
+
+
+void JobsList::updateMaxJobId(){
+    auto it = jobs_list->begin();
+    auto end = jobs_list->end();
+    int max_id = 0;
+    while (it != end){
+        if((*it)->job_id >= max_id){
+            max_id = (*it)->job_id;
+        }
+        it++;
+    }
+    curr_max_job_id = max_id;
+}
+
+
+void JobsList::removeFinishedJobs() {
+    auto first = jobs_list->begin();
+    auto last = jobs_list->end();
+    if (*first == nullptr) {
+        return;
+    }
+    while (first != last) {
+        auto pid = (*first)->pid;
+        int status = waitpid(pid, nullptr, WNOHANG);
+        if (status > 0) {
+            removeJobById((*(first++))->job_id);
+        } else {
+            first++;
+        }
+    }
+}
+
+JobsList::JobEntry *JobsList::getJobById(int jobId){
+    auto first = jobs_list->begin();
+    auto last = jobs_list->end();
+    if(*first == nullptr){
+        return nullptr;
+    }
+    while (first!=last) {
+        if ((*first)->job_id == jobId){
+            return *first;
+        }
+        ++first;
+    }
+    return nullptr;
+}
+
+//JobEntry *getLastJob(int *lastJobId);    //what?...
+JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId){
+    auto it = jobs_list->begin();
+    int max_stopped_id = 0;
+    auto max = it;
+    while (it != jobs_list->end()){
+        if((*it)->job_id >= max_stopped_id && (*it)->is_stopped){
+            max_stopped_id = (*it)->job_id;
+            max = it;
+        }
+        it++;
+    }
+    *jobId = max_stopped_id;
+    return *max;
+}
+
+void JobsList::removeJobById(int jobId) {
+    auto first = jobs_list->begin();
+    if (*first == nullptr) {
+        return;
+    }
+    JobEntry *job = getJobById(jobId);
+    if (job->job_id == jobId) {//remove jobID and update new max_job_id
+        jobs_list->remove(job);
+        delete job;
+        updateMaxJobId();
+    }
+
+}
+
+
+
+//------------------------------------- SmallShell Implementation ------------------------------------
 
 SmallShell::SmallShell():last_working_dir(nullptr) {
 // TODO: add your 
@@ -581,24 +748,48 @@ SmallShell::~SmallShell() {
     delete jobs_list;
 }
 
-Command* SmallShell::CreateCommand(const char* cmd_line) {
-    string command(cmd_line);
+Command *SmallShell::CreateCommand(const char* cmd_line) {
+  string cmd_s = _trim(string(cmd_line));
+  string command = cmd_s.substr(0, cmd_s.find_first_of(" "));
+  //WARNING, check if u need to check if cmd_line is finished
+
+    if(cmd_s.find_first_of("|") != string::npos)
+        return new PipeCommand(cmd_line, this);
     if(command.compare("") == 0)
-        return nullptr;
-    
-    if (command.compare("chprompt") == 0) 
+            return nullptr;
+    if (command.compare("chprompt") == 0)
         return new ChpromptCommand(cmd_line, this);
+    else if (command.compare("showpid") == 0)
+        return new ShowPidCommand(cmd_line, this);
+    else if (command.compare("pwd") == 0) 
+        return new GetCurrDirCommand(cmd_line, this);
+    else if (command.compare("cd") == 0) 
+        return new ChangeDirCommand(cmd_line, this);
+    else if (command.compare("jobs") == 0)
+        return new JobsCommand(cmd_line, this);
+    //else if (command.compare("kill") == 0) {
+    //    return new KillCommand(cmd_line, this);
+    else if (command.compare("fg") == 0)
+        return new ForegroundCommand(cmd_line, this);
+    else if (command.compare("bg") == 0)
+        return new BackgroundCommand(cmd_line, this);
+    else if (command.compare("quit") == 0)
+        return new QuitCommand(cmd_line, this);
+    //else if (command.compare("head") == 0) {
+    //    return new HeadCommand(cmd_line, this);
+    else
+        return new ExternalCommand(cmd_line, this);
+
   return nullptr;
 }
 
-void SmallShell::executeCommand(const char* cmd_line){
-  // TODO: Add your implementation here
-  // for example:
-  // Command* cmd = CreateCommand(cmd_line);
-  // cmd->execute();
-  // Please note that you must fork smash process for some commands (e.g., external commands....)
+void SmallShell::executeCommand(const char *cmd_line) {
+    Command* cmd = CreateCommand(cmd_line, this);
+    if(cmd == nullptr){
+        return;
+    }
+    cmd->execute();
+    delete cmd;
 }
 
-
-// TODO: Add your implementation for classes in Commands.h 
 
