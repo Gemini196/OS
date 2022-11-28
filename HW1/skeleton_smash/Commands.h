@@ -91,6 +91,7 @@ class ChangeDirCommand : public BuiltInCommand {
 class GetCurrDirCommand : public BuiltInCommand {
   public:
     GetCurrDirCommand(const char* cmd_line);
+    GetCurrDirCommand(const char* cmd_line, SmallShell* smash);
     virtual ~GetCurrDirCommand() {}
     void execute() override;
 };
@@ -123,7 +124,7 @@ class QuitCommand : public BuiltInCommand {
 class JobsCommand : public BuiltInCommand {
  // TODO: Add your data members
   public:
-    JobsCommand(const char* cmd_line, JobsList* jobs);
+    JobsCommand(const char* cmd_line, SmallShell *smash);
     virtual ~JobsCommand() {}
     void execute() override;
 };
@@ -140,7 +141,7 @@ class ForegroundCommand : public BuiltInCommand {
 class BackgroundCommand : public BuiltInCommand {
  // TODO: Add your data members
   public:
-    BackgroundCommand(const char* cmd_line, JobsList* jobs);
+    BackgroundCommand(const char* cmd_line, SmallShell* smash);
     virtual ~BackgroundCommand() {}
     void execute() override;
 };

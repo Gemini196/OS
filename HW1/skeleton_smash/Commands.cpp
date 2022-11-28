@@ -331,11 +331,11 @@ void ChpromptCommand::execute() {
 ShowPidCommand::ShowPidCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
 
 void ShowPidCommand::execute() {
-  cout << "smash pid is " << smash->smashs_pid << endl;
+  cout << "smash pid is " << smash->smash_pid<< endl;
 }
 
 //pwd
-GetCurrDirCommand::GetCurrDirCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line, SmallShell* smash) : BuiltInCommand(cmd_line, smash) {}
 
 void GetCurrDirCommand::execute() {
     char* buff = get_current_dir_name();
@@ -386,11 +386,11 @@ void ChangeDirCommand::execute() {
 
 //jobs
 
-obsCommand::JobsCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+JobsCommand::JobsCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
 
 void JobsCommand::execute() {
     smash->jobs_list->removeFinishedJobs();
-    smash->jobs_list->list->sort(compareJobs);
+    smash->jobs_list->jobs_list->sort(compareJobs);
     smash->jobs_list->printJobsList();
 }
 
@@ -415,6 +415,7 @@ void ForegroundCommand::execute()
         else
             id_to_remove = smash->jobs_list->curr_max_job_id;
     }
+
     else {                                                  // single arg
         string arg(parsed_cmd[1]);
         if (!_isNumber(arg))                                
@@ -473,26 +474,26 @@ void BackgroundCommand::execute() {
     if(num_of_args > 2){//too many args
         cerr << "smash error: bg: invalid arguments" << endl;
         delete[] cmd_copy;
-        _deleteParse(parsed_cmd, num_of_args);
+        deleteParsedCmd(parsed_cmd, num_of_args);
         return;
     }
 
-    else if (len == 2){// 1 arguments
+    else if (num_of_args == 2){// 1 arguments
         string job_id(parsed_cmd[1]);
         if(job_id.find_first_not_of("-0123456789") != string::npos){ // bad arg
             cerr << "smash error: bg: invalid arguments" << endl;
             delete[] cmd_copy;
-            _deleteParse(parsed_cmd, num_of_args);
+            deleteParsedCmd(parsed_cmd, num_of_args);
             return;
         }
 
         else{ //all good
             JobsList::JobEntry* job = smash->jobs_list->getJobById(stoi(job_id));
-            if(job != *(smash->jobs_list->list->end())) { // found the job
-                if(!(job->stopped)){
+            if(job != *(smash->jobs_list->jobs_list->end())) { // found the job
+                if(!(job->is_stopped)){
                     cerr << "smash error: bg: job-id " << job_id << " is already running in the background" << endl;
                     delete[] cmd_copy;
-                    _deleteParse(parsed_cmd, num_of_args);
+                    deleteParsedCmd(parsed_cmd, num_of_args);
                     return;
                 }
                 else{
@@ -500,18 +501,18 @@ void BackgroundCommand::execute() {
                     if(kill(job->pid, SIGCONT) == -1){
                         perror("smash error: kill failed");
                         delete[] cmd_copy;
-                        _deleteParse(parsed_cmd, num_of_args);
+                        deleteParsedCmd(parsed_cmd, num_of_args);
                         return;
                     }
                     else{
-                        job->stopped = false;
+                        job->is_stopped = false;
                     }
                 }
             }
             else{ // job id not found
                 cerr << "smash error: bg: job-id " << job_id << " does not exist" << endl;
                 delete[] cmd_copy;
-                _deleteParse(parsed_cmd, num_of_args);
+                deleteParsedCmd(parsed_cmd, num_of_args);
                 return;
             }
         }
@@ -525,7 +526,7 @@ void BackgroundCommand::execute() {
         if(job_id == 0){
             cerr << "smash error: bg: there is no stopped jobs to resume" << endl;
             delete[] cmd_copy;
-            _deleteParse(parsed_cmd, num_of_args);
+            deleteParsedCmd(parsed_cmd, num_of_args);
             return;
         }
         else{
@@ -533,16 +534,16 @@ void BackgroundCommand::execute() {
             if(kill(job->pid, SIGCONT) == -1){
                 perror("smash error: kill failed");
                 delete[] cmd_copy;
-                _deleteParse(parsed_cmd, num_of_args);
+                deleteParsedCmd(parsed_cmd, num_of_args);
                 return;
             }
             else{
-                job->stopped = false;
+                job->is_stopped = false;
             }
         }
     }
     delete[] cmd_copy;
-    _deleteParse(parsed_cmd, num_of_args);
+    deleteParsedCmd(parsed_cmd, num_of_args);
 }
 
 // NOA - to do!!
