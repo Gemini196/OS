@@ -96,11 +96,14 @@ size_t index_of_redirection(const char* cmd_line) {
 }
 
 bool _isNumber(string str) {
-    for (int i = 0; i < str.length(); i++)
+    for (unsigned int i = 0; i < str.length(); i++)
+    {
         if (isdigit(str[i]) == false)
             return false; 
+    }
     return true;
 }
+
 
 //------------------------------ Inherited from Command ---------------------------------------
 
@@ -231,7 +234,7 @@ void PipeCommand::execute() {
 }
 
 
-RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), is_append(false), filepath(nullptr){
+RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash), filepath(nullptr), is_append(false){
     string cmd_s(cmd_line), command = "", file;
     int cmd_end_index = cmd_s.find_first_of(">");
     int filepath_start_index = cmd_end_index + 1;
@@ -299,6 +302,8 @@ void RedirectionCommand::execute() {
         perror("smash error: close failed");
 
 }
+
+BuiltInCommand::BuiltInCommand(const char* cmd_line, SmallShell* smash) : Command(cmd_line, smash){}
 
 //=========================================================================================//
 //-----------------------------Inherited from BuiltInCommand-------------------------------//
@@ -390,7 +395,7 @@ JobsCommand::JobsCommand(const char *cmd_line, SmallShell *smash) : BuiltInComma
 
 void JobsCommand::execute() {
     smash->jobs_list->removeFinishedJobs();
-    smash->jobs_list->jobs_list->sort(compareJobs);
+ //   smash->jobs_list->jobs_list->sort(compareJobs);
     smash->jobs_list->printJobsList();
 }
 
@@ -465,43 +470,41 @@ BackgroundCommand::BackgroundCommand(const char *cmd_line, SmallShell *smash): B
 
 void BackgroundCommand::execute() {
     char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
-    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
-    int num_of_args = _parseCommandLine(cmd_line, parsed_cmd);
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH]; 
 
     strcpy(cmd_copy, cmd_line);
     _removeBackgroundSign(cmd_copy);
 
+    int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
+    string job_id(parsed_cmd[1]);
+
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, num_of_args);
+
     if(num_of_args > 2){//too many args
         cerr << "smash error: bg: invalid arguments" << endl;
-        delete[] cmd_copy;
-        deleteParsedCmd(parsed_cmd, num_of_args);
         return;
     }
 
     else if (num_of_args == 2){// 1 arguments
-        string job_id(parsed_cmd[1]);
-        if(job_id.find_first_not_of("-0123456789") != string::npos){ // bad arg
+        
+        
+        if(!_isNumber(job_id)){ // bad arg
             cerr << "smash error: bg: invalid arguments" << endl;
-            delete[] cmd_copy;
-            deleteParsedCmd(parsed_cmd, num_of_args);
             return;
         }
 
         else{ //all good
             JobsList::JobEntry* job = smash->jobs_list->getJobById(stoi(job_id));
-            if(job != *(smash->jobs_list->jobs_list->end())) { // found the job
+            if(job != nullptr) { // found the job
                 if(!(job->is_stopped)){
-                    cerr << "smash error: bg: job-id " << job_id << " is already running in the background" << endl;
-                    delete[] cmd_copy;
-                    deleteParsedCmd(parsed_cmd, num_of_args);
+                    cerr << "smash error: bg: job-id " << job_id << " is already running in the background" << endl; // job is not stopped
                     return;
                 }
                 else{
-                    cout << job->command << " : " << job->pid << endl;
+                    cout << job->command << " : " << job->pid << endl;                                               // job is stopped
                     if(kill(job->pid, SIGCONT) == -1){
                         perror("smash error: kill failed");
-                        delete[] cmd_copy;
-                        deleteParsedCmd(parsed_cmd, num_of_args);
                         return;
                     }
                     else{
@@ -511,8 +514,6 @@ void BackgroundCommand::execute() {
             }
             else{ // job id not found
                 cerr << "smash error: bg: job-id " << job_id << " does not exist" << endl;
-                delete[] cmd_copy;
-                deleteParsedCmd(parsed_cmd, num_of_args);
                 return;
             }
         }
@@ -525,16 +526,12 @@ void BackgroundCommand::execute() {
         JobsList::JobEntry* job = smash->jobs_list->getLastStoppedJob(&job_id);
         if(job_id == 0){
             cerr << "smash error: bg: there is no stopped jobs to resume" << endl;
-            delete[] cmd_copy;
-            deleteParsedCmd(parsed_cmd, num_of_args);
             return;
         }
         else{
             cout << job->command << " : " << job->job_id << endl;
             if(kill(job->pid, SIGCONT) == -1){
                 perror("smash error: kill failed");
-                delete[] cmd_copy;
-                deleteParsedCmd(parsed_cmd, num_of_args);
                 return;
             }
             else{
@@ -542,23 +539,30 @@ void BackgroundCommand::execute() {
             }
         }
     }
-    delete[] cmd_copy;
-    deleteParsedCmd(parsed_cmd, num_of_args);
 }
 
-// NOA - to do!!
-/*
-//Quit
-QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs)
-{
-
-}
+QuitCommand::QuitCommand(const char *cmd_line, SmallShell *smash): BuiltInCommand(cmd_line, smash){}
 
 void QuitCommand::execute()
 {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];        // args array
+    char* cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];     // copy of the unparsed command
 
+    strcpy(cmd_copy, cmd_line);
+    _removeBackgroundSign(cmd_copy);
+    int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
+
+    if (strcmp(parsed_cmd[1],"kill") == 0)
+    {
+        cout << "smash: sending SIGKILL signal to " << smash->jobs_list->jobs_list->size() << "jobs:" << endl;
+        smash->jobs_list->killAllJobs();
+    }
+    
+    delete[] cmd_copy;
+    deleteParsedCmd(parsed_cmd, num_of_args);
+    delete smash;
 }
-*/
+
 
 //------------------------------ SmallShell Implementation ---------------------------------------
 
@@ -574,7 +578,7 @@ SmallShell::SmallShell():last_working_dir(nullptr) {
 }
 
 SmallShell::~SmallShell() {
-// TODO: add your implementation
+    delete jobs_list;
 }
 
 Command* SmallShell::CreateCommand(const char* cmd_line) {

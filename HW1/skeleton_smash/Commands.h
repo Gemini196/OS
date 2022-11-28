@@ -24,8 +24,8 @@ class Command {
 
   public:
     Command(const char* cmd_line);
-    Command(const char* cmd_line, SmallShell* smash): cmd_line(cmd_line), smash(smash){};
-    virtual ~Command();
+    Command(const char* cmd_line, SmallShell* smash): cmd_line(cmd_line), smash(smash){}
+    virtual ~Command(){}
     virtual void execute() = 0;
     //virtual void prepare();
     //virtual void cleanup();
@@ -55,10 +55,11 @@ class PipeCommand : public Command {
     bool err_flag;
   public:
     PipeCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~PipeCommand() {
-        delete[] left_cmd;             // WHY IS THIS HERE?????????????????????????????????
-        delete[] right_cmd;            // WHY IS THIS HERE?????????????????????????????????
-    }
+    //virtual ~PipeCommand() {
+     //   delete[] left_cmd;             // WHY IS THIS HERE?????????????????????????????????
+      //  delete[] right_cmd;            // WHY IS THIS HERE?????????????????????????????????
+    //}
+    ~PipeCommand() = default;
     void execute() override;
     int run_child_process(bool is_left, int fd[]);
 };
@@ -92,7 +93,7 @@ class GetCurrDirCommand : public BuiltInCommand {
   public:
     GetCurrDirCommand(const char* cmd_line);
     GetCurrDirCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~GetCurrDirCommand() {}
+    virtual ~GetCurrDirCommand(){}
     void execute() override;
 };
 
@@ -100,7 +101,7 @@ class ShowPidCommand : public BuiltInCommand {
   public:
     ShowPidCommand(const char* cmd_line);
     ShowPidCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~ShowPidCommand() {}
+    virtual ~ShowPidCommand(){}
     void execute() override;
 };
 
@@ -108,14 +109,14 @@ class ChpromptCommand: public BuiltInCommand{
   public:
       ChpromptCommand(const char* cmd_line);
       ChpromptCommand(const char* cmd_line, SmallShell* smash);
-      virtual ~ChpromptCommand();
+      virtual ~ChpromptCommand(){}
       void execute() override;
 };
 
 class QuitCommand : public BuiltInCommand {
   // TODO: Add your data members
   public:
-    QuitCommand(const char* cmd_line, JobsList* jobs);
+    QuitCommand(const char* cmd_line, SmallShell *smash);
     virtual ~QuitCommand() {}
     void execute() override;
 };
@@ -195,11 +196,11 @@ public:
         bool is_stopped;
     public:
         JobEntry(int job_id, int pid, time_t time_inserted, string &command, bool is_stopped = false) :
-                job_id(job_id), pid(pid), time_inserted(time_inserted), command(command), is_stopped(is_stopped) {};
+                job_id(job_id), pid(pid), time_inserted(time_inserted), command(command), is_stopped(is_stopped) {}
 
         JobEntry(JobEntry &job) :
                 job_id(job.job_id), pid(job.pid), time_inserted(job.time_inserted), command(string(job.command)),
-                is_stopped(job.is_stopped) {};
+                is_stopped(job.is_stopped) {}
 
         ~JobEntry() = default;
 
@@ -225,6 +226,10 @@ public:
         //JobsList::JobEntry* new_job =
     }
 
+    bool isEmpty() {
+      return jobs_list->empty();
+    }
+
     void printJobsList(){
         auto list_start = jobs_list->begin();
         auto list_end = jobs_list->end();
@@ -241,9 +246,22 @@ public:
             }
             cout << endl;
         }
-    };
+    }
 
-    void killAllJobs();
+    void killAllJobs(){
+      auto list_start = jobs_list->begin();
+      auto list_end = jobs_list->end();
+        for(; list_start != list_end; ++list_start){
+            cout << "[" << (*list_start)->job_id << "] " ;
+            cout << (*list_start)->command << " : " << (*list_start)->pid;
+            cout << endl;
+             if(kill((*list_start)->pid, SIGKILL) == -1){
+                perror("smash error: kill failed");
+                removeJobById((*list_start)->job_id);
+            }
+        }
+    }
+
 
     void updateMaxJobId(){
         auto it = jobs_list->begin();
@@ -256,7 +274,7 @@ public:
             it++;
         }
         curr_max_job_id = max_id;
-    };
+    }
 
 
     void removeFinishedJobs() {
@@ -274,7 +292,7 @@ public:
                 first++;
             }
         }
-    };
+    }
 
     JobEntry * getJobById(int jobId){
         auto first = jobs_list->begin();
@@ -288,13 +306,24 @@ public:
             }
             ++first;
         }
-        return *last;
-    };
+        return nullptr;
+    }
 
-    JobEntry *getLastJob(int *lastJobId);    //what?...
-    JobEntry *getLastStoppedJob(int *jobId);
-
-    bool isEmpty();
+    //JobEntry *getLastJob(int *lastJobId);    //what?...
+    JobEntry *getLastStoppedJob(int *jobId){
+        auto it = jobs_list->begin();
+        int max_stopped_id = 0;
+        auto max = it;
+        while (it != jobs_list->end()){
+            if((*it)->job_id >= max_stopped_id && (*it)->is_stopped){
+                max_stopped_id = (*it)->job_id;
+                max = it;
+            }
+            it++;
+        }
+        *jobId = max_stopped_id;
+        return *max;
+    }
 
     void removeJobById(int jobId) {
         auto first = jobs_list->begin();
@@ -308,11 +337,13 @@ public:
             updateMaxJobId();
         }
 
-    };
+    }
 };
-extern bool compareJobs(JobsList::JobEntry* job1, JobsList::JobEntry* job2){
-    return job1->job_id < job2->job_id;
-}
+
+
+//extern bool compareJobs(JobsList::JobEntry* job1, JobsList::JobEntry* job2){
+  //  return job1->job_id < job2->job_id;
+//}
 
 
 //------------------------------ SmallShell ---------------------------------------
@@ -340,7 +371,7 @@ class SmallShell {
       // Instantiated on first use.
       return instance;
     }
-    ~SmallShell(); 
+    ~SmallShell();
     void executeCommand(const char* cmd_line);
     string getName() {return smash_name;};
     void setName(const string& new_name) {smash_name = new_name;};
