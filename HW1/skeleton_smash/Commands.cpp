@@ -408,7 +408,6 @@ void ForegroundCommand::execute()
 
     if (num_of_args > 2)                                    // too many args
         perror("smash error: fg: invalid arguments");
-
     else if (num_of_args == 1)                              // no args
     {
         if (smash->jobs_list->isEmpty())
@@ -416,7 +415,6 @@ void ForegroundCommand::execute()
         else
             id_to_remove = smash->jobs_list->curr_max_job_id;
     }
-
     else {                                                  // single arg
         string arg(parsed_cmd[1]);
         if (!_isNumber(arg))                                

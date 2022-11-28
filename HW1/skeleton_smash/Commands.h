@@ -224,9 +224,9 @@ public:
         //JobsList::JobEntry* new_job =
     }
 
-    oid printJobsList(){
-        auto list_start = list->begin();
-        auto list_end = list->end();
+    void printJobsList(){
+        auto list_start = jobs_list->begin();
+        auto list_end = jobs_list->end();
         for(; list_start != list_end; ++list_start){
             cout << "[" << (*list_start)->job_id << "] " ;
             cout << (*list_start)->command << " : " << (*list_start)->pid;
@@ -235,7 +235,7 @@ public:
                 perror("smash error: time failed");
             }
             cout << " " << difftime(i_time, (*list_start)->time_inserted) << " secs";
-            if ((*list_start)->stopped){
+            if ((*list_start)->is_stopped){
                 cout << " (stopped)";
             }
             cout << endl;
@@ -245,8 +245,8 @@ public:
     void killAllJobs();
 
     void updateMaxJobId(){
-        auto it = list->begin();
-        auto end = list->end();
+        auto it = jobs_list->begin();
+        auto end = jobs_list->end();
         int max_id = 0;
         while (it != end){
             if((*it)->job_id >= max_id){
@@ -254,13 +254,13 @@ public:
             }
             it++;
         }
-        max_job_id = max_id;
+        curr_max_job_id = max_id;
     };
 
 
     void removeFinishedJobs() {
-        auto first = list->begin();
-        auto last = list->end();
+        auto first = jobs_list->begin();
+        auto last = jobs_list->end();
         if (*first == nullptr) {
             return;
         }
@@ -276,8 +276,8 @@ public:
     };
 
     JobEntry * getJobById(int jobId){
-        auto first = list->begin();
-        auto last = list->end();
+        auto first = jobs_list->begin();
+        auto last = jobs_list->end();
         if(*first == nullptr){
             return nullptr;
         }
@@ -296,13 +296,13 @@ public:
     bool isEmpty();
 
     void removeJobById(int jobId) {
-        auto first = list->begin();
+        auto first = jobs_list->begin();
         if (*first == nullptr) {
             return;
         }
         JobEntry *job = getJobById(jobId);
         if (job->job_id == jobId) {//remove jobID and update new max_job_id
-            list->remove(job);
+            jobs_list->remove(job);
             delete job;
             updateMaxJobId();
         }
