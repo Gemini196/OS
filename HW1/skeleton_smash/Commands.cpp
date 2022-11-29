@@ -59,8 +59,9 @@ void deleteParsedCmd(char **parsed_cmd, int len) {
         return;
     }
     for (int i = 0; i < len; i++) {
-        delete parsed_cmd[i];
+        free(parsed_cmd[i]);
     }
+    delete[] parsed_cmd;
 }
 
 bool _isBackgroundCommand(const char *cmd_line) {
@@ -115,6 +116,7 @@ void ExternalCommand::execute() {
 
     if (pid == -1) {  // fork failed
         perror("smash error: fork failed");
+        delete[] cmd_copy;
         return;
     }
     // child process
@@ -126,6 +128,7 @@ void ExternalCommand::execute() {
             delete[] cmd_copy;
             exit(1); //exit child's process
         }
+        delete[] cmd_copy;
         exit(0);
     }
 
@@ -151,16 +154,19 @@ void ExternalCommand::execute() {
             JobsList::JobEntry new_job(smash->jobs_list->curr_max_job_id + 1, pid, i_time, cmd, false);
             smash->jobs_list->removeFinishedJobs();
             smash->jobs_list->addJob(cmd_copy, pid, i_time, false);
-            delete[] cmd_copy;
         }
-    } else { // do in foreground
+
+    }
+    else { // do in foreground
         smash->fg_pid = pid;
         if (waitpid(pid, &child_status, WUNTRACED) == -1) {
             perror("smash error: wait failed");
+            delete[] cmd_copy;
             return;
         }
         smash->fg_pid = smash->smash_pid;
     }
+    delete[] cmd_copy;
 }
 
 
@@ -369,7 +375,6 @@ void ChpromptCommand::execute() {
     int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
 
     if (num_of_args == 1) {
-        // string tmp = "smash";
         this->smash->setName("smash");
     } else {
         this->smash->setName(parsed_cmd[1]);
@@ -587,17 +592,20 @@ void QuitCommand::execute() {
 
     if (strcmp(parsed_cmd[1], "kill") == 0) {
         cout << "smash: sending SIGKILL signal to " << smash->jobs_list->jobs_list->size() << " jobs:" << endl;
-        smash->jobs_list->killAllJobs();
+        if(!smash->jobs_list->jobs_list->empty()){
+            smash->jobs_list->killAllJobs();
+        }
     }
-
     delete[] cmd_copy;
     deleteParsedCmd(parsed_cmd, num_of_args);
+    //delete smash->jobs_list;
     delete this;
+    exit(0);
 }
 
 //--------------------------------------- Jobs Implementation ----------------------------------------
 
-JobsList::JobsList() : curr_max_job_id(0) {
+JobsList::JobsList() : curr_max_job_id(1) {
     jobs_list = new std::list<JobEntry *>;
 }
 
@@ -609,7 +617,8 @@ JobsList::~JobsList() {
 // CHECK THIS OUT
 
 void JobsList::addJob(const char *cmd_line, int pid, time_t time, bool is_stopped = false) {
-    JobsList::JobEntry *new_job = new JobEntry(curr_max_job_id, pid, time, (string &) cmd_line, is_stopped);
+    string cmd(cmd_line);
+    JobsList::JobEntry* new_job = new JobsList::JobEntry(curr_max_job_id, pid, time, cmd, is_stopped);
     new_job->is_stopped = is_stopped;
     jobs_list->push_back(new_job);
     curr_max_job_id++;
@@ -740,7 +749,9 @@ SmallShell::SmallShell() : last_working_dir(nullptr) {
 // don't forget to set working dir properties to: nullptr
 }
 
-SmallShell::~SmallShell() {}
+SmallShell::~SmallShell() {
+    delete jobs_list;
+}
 
 Command *SmallShell::CreateCommand(const char *cmd_line) {
     string cmd_s = _trim(string(cmd_line));
