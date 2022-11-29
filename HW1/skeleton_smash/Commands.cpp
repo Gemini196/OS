@@ -634,7 +634,7 @@ void JobsList::printJobsList() {
     auto list_end = jobs_list->end();
     for (; list_start != list_end; ++list_start) {
         cout << "[" << (*list_start)->job_id << "] ";
-        cout << (*list_start)->command << " : " << (*list_start)->pid;
+        cout << _rtrim((*list_start)->command) << "& : " << (*list_start)->pid;
         time_t i_time;
         if (time(&i_time) == ((time_t) -1)) {
             perror("smash error: time failed");
@@ -774,8 +774,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         return new ChangeDirCommand(cmd_line, this);
     else if (command == "jobs")
         return new JobsCommand(cmd_line, this);
-        //else if (command.compare("kill") == 0) {
-        //    return new KillCommand(cmd_line, this);
+    //else if (command.compare("kill") == 0) {
+    //    return new KillCommand(cmd_line, this);
     else if (command == "fg")
         return new ForegroundCommand(cmd_line, this);
     else if (command == "bg")

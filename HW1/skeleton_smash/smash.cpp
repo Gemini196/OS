@@ -5,6 +5,9 @@
 #include "Commands.h"
 #include "signals.h"
 
+int stdout_dp = dup(1);
+int stdin_dp = dup(0);
+
 int main(int argc, char* argv[]) {
     if(signal(SIGTSTP , ctrlZHandler)==SIG_ERR) {
         perror("smash error: failed to set ctrl-Z handler");
@@ -23,22 +26,22 @@ int main(int argc, char* argv[]) {
     smash.fg_pid = 0;
 
     while(true) {
-//        if(close(0) == -1){
-//            perror("smash error: close failed");
-//            continue;
-//        }
-//        if(dup2(stdin_dp, 0) == -1){
-//            perror("smash error: dup failed");
-//            continue;
-//        }
-//        if(close(1) == -1){
-//            perror("smash error: close failed");
-//            continue;
-//        }
-//        if(dup2(stdout_dp,1) == -1){
-//            perror("smash error: dup failed");
-//            continue;
-//        }
+       if(close(0) == -1){
+           perror("smash error: close failed");
+           continue;
+       }
+       if(dup2(stdin_dp, 0) == -1){
+           perror("smash error: dup failed");
+           continue;
+       }
+       if(close(1) == -1){
+           perror("smash error: close failed");
+           continue;
+       }
+       if(dup2(stdout_dp,1) == -1){
+           perror("smash error: dup failed");
+           continue;
+       }
 
         std::cout << smash.getName() << "> ";
         std::string cmd_line;
