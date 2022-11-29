@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     smash.smash_name = "smash";
     smash.jobs_list = new JobsList();
-    smash.last_working_dir = "";
+    smash.last_working_dir = nullptr; // because it is char*
     smash.fg_pid = 0;
 
     while(true) {
