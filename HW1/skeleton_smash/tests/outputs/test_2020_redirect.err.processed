@@ -1,5 +1,5 @@
-/bin/bash: line 0: kill: (1) - Operation not permitted
-/bin/bash: line 0: kill: (10) - Operation not permitted
+smash error: kill: invalid arguments
+smash error: kill: invalid arguments
 smash error: open failed: No such file or directory
 smash error: open failed: No such file or directory
 smash error: open failed: Permission denied

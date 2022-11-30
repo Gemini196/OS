@@ -415,29 +415,35 @@ void ChangeDirCommand::execute() {
     int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
 
     if (num_of_args > 2)
-        perror("smash error: cd: too many arguments");
+        std::cerr << "smash error: cd: too many arguments" << std::endl;
+    else if (num_of_args < 2) // Not specified in pdf
+        std::cerr << "smash error: cd: invalid arguments" << std::endl;
 
-        // change current dir to last working dir
-    else if (strcmp(parsed_cmd[1], "-") == 0) {
+    char* curr_path = get_current_dir_name(); //malloc
+
+    if (strcmp(parsed_cmd[1], "-") == 0) {      // change current dir to last working dir
         if (smash->last_working_dir == nullptr)
-            perror("smash error: cd: OLDPWD not set");
+            std::cerr << "smash error: cd: OLDPWD not set" << std::endl;
 
             // change current working dir to last working dir using chdir system call
         else if (chdir(smash->last_working_dir) == -1)
             perror("smash error: chdir failed");
     }
 
-        // change current dir to new working dir using chdir system call
+    // change current dir to new working dir using chdir system call
     else {
-        string new_dir(parsed_cmd[1]);
-        if (chdir(parsed_cmd[1]) == -1)
-            perror("smash error: chdir failed");
-        else {
-            delete[] smash->last_working_dir;                           // update the value of last_working_dir
-            smash->last_working_dir = new char[new_dir.length()];
-            strcpy(smash->last_working_dir, new_dir.c_str());
-        }
+            string curr_dir(curr_path);
+            if (chdir(parsed_cmd[1]) == -1)
+                perror("smash error: chdir failed");
+            else {
+                if (smash->last_working_dir != nullptr)
+                    delete[] smash->last_working_dir;                           // update the value of last_working_dir
+                smash->last_working_dir = new char[curr_dir.length()];
+                strcpy(smash->last_working_dir, curr_dir.c_str());
+            }
     }
+
+    free(curr_path);
     delete[] cmd_copy;
     deleteParsedCmd(parsed_cmd, num_of_args);
 }

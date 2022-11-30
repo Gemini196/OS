@@ -1,2 +1,9 @@
 smash> submitted by Eran
-smash> smash> smash> smash> smash> smash> 
+smash> smash> smash> smash> smash> smash> sleep 200 : 2
+smash> smash: got ctrl-Z
+[1] sleep 100& : 3 X secs
+smash> sleep 100 : 3
+smash> smash: got ctrl-C
+smash> smash> sleep 300 : 4
+smash> smash: got ctrl-Z
+smash> smash: sending SIGKILL signal to 0 jobs:
