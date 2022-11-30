@@ -1,8 +1,6 @@
-/bin/bash: line 0: kill: (3) - No such process
-/bin/bash: line 0: kill: (10) - Operation not permitted
-smash error: fg: job-id 12 does not existSuccess
-smash error: fg: job-id 12 does not existSuccess
-smash error: fg: job-id 12 does not existSuccess
-smash error: fg: job-id 12 does not existSuccess
+smash error: fg: job-id 11 does not existSuccess
+smash error: fg: job-id 11 does not existSuccess
+smash error: fg: job-id 11 does not existSuccess
+smash error: fg: job-id 11 does not existSuccess
 terminate called after throwing an instance of 'std::logic_error'
   what():  basic_string::_M_construct null not valid

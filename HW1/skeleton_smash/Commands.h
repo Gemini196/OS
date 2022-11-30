@@ -159,6 +159,9 @@ class KillCommand : public BuiltInCommand {
  // TODO: Add your data members
   public:
     KillCommand(const char* cmd_line, JobsList* jobs);
+
+    KillCommand(const char *cmd_line, SmallShell *smash);
+
     virtual ~KillCommand() {}
     void execute() override;
 };

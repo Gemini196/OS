@@ -482,7 +482,8 @@ void ForegroundCommand::execute() {
     deleteParsedCmd(parsed_cmd, num_of_args);
 
     if (id_to_remove != -1) {
-        if (smash->jobs_list->getJobById(id_to_remove) == nullptr) {    // job to remove doesn't exist
+        JobsList::JobEntry *job_to_fg = smash->jobs_list->getJobById(id_to_remove);
+        if (job_to_fg == nullptr) {    // job to remove doesn't exist
             fprintf(stderr, "smash error: fg: job-id %d does not exist", id_to_remove);
             perror("");                                                 // is this neccessary?.. no idea, don't know why it's here lol
         } else {
@@ -492,15 +493,11 @@ void ForegroundCommand::execute() {
                     return;
                 }
             }
+
+            cout << job_to_fg->command << ": " << job_to_fg->pid << endl;
             // REMOVE JOB
             int pid = smash->jobs_list->getJobById(id_to_remove)->pid, child_status = -1;
             smash->fg_pid = pid;
-
-            string cmd_s = smash->jobs_list->getJobById(
-                    id_to_remove)->command;  // replace current running command with fg command
-            delete (cmd_line);
-            char cmd_line[cmd_s.length()];
-            strcpy(cmd_line, cmd_s.c_str());
 
             smash->jobs_list->removeJobById(id_to_remove);                        // remove the job from joblist
             waitpid(id_to_remove, &child_status, WUNTRACED); // waitpid failure? or something
@@ -603,6 +600,70 @@ void QuitCommand::execute() {
     exit(0);
 }
 
+KillCommand::KillCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+
+
+void KillCommand::execute() {
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
+    char* copy_cmd = new char[COMMAND_ARGS_MAX_LENGTH];
+
+    strcpy(copy_cmd, cmd_line);
+    _removeBackgroundSign(copy_cmd);
+    int num_of_args = _parseCommandLine(copy_cmd, parsed_cmd);
+
+    if(num_of_args != 3){ // invalid num of arguments
+        cerr << "smash error: kill: invalid arguments" << endl;
+        delete[] copy_cmd;
+        deleteParsedCmd(parsed_cmd, num_of_args);
+        return;
+    }
+
+    string signal_num(parsed_cmd[1]);
+    string job_id(parsed_cmd[2]);
+    if(signal_num.find_first_not_of("-0123456789") != string::npos || signal_num[0] != '-' ||
+            signal_num.find_last_of('-') != signal_num.find_first_of('-') ||
+            job_id.find_first_not_of("-0123456789") != string::npos){ // invalid syntax
+
+        cerr << "smash error: kill: invalid arguments" << endl;
+        delete[] copy_cmd;
+        deleteParsedCmd(parsed_cmd, num_of_args);
+        return;
+    }
+
+    else{
+        // valid input, finding the job
+        int id = stoi(job_id); //jobID
+        JobsList::JobEntry* job = smash->jobs_list->getJobById(id);
+        if(job == *(smash->jobs_list->jobs_list->end()) || job_id.find_first_of('-') != string::npos){ // job list is empty / job not found
+            cerr << "smash error: kill: job-id " << id << " does not exist" << endl;
+            delete[] copy_cmd;
+            deleteParsedCmd(parsed_cmd, num_of_args);
+            return;
+        }
+
+        int signal = stoi(signal_num);
+        signal = abs(signal);
+        auto pid = job->pid;
+        if(kill(pid, signal) == -1){
+            perror("smash error: kill failed");
+            delete[] copy_cmd;
+            deleteParsedCmd(parsed_cmd, num_of_args);
+            return;
+        }
+        else{
+            if(signal == 20){
+                job->is_stopped = true;
+            }
+            else if(signal == 18){
+                job->is_stopped = false;
+            }
+            cout << "signal number " << signal << " was sent to pid " << pid << endl;
+        }
+    }
+    delete[] copy_cmd;
+    deleteParsedCmd(parsed_cmd, num_of_args);
+}
+
 //--------------------------------------- Jobs Implementation ----------------------------------------
 
 JobsList::JobsList() : curr_max_job_id(1) {
@@ -672,7 +733,7 @@ void JobsList::updateMaxJobId() {
         }
         it++;
     }
-    curr_max_job_id = max_id;
+    curr_max_job_id = max_id + 1;
 }
 
 
@@ -774,8 +835,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         return new ChangeDirCommand(cmd_line, this);
     else if (command == "jobs")
         return new JobsCommand(cmd_line, this);
-    //else if (command.compare("kill") == 0) {
-    //    return new KillCommand(cmd_line, this);
+    else if (command == "kill")
+        return new KillCommand(cmd_line, this);
     else if (command == "fg")
         return new ForegroundCommand(cmd_line, this);
     else if (command == "bg")
