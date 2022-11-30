@@ -39,7 +39,7 @@ class BuiltInCommand : public Command {
 
 class ExternalCommand : public Command {
   public:
-    ExternalCommand::ExternalCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash) {}
+    ExternalCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_line, smash) {}
     virtual ~ExternalCommand() {}
     void execute() override;
 };
@@ -159,6 +159,9 @@ class KillCommand : public BuiltInCommand {
  // TODO: Add your data members
   public:
     KillCommand(const char* cmd_line, JobsList* jobs);
+
+    KillCommand(const char *cmd_line, SmallShell *smash);
+
     virtual ~KillCommand() {}
     void execute() override;
 };
@@ -191,7 +194,7 @@ public:
     public:
     JobsList();
     ~JobsList();
-    void addJob(Command *cmd, int pid, bool is_stopped);
+    void addJob(const char* cmd_line, int pid, time_t time, bool is_stopped);
     bool isEmpty();
     void printJobsList();
     void killAllJobs();
@@ -199,6 +202,7 @@ public:
     void removeFinishedJobs();
     JobEntry * getJobById(int jobId);
     JobEntry *getLastStoppedJob(int *jobId);
+    int get_last_job_id();
     void removeJobById(int jobId);
 };
 
