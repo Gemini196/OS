@@ -413,38 +413,42 @@ void ChangeDirCommand::execute() {
     strcpy(cmd_copy, cmd_line);
     _removeBackgroundSign(cmd_copy);
     int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
+    delete[] cmd_copy;
 
+    char* curr_path = get_current_dir_name();           //malloc
+    
     if (num_of_args > 2)
         std::cerr << "smash error: cd: too many arguments" << std::endl;
-    else if (num_of_args < 2) // Not specified in pdf
+    else if (num_of_args < 2)                           // Not specified in HW instructions
         std::cerr << "smash error: cd: invalid arguments" << std::endl;
+    
+    else{
+            char* new_path = parsed_cmd[1];
 
-    char* curr_path = get_current_dir_name(); //malloc
-
-    if (strcmp(parsed_cmd[1], "-") == 0) {      // change current dir to last working dir
-        if (smash->last_working_dir == nullptr)
-            std::cerr << "smash error: cd: OLDPWD not set" << std::endl;
-
-            // change current working dir to last working dir using chdir system call
-        else if (chdir(smash->last_working_dir) == -1)
-            perror("smash error: chdir failed");
-    }
-
-    // change current dir to new working dir using chdir system call
-    else {
-            string curr_dir(curr_path);
-            if (chdir(parsed_cmd[1]) == -1)
+            if (strcmp(parsed_cmd[1], "-") == 0) {         // change current dir to last working dir
+                if (smash->last_working_dir == nullptr)
+                {
+                    std::cerr << "smash error: cd: OLDPWD not set" << std::endl;  // illegal command
+                    free(curr_path);
+                    deleteParsedCmd(parsed_cmd, num_of_args);
+                    return;
+                }
+                new_path = smash->last_working_dir;  
+            }
+            
+            if (chdir(new_path) == -1)                      // change current dir to new working dir using chdir syscall
                 perror("smash error: chdir failed");
+
             else {
                 if (smash->last_working_dir != nullptr)
                     delete[] smash->last_working_dir;                           // update the value of last_working_dir
+                string curr_dir(curr_path);
                 smash->last_working_dir = new char[curr_dir.length()];
                 strcpy(smash->last_working_dir, curr_dir.c_str());
             }
-    }
+        }
 
     free(curr_path);
-    delete[] cmd_copy;
     deleteParsedCmd(parsed_cmd, num_of_args);
 }
 
