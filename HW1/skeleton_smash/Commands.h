@@ -202,6 +202,7 @@ public:
     void removeFinishedJobs();
     JobEntry * getJobById(int jobId);
     JobEntry *getLastStoppedJob(int *jobId);
+    int get_last_job_id();
     void removeJobById(int jobId);
 };
 

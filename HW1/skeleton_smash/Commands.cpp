@@ -150,8 +150,9 @@ void ExternalCommand::execute() {
                 delete[] cmd_copy;
                 return;
             }
+
             string cmd(cmd_line);
-            JobsList::JobEntry new_job(smash->jobs_list->curr_max_job_id + 1, pid, i_time, cmd, false);
+            JobsList::JobEntry new_job(smash->jobs_list->curr_max_job_id, pid, i_time, cmd, false);
             smash->jobs_list->removeFinishedJobs();
             smash->jobs_list->addJob(cmd_copy, pid, i_time, false);
         }
@@ -464,12 +465,14 @@ void ForegroundCommand::execute() {
 
     if (num_of_args > 2)                                    // too many args
         perror("smash error: fg: invalid arguments");
+
     else if (num_of_args == 1)                              // no args
     {
         if (smash->jobs_list->isEmpty())
             perror("smash error: fg: jobs list is empty");
         else
-            id_to_remove = smash->jobs_list->curr_max_job_id;
+            id_to_remove = smash->jobs_list->get_last_job_id();
+
     } else {                                                  // single arg
         string arg(parsed_cmd[1]);
         if (!_isNumber(arg))
@@ -486,13 +489,13 @@ void ForegroundCommand::execute() {
         if (job_to_fg == nullptr) {    // job to remove doesn't exist
             fprintf(stderr, "smash error: fg: job-id %d does not exist", id_to_remove);
             perror("");                                                 // is this neccessary?.. no idea, don't know why it's here lol
-        } else {
-            if (smash->jobs_list->getJobById(id_to_remove)->is_stopped) {  // continue job if stopped
-                if (kill(id_to_remove, SIGCONT) == -1) {
-                    perror("smash error: kill failed");
-                    return;
-                }
+        }
+        else {
+            if (kill(job_to_fg->pid, SIGCONT) == -1) {
+                perror("smash error: kill failed");
+                return;
             }
+
 
             cout << job_to_fg->command << ": " << job_to_fg->pid << endl;
             // REMOVE JOB
@@ -505,6 +508,7 @@ void ForegroundCommand::execute() {
         }
     }
 }
+
 
 //bg
 
@@ -666,7 +670,7 @@ void KillCommand::execute() {
 
 //--------------------------------------- Jobs Implementation ----------------------------------------
 
-JobsList::JobsList() : curr_max_job_id(1) {
+JobsList::JobsList() : curr_max_job_id(0) {
     jobs_list = new std::list<JobEntry *>;
 }
 
@@ -679,7 +683,7 @@ JobsList::~JobsList() {
 
 void JobsList::addJob(const char *cmd_line, int pid, time_t time, bool is_stopped = false) {
     string cmd(cmd_line);
-    JobsList::JobEntry* new_job = new JobsList::JobEntry(curr_max_job_id, pid, time, cmd, is_stopped);
+    JobsList::JobEntry* new_job = new JobsList::JobEntry(curr_max_job_id+1, pid, time, cmd, is_stopped);
     new_job->is_stopped = is_stopped;
     jobs_list->push_back(new_job);
     curr_max_job_id++;
@@ -733,8 +737,9 @@ void JobsList::updateMaxJobId() {
         }
         it++;
     }
-    curr_max_job_id = max_id + 1;
+    curr_max_job_id = max_id;
 }
+
 
 
 void JobsList::removeFinishedJobs() {
@@ -796,6 +801,21 @@ void JobsList::removeJobById(int jobId) {
         delete job;
         updateMaxJobId();
     }
+
+}
+
+int JobsList::get_last_job_id() {
+    auto it = jobs_list->begin();
+    int max = -1;
+    if (*it == nullptr) {
+        return max;
+    }
+    while (it != jobs_list->end()){
+        max = (*it)->job_id;
+        ++it;
+    }
+    return max;
+
 
 }
 
