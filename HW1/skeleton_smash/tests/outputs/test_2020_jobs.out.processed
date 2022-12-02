@@ -50,7 +50,7 @@ smash> smash> [1] sleep 100& : 2 X secs
 [8] sleep 800& : 9 X secs
 [9] sleep 900& : 10 X secs
 [10] sleep 1001& : 12 X secs
-smash> sleep 1001 : 12
+smash> sleep 1001& : 12
 smash> smash: got ctrl-Z
 [1] sleep 100& : 2 X secs
 [2] sleep 200& : 3 X secs
@@ -60,7 +60,7 @@ smash> smash: got ctrl-Z
 [7] sleep 700& : 8 X secs
 [8] sleep 800& : 9 X secs
 [9] sleep 900& : 10 X secs
-smash> sleep 900 : 10
+smash> sleep 900& : 10
 smash> smash: got ctrl-Z
 [1] sleep 100& : 2 X secs
 [2] sleep 200& : 3 X secs
@@ -69,7 +69,7 @@ smash> smash: got ctrl-Z
 [6] sleep 600& : 7 X secs
 [7] sleep 700& : 8 X secs
 [8] sleep 800& : 9 X secs
-smash> sleep 800 : 9
+smash> sleep 800& : 9
 smash> smash: got ctrl-Z
 [1] sleep 100& : 2 X secs
 [2] sleep 200& : 3 X secs
@@ -77,7 +77,7 @@ smash> smash: got ctrl-Z
 [5] sleep 500& : 6 X secs
 [6] sleep 600& : 7 X secs
 [7] sleep 700& : 8 X secs
-smash> sleep 700 : 8
+smash> sleep 700& : 8
 smash> smash: got ctrl-Z
 [1] sleep 100& : 2 X secs
 [2] sleep 200& : 3 X secs
