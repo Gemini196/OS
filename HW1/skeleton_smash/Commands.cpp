@@ -298,7 +298,7 @@ RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) 
     //if append   (default: override)
     if (cmd_s[filepath_start_index] == '>') {
         is_append = true;
-        filepath++;
+        filepath_start_index++;
     }
 
     if (cmd_end_index != 0)

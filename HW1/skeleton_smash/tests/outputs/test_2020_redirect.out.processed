@@ -1,91 +1,72 @@
 smash> smash> smash> smash> smash> test_redirect
 smash> smash> again_redirect
 smash> smash> again_redirect
+test_redirect
 smash> smash> smash pid is 1
 smash> smash> smash pid is 1
+smash pid is 1
 smash> smash> smash pid is 1
 smash> mypid
-> mypid
 new
-> new
 smash> smash> smash> [1] sleep 100& : 2 X secs
 smash> smash> smash> smash> smash> k
 mypid
-> mypid
 new
-> new
 s
 t
 smash> smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> smash> smash> before
 smash> again_redirect
+test_redirect
 smash> smash> smash> smash> k
 mypid
-> mypid
-> new
 p
 s
 t
 smash> smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> smash> smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> smash> smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
 smash> smash> smash> k
 mypid
-> mypid
 new
-> new
 p
 s
 t
