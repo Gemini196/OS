@@ -1,0 +1,87 @@
+==68768== Memcheck, a memory error detector
+==68768== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==68768== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==68768== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==68768== Parent PID: 68764
+==68768== 
+==68768== Invalid write of size 1
+==68768==    at 0x4C34E0D: strcpy (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10CF58: ChangeDirCommand::execute() (Commands.cpp:460)
+==68768==    by 0x10F120: SmallShell::executeCommand(char const*) (Commands.cpp:916)
+==68768==    by 0x1109A1: main (smash.cpp:51)
+==68768==  Address 0x5b8278f is 0 bytes after a block of size 15 alloc'd
+==68768==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10CF2E: ChangeDirCommand::execute() (Commands.cpp:459)
+==68768==    by 0x10F120: SmallShell::executeCommand(char const*) (Commands.cpp:916)
+==68768==    by 0x1109A1: main (smash.cpp:51)
+==68768== 
+==68768== 
+==68768== FILE DESCRIPTORS: 6 open at exit.
+==68768== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
+==68768==    at 0x54EF957: dup2 (syscall-template.S:78)
+==68768==    by 0x1108F8: main (smash.cpp:41)
+==68768== 
+==68768== Open file descriptor 0:
+==68768==    at 0x54EF957: dup2 (syscall-template.S:78)
+==68768==    by 0x1108A6: main (smash.cpp:33)
+==68768== 
+==68768== Open file descriptor 5:
+==68768==    at 0x54EF927: dup (syscall-template.S:78)
+==68768==    by 0x110A67: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==68768==    by 0x110A83: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==68768==    by 0x110AFC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==68768==    by 0x5400C17: (below main) (libc-start.c:266)
+==68768== 
+==68768== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
+==68768==    at 0x54EF927: dup (syscall-template.S:78)
+==68768==    by 0x110A57: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==68768==    by 0x110A83: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==68768==    by 0x110AFC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==68768==    by 0x5400C17: (below main) (libc-start.c:266)
+==68768== 
+==68768== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.valgrind
+==68768==    <inherited from parent>
+==68768== 
+==68768== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.err
+==68768==    <inherited from parent>
+==68768== 
+==68768== 
+==68768== HEAP SUMMARY:
+==68768==     in use at exit: 120 bytes in 4 blocks
+==68768==   total heap usage: 282 allocs, 278 frees, 99,975 bytes allocated
+==68768== 
+==68768== 24 bytes in 1 blocks are still reachable in loss record 1 of 4
+==68768==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10CF2E: ChangeDirCommand::execute() (Commands.cpp:459)
+==68768==    by 0x10F120: SmallShell::executeCommand(char const*) (Commands.cpp:916)
+==68768==    by 0x1109A1: main (smash.cpp:51)
+==68768== 
+==68768== 24 bytes in 1 blocks are indirectly lost in loss record 2 of 4
+==68768==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10E0BD: JobsList::JobsList() (Commands.cpp:707)
+==68768==    by 0x10EB3C: SmallShell::SmallShell() (Commands.cpp:860)
+==68768==    by 0x110752: SmallShell::getInstance() (Commands.h:233)
+==68768==    by 0x110824: main (smash.cpp:21)
+==68768== 
+==68768== 40 (16 direct, 24 indirect) bytes in 1 blocks are definitely lost in loss record 3 of 4
+==68768==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10EB31: SmallShell::SmallShell() (Commands.cpp:860)
+==68768==    by 0x110752: SmallShell::getInstance() (Commands.h:233)
+==68768==    by 0x110824: main (smash.cpp:21)
+==68768== 
+==68768== 56 bytes in 1 blocks are definitely lost in loss record 4 of 4
+==68768==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==68768==    by 0x10E171: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:719)
+==68768==    by 0x10BA40: ExternalCommand::execute() (Commands.cpp:156)
+==68768==    by 0x10F120: SmallShell::executeCommand(char const*) (Commands.cpp:916)
+==68768==    by 0x1109A1: main (smash.cpp:51)
+==68768== 
+==68768== LEAK SUMMARY:
+==68768==    definitely lost: 72 bytes in 2 blocks
+==68768==    indirectly lost: 24 bytes in 1 blocks
+==68768==      possibly lost: 0 bytes in 0 blocks
+==68768==    still reachable: 24 bytes in 1 blocks
+==68768==         suppressed: 0 bytes in 0 blocks
+==68768== 
+==68768== For counts of detected and suppressed errors, rerun with: -v
+==68768== ERROR SUMMARY: 4 errors from 3 contexts (suppressed: 0 from 0)

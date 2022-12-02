@@ -1,9 +1,0 @@
-smash> smash> smash> smash> smash> timeout_sample_file1.txt
-timeout_sample_file2.txt
-smash> before
-smash> after
-smash> 0
-smash: got ctrl-C
-smash: process 47150 was killed
-smash: got ctrl-C
-smash> 

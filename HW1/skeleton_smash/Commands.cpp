@@ -105,7 +105,6 @@ bool _isNumber(string str) {
 //------------------------------ Inherited from Command ----------------------------------------------
 
 void ExternalCommand::execute() {
-    //char** parsed_cmd = new char*[21];
     char *cmd_copy = new char[COMMAND_ARGS_MAX_LENGTH];
     strcpy(cmd_copy, cmd_line);
     _removeBackgroundSign(cmd_copy);
@@ -202,6 +201,12 @@ PipeCommand::PipeCommand(const char *cmd_line, SmallShell *smash) : Command(cmd_
     strcpy(right_cmd, right_tmp.c_str());
 }
 
+PipeCommand::~PipeCommand()
+{
+    delete[] left_cmd;
+    delete[] right_cmd;
+}
+
 // Child process runs dup2
 void child_fd_dup2(int fd, bool is_left, bool err_flag = false) {
     int index_in_fdt = 0;
@@ -221,7 +226,6 @@ int PipeCommand::run_child_process(bool is_left, int fd[]) {
         to_dup = fd[1];
         index_in_fdt = (err_flag) ? 2 : 1;
     }
-
     setpgrp();
     child_fd_dup2(to_dup, is_left, err_flag);
 
@@ -231,8 +235,10 @@ int PipeCommand::run_child_process(bool is_left, int fd[]) {
     }
 
     char *cmd = (is_left) ? left_cmd : right_cmd;
-    string cmd_str(cmd);
+    
+    //string cmd_str(cmd);
 
+    /*
     // not sure why this is needed, will check later
     if (!cmd_str.compare("showpid")) {
         char *new_cmd = new char[strlen(cmd) + 3];
@@ -240,7 +246,7 @@ int PipeCommand::run_child_process(bool is_left, int fd[]) {
         strcat(new_cmd, " $");
         delete[] cmd; // do we need this?
         cmd = new_cmd;
-    }
+    }*/
     smash->executeCommand(cmd);
     if (close(index_in_fdt) == -1) {
         perror("smash error: close failed");
@@ -314,6 +320,12 @@ RedirectionCommand::RedirectionCommand(const char *cmd_line, SmallShell *smash) 
 
     strcpy(cmd, command.c_str());
     strcpy(filepath, file.c_str());
+}
+
+RedirectionCommand::~RedirectionCommand()
+{
+    delete[] cmd;
+    delete[] filepath;
 }
 
 
@@ -515,6 +527,7 @@ void ForegroundCommand::execute() {
             int child_status = -1;
             smash->fg_pid = pid;
             // delete old cmd_line if needed
+            
             strcpy(smash->cmd_line, (job_to_run->command).c_str());
             cout << job_to_run->command << " : " << pid << endl;
             smash->jobs_list->removeJobById(job_to_run->job_id);
@@ -737,7 +750,7 @@ void JobsList::killAllJobs() {
     auto list_end = jobs_list->end();
     for (; list_start != list_end; ++list_start) {
         
-        std::cout <<  (*list_start)->pid << " : " <<(*list_start)->command << std::endl;
+        std::cout <<  (*list_start)->pid << ": " <<(*list_start)->command << std::endl;
 
         if (kill((*list_start)->pid, SIGKILL) == -1) {
             perror("smash error: kill failed");
@@ -845,10 +858,11 @@ int JobsList::get_last_job_id() {
 
 SmallShell::SmallShell() : smash_name("smash"), last_working_dir(nullptr), cmd_line(nullptr), jobs_list(nullptr), fg_pid(getpid()), smash_pid(getpid()) {
     jobs_list = new JobsList();
+    cmd_line = new char[COMMAND_ARGS_MAX_LENGTH];  // maximum len for a command
 }
 
 SmallShell::~SmallShell() {
-//    delete cmd_line;   // maybe automatic??
+    delete[] cmd_line;   // maybe automatic??
     delete jobs_list;
 }
 
@@ -895,9 +909,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
     string cmd_s = _trim(string(cmd_line));
 
     //update foreground command
-    if (this->cmd_line != nullptr)
-        delete this->cmd_line;
-    this->cmd_line = new char[COMMAND_ARGS_MAX_LENGTH];
+
     strcpy(this->cmd_line, cmd_s.c_str());
 
     this->jobs_list->removeFinishedJobs();

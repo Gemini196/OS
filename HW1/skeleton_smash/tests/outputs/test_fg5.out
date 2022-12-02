@@ -1,8 +1,0 @@
-smash> submitted by Eran
-smash> smash> smash> smash> sleep 200& : 46989
-smash: got ctrl-Z
-smash: process 46989 was stopped
-smash> [1] sleep 100& : 46988 2 secs
-[3] sleep 300& : 46990 2 secs
-[4] sleep 200& : 46989 0 secs (stopped)
-smash> 

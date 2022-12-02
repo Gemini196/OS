@@ -51,7 +51,7 @@ class PipeCommand : public Command {
     bool err_flag;
   public:
     PipeCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~PipeCommand() {}
+    virtual ~PipeCommand();
     void execute() override;
     int run_child_process(bool is_left, int fd[]);
 };
@@ -63,7 +63,7 @@ class RedirectionCommand : public Command {
     bool is_append;
   public:
     explicit RedirectionCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~RedirectionCommand() {}
+    virtual ~RedirectionCommand();
     void execute() override;
     //void prepare() override;
     //void cleanup() override;
