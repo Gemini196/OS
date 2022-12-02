@@ -463,6 +463,7 @@ void JobsCommand::execute() {
 }
 
 // fg
+
 ForegroundCommand::ForegroundCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
 
 void ForegroundCommand::execute() {
@@ -474,19 +475,19 @@ void ForegroundCommand::execute() {
     int num_of_args = _parseCommandLine(cmd_copy, parsed_cmd);
 
     if (num_of_args > 2)                                    // too many args
-        perror("smash error: fg: invalid arguments");
+        std::cerr << "smash error: fg: invalid arguments" << std::endl;
 
     else if (num_of_args == 1)                              // no args
     {
         if (smash->jobs_list->isEmpty())
-            perror("smash error: fg: jobs list is empty");
+            std::cerr << "smash error: fg: jobs list is empty"<< std::endl;
         else
             id_to_remove = smash->jobs_list->get_last_job_id();
 
     } else {                                                  // single arg
         string arg(parsed_cmd[1]);
         if (!_isNumber(arg))
-            perror("smash error: fg: invalid arguments");
+            std::cerr << "smash error: fg: invalid arguments" << std::endl;
         else
             sscanf(parsed_cmd[1], "%d", &id_to_remove);
     }
@@ -496,28 +497,32 @@ void ForegroundCommand::execute() {
 
     if (id_to_remove != -1) {
         JobsList::JobEntry *job_to_fg = smash->jobs_list->getJobById(id_to_remove);
-        if (job_to_fg == nullptr) {    // job to remove doesn't exist
-            fprintf(stderr, "smash error: fg: job-id %d does not exist", id_to_remove);
-            perror("");                                                 // is this neccessary?.. no idea, don't know why it's here lol
+
+        if (job_to_fg == nullptr){   // job to remove doesn't exist
+            std::cerr << "smash error: fg: job-id " << id_to_remove << " does not exist" << std::endl;
+            return;
         }
-        else {
+
+        else { 
             if (kill(job_to_fg->pid, SIGCONT) == -1) {
                 perror("smash error: kill failed");
                 return;
             }
 
-
-            cout << job_to_fg->command << ": " << job_to_fg->pid << endl;
+            cout << _rtrim(job_to_fg->command) << "& : " << job_to_fg->pid << endl;
+            
             // REMOVE JOB
             int pid = smash->jobs_list->getJobById(id_to_remove)->pid, child_status = -1;
             smash->fg_pid = pid;
 
             smash->jobs_list->removeJobById(id_to_remove);                        // remove the job from joblist
             waitpid(id_to_remove, &child_status, WUNTRACED); // waitpid failure? or something
-            smash->fg_pid = smash->smash_pid;                                     // the fg job finished - the fg job now is the smash itself
+            smash->fg_pid = smash->smash_pid;                                    // the fg job finished - the fg job now is the smash itself
         }
     }
 }
+
+
 
 
 //bg
