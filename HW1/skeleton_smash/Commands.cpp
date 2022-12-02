@@ -752,7 +752,7 @@ void JobsList::updateMaxJobId() {
         if ((*it)->job_id >= max_id) {
             max_id = (*it)->job_id;
         }
-        it++;
+        ++it;
     }
     curr_max_job_id = max_id;
 }
@@ -840,7 +840,12 @@ int JobsList::get_last_job_id() {
 
 //------------------------------------- SmallShell Implementation ------------------------------------
 
-SmallShell::SmallShell() : last_working_dir(nullptr) {
+SmallShell::SmallShell() : last_working_dir(nullptr)  {
+    this->smash_name = "smash";
+    *(this->jobs_list) = JobsList();
+    this->fg_pid = 
+
+
 // TODO: add your 
 
 // don't forget to fill the smash_pid property!!
