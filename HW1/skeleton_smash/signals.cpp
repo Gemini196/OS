@@ -20,8 +20,29 @@ void ctrlZHandler(int sig_num) {
     cout << "smash: got ctrl-Z" << endl;
     SmallShell& smash = SmallShell::getInstance();
 
-     cout << "smash pid is " << smash.smash_pid;
-     cout << "fg_pid" << smash.fg_pid << endl;
+    if(smash.fg_pid == smash.smash_pid)
+        return;
+
+    if(kill(smash.fg_pid, sig_num) == -1){
+        perror("smash error: kill failed");
+        return;
+    }
+
+    time_t i_time;
+    if (time(&i_time) == ((time_t) -1)) {
+        perror("smash error: time failed");
+        return;
+    }
+
+    smash.jobs_list->addJob(smash.cmd_line, smash.fg_pid, i_time, true);
+
+    cout << "smash: process " << smash.fg_pid << " was stopped" << endl;
+    smash.fg_pid = smash.smash_pid;
+}
+
+void ctrlCHandler(int sig_num) {
+    cout << "smash: got ctrl-C" << endl;
+    SmallShell& smash = SmallShell::getInstance();
 
     if(smash.fg_pid == smash.smash_pid)
         return;
@@ -31,26 +52,8 @@ void ctrlZHandler(int sig_num) {
         return;
     }
 
-    // stop the job and add it to jobs list (and for that we need the cmd_line that's currently in fg)
-   
-    cout << "smash: process " << smash.fg_pid << " was stopped" << endl;
+    cout << "smash: process " << smash.fg_pid << " was killed" << endl;
     smash.fg_pid = smash.smash_pid;
-}
-
-void ctrlCHandler(int sig_num) {
-    cout << "smash: got ctrl-C" << endl;
-    SmallShell &smash = SmallShell::getInstance();
-    if (smash.fg_pid == 0) {
-        return;
-    } else {
-        if (kill(smash.fg_pid, sig_num) == -1) {
-            perror("smash error: kill failed");
-            return;
-        } else {
-            cout << "smash: process " << smash.fg_pid << " was killed" << endl;
-            return;
-        }
-    }
 }
 
 /*

@@ -1,3 +1,4 @@
 smash> smash: got ctrl-Z
-smash: process 49812 was stopped
-smash> smash> 
+smash: process 46788 was stopped
+smash> [1] sleep 100 : 46788 0 secs (stopped)
+smash> 

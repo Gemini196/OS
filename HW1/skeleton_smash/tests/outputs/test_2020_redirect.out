@@ -2,13 +2,13 @@ smash> smash> smash> smash> smash> test_redirect
 smash> smash> again_redirect
 smash> smash> again_redirect
 test_redirect
-smash> smash> smash pid is 49779
-smash> smash> smash pid is 49779
-smash pid is 49779
-smash> smash> smash pid is 49779
+smash> smash> smash pid is 46753
+smash> smash> smash pid is 46753
+smash pid is 46753
+smash> smash> smash pid is 46753
 smash> mypid
 new
-smash> smash> smash> [1] sleep 100& : 49825 0 secs
+smash> smash> smash> [1] sleep 100& : 46812 0 secs
 smash> smash> smash> smash> smash> k
 mypid
 new
@@ -71,6 +71,11 @@ p
 s
 t
 test
-smash> smash> smash: got ctrl-Z
-smash: process 49779 was stopped
-smash: got ctrl-Z
+smash> smash> smash: got ctrl-C
+smash: process 0 was killed
+smash: got ctrl-C
+0
+2
+end: 4
+smash> smash> smash> smash: sending SIGKILL signal to 1 jobs:
+46812 : sleep 100&
