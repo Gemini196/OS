@@ -3,4 +3,4 @@ smash pid is 1
 smash pid is 1
 smash pid is 1
 smash> smash> smash pid is 1
-smash> smash: sending SIGKILL signal to 1 jobs:
+smash> smash: sending SIGKILL signal to 0 jobs:

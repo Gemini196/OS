@@ -1,0 +1,76 @@
+smash> smash> smash> smash> smash> test_redirect
+smash> smash> again_redirect
+smash> smash> again_redirect
+test_redirect
+smash> smash> smash pid is 49779
+smash> smash> smash pid is 49779
+smash pid is 49779
+smash> smash> smash pid is 49779
+smash> mypid
+new
+smash> smash> smash> [1] sleep 100& : 49825 0 secs
+smash> smash> smash> smash> smash> k
+mypid
+new
+s
+t
+smash> smash> k
+mypid
+new
+p
+s
+t
+smash> k
+mypid
+new
+p
+s
+t
+smash> smash> smash> before
+smash> again_redirect
+test_redirect
+smash> smash> smash> smash> k
+mypid
+p
+s
+t
+smash> smash> k
+mypid
+new
+p
+s
+t
+smash> k
+mypid
+new
+p
+s
+t
+smash> smash> smash> k
+mypid
+new
+p
+s
+t
+smash> k
+mypid
+new
+p
+s
+t
+smash> smash> smash> k
+mypid
+new
+p
+s
+t
+smash> smash> smash> k
+mypid
+new
+p
+s
+t
+test
+smash> smash> smash: got ctrl-Z
+smash: process 49779 was stopped
+smash: got ctrl-Z

@@ -214,17 +214,16 @@ public:
 
 //------------------------------------ SmallShell ----------------------------------------------------
 
-class SmallShell {
-  private:
-    SmallShell();
-  
+class SmallShell {  
   public:
     string smash_name;
     char* last_working_dir;
+    char* cmd_line;
     JobsList* jobs_list;
     pid_t fg_pid;
     pid_t smash_pid;
 
+    SmallShell();
     Command *CreateCommand(const char* cmd_line);
     Command *CreateCommand(const char* cmd_line, SmallShell* smash);
     SmallShell(SmallShell const&)      = delete; // disable copy ctor

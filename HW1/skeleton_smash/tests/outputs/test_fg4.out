@@ -1,0 +1,8 @@
+smash> submitted by Eran
+smash> smash> smash> smash> smash> smash> sleep 200& : 52867
+smash> smash: got ctrl-Z
+smash: process 0 was stopped
+smash: got ctrl-Z
+[1] sleep 100& : 52866 2 secs
+smash> sleep 100& : 52866
+smash> 

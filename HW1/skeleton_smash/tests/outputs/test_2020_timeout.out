@@ -1,0 +1,7 @@
+smash> smash> smash> smash> smash> timeout_sample_file1.txt
+timeout_sample_file2.txt
+smash> before
+smash> smash: got ctrl-Z
+smash: process 49804 was stopped
+smash: got ctrl-Z
+smash: got ctrl-Z

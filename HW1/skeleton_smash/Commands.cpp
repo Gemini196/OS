@@ -323,8 +323,9 @@ void RedirectionCommand::execute() {
         file_flags |= O_APPEND;
     else                                // override ">"
         file_flags |= O_TRUNC;
-
-    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH; // file permissions
+    
+    mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO ;
+    //mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH; // file permissions
 
     int fd = open(filepath, file_flags, mode);
     if (fd == -1) {
@@ -840,27 +841,26 @@ int JobsList::get_last_job_id() {
 
 //------------------------------------- SmallShell Implementation ------------------------------------
 
-SmallShell::SmallShell() : last_working_dir(nullptr)  {
-    this->smash_name = "smash";
-    *(this->jobs_list) = JobsList();
-    this->fg_pid = 
-
-
-// TODO: add your 
-
-// don't forget to fill the smash_pid property!!
-// don't forget to set working dir properties to: nullptr
+SmallShell::SmallShell() : smash_name("smash"), last_working_dir(nullptr), cmd_line(nullptr), jobs_list(nullptr), fg_pid(getpid()), smash_pid(getpid()) {
+    jobs_list = new JobsList();
 }
 
 SmallShell::~SmallShell() {
+    delete cmd_line;   // maybe automatic??
     delete jobs_list;
 }
 
 Command *SmallShell::CreateCommand(const char *cmd_line) {
     string cmd_s = _trim(string(cmd_line));
     string command = cmd_s.substr(0, cmd_s.find_first_of(' '));
-    //WARNING, check if u need to check if cmd_line is finished
 
+    //update foreground command
+    if (this->cmd_line != nullptr)
+        delete  this->cmd_line;
+    this->cmd_line = new char[COMMAND_ARGS_MAX_LENGTH];
+    strcpy(this->cmd_line, cmd_s.c_str());
+
+    //WARNING, check if u need to check if cmd_line is finished
     if (cmd_s.find_first_of('|') != string::npos)
         return new PipeCommand(cmd_line, this);
     else if (cmd_s.find_first_of('>') != string::npos)
