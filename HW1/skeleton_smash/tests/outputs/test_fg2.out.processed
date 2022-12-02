@@ -1,11 +1,11 @@
-smash> smash> smash> smash> smash> smash> sleep 300 : 2
+smash> smash> smash> smash> smash> smash> sleep 300& : 2
 smash> smash: got ctrl-C
-sleep 100 : 40050
+sleep 100& : 16971
 smash> smash: got ctrl-C
-sleep 200 : 40051
+sleep 200& : 16972
 smash> smash: got ctrl-C
-sleep 400 : 40054
+sleep 400& : 16974
 smash> smash: got ctrl-C
-sleep 500 : 40055
+sleep 500& : 16975
 smash> smash: got ctrl-C
 smash: sending SIGKILL signal to 0 jobs:

@@ -731,9 +731,11 @@ void JobsList::killAllJobs() {
     auto list_start = jobs_list->begin();
     auto list_end = jobs_list->end();
     for (; list_start != list_end; ++list_start) {
-        cout << "[" << (*list_start)->job_id << "] ";
-        cout << (*list_start)->command << " : " << (*list_start)->pid;
-        cout << endl;
+        
+        std::cout <<  (*list_start)->pid << ": " << _rtrim((*list_start)->command) << "&" << std::endl;
+        //cout << "[" << (*list_start)->job_id << "] ";
+        //cout << (*list_start)->command << " : " << (*list_start)->pid;
+        //cout << endl;
         if (kill((*list_start)->pid, SIGKILL) == -1) {
             perror("smash error: kill failed");
             removeJobById((*list_start)->job_id);
