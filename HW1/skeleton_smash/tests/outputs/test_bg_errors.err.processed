@@ -1,4 +1,4 @@
 smash error: bg: invalid arguments
-smash error: bg: invalid arguments
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_M_construct null not valid
+smash error: bg: job-id -1 does not exist
+smash error: bg: there is no stopped jobs to resume
+smash error: bg: job-id 500 does not exist
