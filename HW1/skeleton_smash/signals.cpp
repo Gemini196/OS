@@ -19,11 +19,8 @@ using namespace std;
 void ctrlZHandler(int sig_num) {
     cout << "smash: got ctrl-Z" << endl;
     SmallShell& smash = SmallShell::getInstance();
-    if(smash.fg_pid == smash.smash_pid){
-        cout << "fg is smash" << endl;
-        return;
-    }
-
+    if(smash.fg_pid == smash.smash_pid)
+      return;
 
     if(kill(smash.fg_pid, sig_num) == -1){
         perror("smash error: kill failed");
@@ -36,15 +33,11 @@ void ctrlZHandler(int sig_num) {
         return;
     }
     JobsList::JobEntry* job_to_stop = smash.jobs_list->getJobBypid(smash.fg_pid);
-    if (job_to_stop != nullptr){
+    if (job_to_stop != nullptr)
         job_to_stop->is_stopped = true;
-    }
-    else{
+    else
         smash.jobs_list->addJob(smash.cmd_line, smash.fg_pid, i_time, true);
-    }
-
-
-
+    
     cout << "smash: process " << smash.fg_pid << " was stopped" << endl;
     smash.fg_pid = smash.smash_pid;
 }
@@ -65,10 +58,11 @@ void ctrlCHandler(int sig_num) {
     smash.fg_pid = smash.smash_pid;
 }
 
+
 /*
 void alarmHandler(int sig_num) 
 {  
-  std::cout << "smash: got an alarm" << std::endl;
+  cout << "smash: got an alarm" << endl;
 
   SmallShell& smash = SmallShell::getInstance();
   
@@ -78,7 +72,9 @@ void alarmHandler(int sig_num)
     return;
   }
 
+
   pid_t timedout_pid = (smash.TimeoutManager.top()).GetPid(); // the top of the queue is the one who timedout 
+  
   
   // Piazza @92 (Assuming no more than 1 timeout per second)
   int what = waitpid(timedout_pid, nullptr, WNOHANG); 
@@ -103,5 +99,6 @@ void alarmHandler(int sig_num)
   unsigned int next_alarm = (unsigned int)difftime(next_timeout.end_time, current_time);
   alarm(next_alarm);
   return;
+  
 }*/
 

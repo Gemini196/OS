@@ -459,10 +459,10 @@ void ChangeDirCommand::execute() {
                 perror("smash error: chdir failed");
 
             else {
-                if (smash->last_working_dir != nullptr)
-                    delete[] smash->last_working_dir;                           // update the value of last_working_dir
+                //if (smash->last_working_dir != nullptr)
+                delete[] smash->last_working_dir;                           // update the value of last_working_dir
                 string curr_dir(curr_path);
-                smash->last_working_dir = new char[curr_dir.length()];
+                smash->last_working_dir = new char[curr_dir.length()+1];
                 strcpy(smash->last_working_dir, curr_dir.c_str());
             }
         }
@@ -691,13 +691,12 @@ void KillCommand::execute() {
         // valid input, finding the job
         int id = stoi(job_id); //jobID
         JobsList::JobEntry* job = smash->jobs_list->getJobById(id);
-        if(job == *(smash->jobs_list->jobs_list->end()) || job_id.find_first_of('-') != string::npos){ // job list is empty / job not found
+        if(job == nullptr || job_id.find_first_of('-') != string::npos){ // job list is empty / job not found
             cerr << "smash error: kill: job-id " << id << " does not exist" << endl;
             delete[] copy_cmd;
             deleteParsedCmd(parsed_cmd, num_of_args);
             return;
         }
-
 
         auto pid = job->pid;
         if(kill(pid, signal) == -1){
@@ -727,6 +726,7 @@ JobsList::JobsList() : curr_max_job_id(0) {
 }
 
 JobsList::~JobsList() {
+    deleteJobsList();
     delete jobs_list;
 }
 
@@ -768,16 +768,23 @@ void JobsList::killAllJobs() {
     auto list_start = jobs_list->begin();
     auto list_end = jobs_list->end();
     for (; list_start != list_end; ++list_start) {
-        
         std::cout <<  (*list_start)->pid << ": " <<(*list_start)->command << std::endl;
-
-        if (kill((*list_start)->pid, SIGKILL) == -1) {
+        if (kill((*list_start)->pid, SIGKILL) == -1)
             perror("smash error: kill failed");
-            removeJobById((*list_start)->job_id);
-        }
+        removeJobById((*list_start)->job_id); 
     }
 }
 
+
+void JobsList::deleteJobsList() {
+    auto list_start = jobs_list->begin();
+    auto list_end = jobs_list->end();
+    for (; list_start != list_end; ++list_start) {
+        if (kill((*list_start)->pid, SIGKILL) == -1) 
+            perror("smash error: kill failed");
+        removeJobById((*list_start)->job_id);
+    }
+}
 
 void JobsList::updateMaxJobId() {
     auto it = jobs_list->begin();
@@ -898,6 +905,7 @@ SmallShell::SmallShell() : smash_name("smash"), last_working_dir(nullptr), cmd_l
 SmallShell::~SmallShell() {
     delete[] cmd_line;   // maybe automatic??
     delete jobs_list;
+    delete[] last_working_dir;
 }
 
 Command *SmallShell::CreateCommand(const char *cmd_line) {

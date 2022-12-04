@@ -198,6 +198,7 @@ public:
     bool isEmpty();
     void printJobsList();
     void killAllJobs();
+    void deleteJobsList();
     void updateMaxJobId();
     void removeFinishedJobs();
     JobEntry * getJobById(int jobId);
