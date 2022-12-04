@@ -669,10 +669,18 @@ void KillCommand::execute() {
 
     string signal_num(parsed_cmd[1]);
     string job_id(parsed_cmd[2]);
+
     if(signal_num.find_first_not_of("-0123456789") != string::npos || signal_num[0] != '-' ||
             signal_num.find_last_of('-') != signal_num.find_first_of('-') ||
             job_id.find_first_not_of("-0123456789") != string::npos){ // invalid syntax
-
+        cerr << "smash error: kill: invalid arguments" << endl;
+        delete[] copy_cmd;
+        deleteParsedCmd(parsed_cmd, num_of_args);
+        return;
+    }
+    int signal = stoi(signal_num);
+    signal = abs(signal);
+    if (0 > signal || signal > 31){
         cerr << "smash error: kill: invalid arguments" << endl;
         delete[] copy_cmd;
         deleteParsedCmd(parsed_cmd, num_of_args);
@@ -690,8 +698,7 @@ void KillCommand::execute() {
             return;
         }
 
-        int signal = stoi(signal_num);
-        signal = abs(signal);
+
         auto pid = job->pid;
         if(kill(pid, signal) == -1){
             perror("smash error: kill failed");

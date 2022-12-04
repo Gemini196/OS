@@ -1,8 +1,0 @@
-kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
-kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
-/bin/bash: line 0: kill: (1) - Operation not permitted
-/bin/bash: line 0: kill: (2) - Operation not permitted
-/bin/bash: line 0: kill: (5) - No such process
-/bin/bash: line 0: kill: (1) - Operation not permitted
-/bin/bash: line 0: kill: a: arguments must be process or job IDs
-/bin/bash: line 0: kill: (1) - Operation not permitted
