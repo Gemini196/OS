@@ -766,24 +766,23 @@ void JobsList::printJobsList() {
 }
 
 void JobsList::killAllJobs() {
-    auto list_start = jobs_list->begin();
-    auto list_end = jobs_list->end();
-    for (; list_start != list_end; ++list_start) {
-        std::cout <<  (*list_start)->pid << ": " <<(*list_start)->command << std::endl;
-        if (kill((*list_start)->pid, SIGKILL) == -1)
+    std::list<JobEntry*>::iterator i = jobs_list->begin();
+    while (i != jobs_list->end())
+    {
+        cout <<  (*i)->pid << ": " << (*i)->command << endl;
+        if (kill((*i)->pid, SIGKILL) == -1)
             perror("smash error: kill failed");
-        removeJobById((*list_start)->job_id); 
+        removeJobById((*i++)->job_id); 
     }
 }
 
-
 void JobsList::deleteJobsList() {
-    auto list_start = jobs_list->begin();
-    auto list_end = jobs_list->end();
-    for (; list_start != list_end; ++list_start) {
-        if (kill((*list_start)->pid, SIGKILL) == -1) 
+    std::list<JobEntry*>::iterator i = jobs_list->begin();
+    while (i != jobs_list->end())
+    {
+        if (kill((*i)->pid, SIGKILL) == -1)
             perror("smash error: kill failed");
-        removeJobById((*list_start)->job_id);
+        removeJobById((*i++)->job_id); 
     }
 }
 

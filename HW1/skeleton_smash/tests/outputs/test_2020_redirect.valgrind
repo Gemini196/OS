@@ -1,76 +1,45 @@
-==40493== Memcheck, a memory error detector
-==40493== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==40493== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==40493== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==40493== Parent PID: 40489
-==40493== 
-==40493== Invalid read of size 8
-==40493==    at 0x10FC71: std::_List_iterator<JobsList::JobEntry*>::operator++() (stl_list.h:162)
-==40493==    by 0x10E4C0: JobsList::killAllJobs() (Commands.cpp:770)
-==40493==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
-==40493==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40493==    by 0x110AA6: main (smash.cpp:51)
-==40493==  Address 0x5b858f0 is 0 bytes inside a block of size 24 free'd
-==40493==    at 0x4C3323B: operator delete(void*) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40493==    by 0x11049F: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::deallocate(std::_List_node<JobsList::JobEntry*>*, unsigned long) (new_allocator.h:125)
-==40493==    by 0x110349: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::deallocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, std::_List_node<JobsList::JobEntry*>*, unsigned long) (alloc_traits.h:462)
-==40493==    by 0x110159: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_put_node(std::_List_node<JobsList::JobEntry*>*) (stl_list.h:387)
-==40493==    by 0x11005C: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_erase(std::_List_iterator<JobsList::JobEntry*>) (stl_list.h:1820)
-==40493==    by 0x10FDCA: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::remove(JobsList::JobEntry* const&) (list.tcc:340)
-==40493==    by 0x10EAA0: JobsList::removeJobById(int) (Commands.cpp:874)
-==40493==    by 0x10E4B4: JobsList::killAllJobs() (Commands.cpp:774)
-==40493==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
-==40493==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40493==    by 0x110AA6: main (smash.cpp:51)
-==40493==  Block was alloc'd at
-==40493==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40493==    by 0x110584: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::allocate(unsigned long, void const*) (new_allocator.h:111)
-==40493==    by 0x1104CA: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::allocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, unsigned long) (alloc_traits.h:436)
-==40493==    by 0x11036A: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_get_node() (stl_list.h:383)
-==40493==    by 0x110189: std::_List_node<JobsList::JobEntry*>* std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_create_node<JobsList::JobEntry* const&>(JobsList::JobEntry* const&) (stl_list.h:572)
-==40493==    by 0x10FF6D: void std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_insert<JobsList::JobEntry* const&>(std::_List_iterator<JobsList::JobEntry*>, JobsList::JobEntry* const&) (stl_list.h:1801)
-==40493==    by 0x10FBA7: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::push_back(JobsList::JobEntry* const&) (stl_list.h:1118)
-==40493==    by 0x10E12B: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:740)
-==40493==    by 0x10BA02: ExternalCommand::execute() (Commands.cpp:162)
-==40493==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40493==    by 0x110AA6: main (smash.cpp:51)
-==40493== 
-==40493== 
-==40493== FILE DESCRIPTORS: 6 open at exit.
-==40493== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
-==40493==    at 0x54EF957: dup2 (syscall-template.S:78)
-==40493==    by 0x1109FD: main (smash.cpp:41)
-==40493== 
-==40493== Open file descriptor 0:
-==40493==    at 0x54EF957: dup2 (syscall-template.S:78)
-==40493==    by 0x1109AB: main (smash.cpp:33)
-==40493== 
-==40493== Open file descriptor 5:
-==40493==    at 0x54EF927: dup (syscall-template.S:78)
-==40493==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==40493==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==40493==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==40493==    by 0x5400C17: (below main) (libc-start.c:266)
-==40493== 
-==40493== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
-==40493==    at 0x54EF927: dup (syscall-template.S:78)
-==40493==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==40493==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==40493==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==40493==    by 0x5400C17: (below main) (libc-start.c:266)
-==40493== 
-==40493== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.valgrind
-==40493==    <inherited from parent>
-==40493== 
-==40493== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.err
-==40493==    <inherited from parent>
-==40493== 
-==40493== 
-==40493== HEAP SUMMARY:
-==40493==     in use at exit: 0 bytes in 0 blocks
-==40493==   total heap usage: 280 allocs, 280 frees, 99,937 bytes allocated
-==40493== 
-==40493== All heap blocks were freed -- no leaks are possible
-==40493== 
-==40493== For counts of detected and suppressed errors, rerun with: -v
-==40493== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==44800== Memcheck, a memory error detector
+==44800== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==44800== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==44800== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==44800== Parent PID: 44798
+==44800== 
+==44800== 
+==44800== FILE DESCRIPTORS: 6 open at exit.
+==44800== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
+==44800==    at 0x54EF957: dup2 (syscall-template.S:78)
+==44800==    by 0x112CC9: main (smash.cpp:41)
+==44800== 
+==44800== Open file descriptor 0:
+==44800==    at 0x54EF957: dup2 (syscall-template.S:78)
+==44800==    by 0x112C77: main (smash.cpp:33)
+==44800== 
+==44800== Open file descriptor 5:
+==44800==    at 0x54EF927: dup (syscall-template.S:78)
+==44800==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==44800==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==44800==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==44800==    by 0x5400C17: (below main) (libc-start.c:266)
+==44800== 
+==44800== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.out
+==44800==    at 0x54EF927: dup (syscall-template.S:78)
+==44800==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==44800==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==44800==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==44800==    by 0x5400C17: (below main) (libc-start.c:266)
+==44800== 
+==44800== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.valgrind
+==44800==    <inherited from parent>
+==44800== 
+==44800== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_redirect.err
+==44800==    <inherited from parent>
+==44800== 
+==44800== 
+==44800== HEAP SUMMARY:
+==44800==     in use at exit: 0 bytes in 0 blocks
+==44800==   total heap usage: 280 allocs, 280 frees, 99,945 bytes allocated
+==44800== 
+==44800== All heap blocks were freed -- no leaks are possible
+==44800== 
+==44800== For counts of detected and suppressed errors, rerun with: -v
+==44800== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,45 +1,175 @@
-==42228== Memcheck, a memory error detector
-==42228== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==42228== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==42228== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==42228== Parent PID: 42226
-==42228== 
-==42228== 
-==42228== FILE DESCRIPTORS: 6 open at exit.
-==42228== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.out
-==42228==    at 0x54EF957: dup2 (syscall-template.S:78)
-==42228==    by 0x1109FD: main (smash.cpp:41)
-==42228== 
-==42228== Open file descriptor 0:
-==42228==    at 0x54EF957: dup2 (syscall-template.S:78)
-==42228==    by 0x1109AB: main (smash.cpp:33)
-==42228== 
-==42228== Open file descriptor 5:
-==42228==    at 0x54EF927: dup (syscall-template.S:78)
-==42228==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==42228==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==42228==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==42228==    by 0x5400C17: (below main) (libc-start.c:266)
-==42228== 
-==42228== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.out
-==42228==    at 0x54EF927: dup (syscall-template.S:78)
-==42228==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==42228==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==42228==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==42228==    by 0x5400C17: (below main) (libc-start.c:266)
-==42228== 
-==42228== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.valgrind
-==42228==    <inherited from parent>
-==42228== 
-==42228== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.err
-==42228==    <inherited from parent>
-==42228== 
-==42228== 
-==42228== HEAP SUMMARY:
-==42228==     in use at exit: 0 bytes in 0 blocks
-==42228==   total heap usage: 46 allocs, 46 frees, 82,692 bytes allocated
-==42228== 
-==42228== All heap blocks were freed -- no leaks are possible
-==42228== 
-==42228== For counts of detected and suppressed errors, rerun with: -v
-==42228== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==46349== Memcheck, a memory error detector
+==46349== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==46349== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==46349== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==46349== Parent PID: 46345
+==46349== 
+==46349== Use of uninitialised value of size 8
+==46349==    at 0x110CEC: std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >::push_back(JobsList::TimeoutEntry* const&) (stl_vector.h:941)
+==46349==    by 0x110A89: std::priority_queue<JobsList::TimeoutEntry*, std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >, std::less<JobsList::TimeoutEntry*> >::push(JobsList::TimeoutEntry* const&) (stl_queue.h:597)
+==46349==    by 0x10FDC3: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1087)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== Invalid read of size 8
+==46349==    at 0x110CEC: std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >::push_back(JobsList::TimeoutEntry* const&) (stl_vector.h:941)
+==46349==    by 0x110A89: std::priority_queue<JobsList::TimeoutEntry*, std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >, std::less<JobsList::TimeoutEntry*> >::push(JobsList::TimeoutEntry* const&) (stl_queue.h:597)
+==46349==    by 0x10FDC3: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1087)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349==  Address 0x8 is not stack'd, malloc'd or (recently) free'd
+==46349== 
+==46349== 
+==46349== Process terminating with default action of signal 11 (SIGSEGV)
+==46349==  Access not within mapped region at address 0x8
+==46349==    at 0x110CEC: std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >::push_back(JobsList::TimeoutEntry* const&) (stl_vector.h:941)
+==46349==    by 0x110A89: std::priority_queue<JobsList::TimeoutEntry*, std::vector<JobsList::TimeoutEntry*, std::allocator<JobsList::TimeoutEntry*> >, std::less<JobsList::TimeoutEntry*> >::push(JobsList::TimeoutEntry* const&) (stl_queue.h:597)
+==46349==    by 0x10FDC3: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1087)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349==  If you believe this happened as a result of a stack
+==46349==  overflow in your program's main thread (unlikely but
+==46349==  possible), you can try to increase the size of the
+==46349==  main thread stack using the --main-stacksize= flag.
+==46349==  The main thread stack size used in this run was 8388608.
+==46349== 
+==46349== FILE DESCRIPTORS: 6 open at exit.
+==46349== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.out
+==46349==    at 0x54EF957: dup2 (syscall-template.S:78)
+==46349==    by 0x112CC9: main (smash.cpp:41)
+==46349== 
+==46349== Open file descriptor 0:
+==46349==    at 0x54EF957: dup2 (syscall-template.S:78)
+==46349==    by 0x112C77: main (smash.cpp:33)
+==46349== 
+==46349== Open file descriptor 5:
+==46349==    at 0x54EF927: dup (syscall-template.S:78)
+==46349==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==46349==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==46349==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==46349==    by 0x5400C17: (below main) (libc-start.c:266)
+==46349== 
+==46349== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.out
+==46349==    at 0x54EF927: dup (syscall-template.S:78)
+==46349==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==46349==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==46349==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==46349==    by 0x5400C17: (below main) (libc-start.c:266)
+==46349== 
+==46349== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.valgrind
+==46349==    <inherited from parent>
+==46349== 
+==46349== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_timeout2.err
+==46349==    <inherited from parent>
+==46349== 
+==46349== 
+==46349== HEAP SUMMARY:
+==46349==     in use at exit: 805 bytes in 16 blocks
+==46349==   total heap usage: 32 allocs, 16 frees, 81,945 bytes allocated
+==46349== 
+==46349== 18 bytes in 4 blocks are still reachable in loss record 1 of 13
+==46349==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10B5B9: _parseCommandLine(char const*, char**) (Commands.cpp:47)
+==46349==    by 0x10F7E2: TimeoutCommand::execute() (Commands.cpp:1004)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 19 bytes in 1 blocks are still reachable in loss record 2 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x4F652AC: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x4F65479: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::substr(unsigned long, unsigned long) const (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x10B33F: _rtrim(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.cpp:35)
+==46349==    by 0x10B3D6: _trim(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.cpp:39)
+==46349==    by 0x10F62F: SmallShell::executeCommand(char const*) (Commands.cpp:964)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 19 bytes in 1 blocks are still reachable in loss record 3 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x4F652AC: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x4F65479: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::substr(unsigned long, unsigned long) const (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x10B33F: _rtrim(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.cpp:35)
+==46349==    by 0x10B3D6: _trim(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.cpp:39)
+==46349==    by 0x10F907: TimeoutCommand::execute() (Commands.cpp:1015)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 19 bytes in 1 blocks are still reachable in loss record 4 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x4F652AC: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x10FD74: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1085)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 19 bytes in 1 blocks are still reachable in loss record 5 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x4F6513C: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x1104E3: JobsList::TimeoutEntry::TimeoutEntry(int, int, long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Commands.h:199)
+==46349==    by 0x10FDA8: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1086)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 24 bytes in 1 blocks are still reachable in loss record 6 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10F049: SmallShell::SmallShell() (Commands.cpp:911)
+==46349==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46349==    by 0x112C3C: main (smash.cpp:21)
+==46349== 
+==46349== 24 bytes in 1 blocks are still reachable in loss record 7 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10E337: JobsList::JobsList() (Commands.cpp:725)
+==46349==    by 0x10F054: SmallShell::SmallShell() (Commands.cpp:911)
+==46349==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46349==    by 0x112C3C: main (smash.cpp:21)
+==46349== 
+==46349== 24 bytes in 1 blocks are still reachable in loss record 8 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10F4CE: SmallShell::CreateCommand(char const*) (Commands.cpp:952)
+==46349==    by 0x10F5EA: SmallShell::executeCommand(char const*) (Commands.cpp:959)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 31 bytes in 1 blocks are still reachable in loss record 9 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x4F62B8A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x4EE9FE4: std::basic_istream<char, std::char_traits<char> >& std::getline<char, std::char_traits<char>, std::allocator<char> >(std::basic_istream<char, std::char_traits<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==46349==    by 0x112D44: main (smash.cpp:48)
+==46349== 
+==46349== 48 bytes in 1 blocks are still reachable in loss record 10 of 13
+==46349==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10FD8A: JobsList::addTimeout(char const*, int, int, long) (Commands.cpp:1086)
+==46349==    by 0x10FB64: TimeoutCommand::execute() (Commands.cpp:1059)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 160 bytes in 1 blocks are still reachable in loss record 11 of 13
+==46349==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10F785: TimeoutCommand::execute() (Commands.cpp:999)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== 200 bytes in 1 blocks are still reachable in loss record 12 of 13
+==46349==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10F066: SmallShell::SmallShell() (Commands.cpp:912)
+==46349==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46349==    by 0x112C3C: main (smash.cpp:21)
+==46349== 
+==46349== 200 bytes in 1 blocks are still reachable in loss record 13 of 13
+==46349==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46349==    by 0x10F796: TimeoutCommand::execute() (Commands.cpp:1000)
+==46349==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46349==    by 0x112D72: main (smash.cpp:51)
+==46349== 
+==46349== LEAK SUMMARY:
+==46349==    definitely lost: 0 bytes in 0 blocks
+==46349==    indirectly lost: 0 bytes in 0 blocks
+==46349==      possibly lost: 0 bytes in 0 blocks
+==46349==    still reachable: 805 bytes in 16 blocks
+==46349==         suppressed: 0 bytes in 0 blocks
+==46349== 
+==46349== For counts of detected and suppressed errors, rerun with: -v
+==46349== Use --track-origins=yes to see where uninitialised values come from
+==46349== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
