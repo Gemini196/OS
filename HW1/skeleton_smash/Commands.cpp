@@ -979,18 +979,6 @@ void SmallShell::executeCommand(const char *cmd_line) {
 //--------------------------------TIMEOUT COMMAND IMPLEMENTATION--------------------------------//
 //==============================================================================================//
 
-/*
-bool TimeoutInstance::operator<(const TimeoutInstance& other) const {
-  return this->end_time > other.end_time;
-}
-
-pid_t TimeoutInstance::GetPid() const {
-  return this->pid;
-}
-
-std::string TimeoutInstance::GetCMD() const {
-  return this->cmd_line;
-}*/
 
 TimeoutCommand::TimeoutCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
 
@@ -1086,5 +1074,19 @@ void JobsList::addTimeout(const char* cmd_line, int duration, pid_t pid , time_t
     auto* new_timeout = new JobsList::TimeoutEntry(duration, pid, time_inserted, cmd);
     timeout_queue->push(new_timeout); // MUST DEFINE TO PRIORITY QUEUE WHAT'S PRIORITY!
 }
+
+// for priority queue sort
+bool JobsList::TimeoutEntry::operator<(const JobsList::TimeoutEntry& other) const {
+  return this->end_time > other.end_time;
+}
+
+/*
+pid_t TimeoutInstance::GetPid() const {
+  return this->pid;
+}
+
+std::string TimeoutInstance::GetCMD() const {
+  return this->cmd_line;
+}*/
 
 

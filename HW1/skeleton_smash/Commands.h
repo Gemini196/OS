@@ -199,10 +199,11 @@ public:
           duration(duration), pid(pid), command(command), end_time(time_inserted + duration){}
         //TimeoutEntry(const TimeoutEntry& other) = default;
         ~TimeoutEntry() {}
-        pid_t GetPid() const;
-        std::string GetCMD() const;
+        //pid_t GetPid() const;
+        //std::string GetCMD() const;
         TimeoutEntry& operator=(const TimeoutEntry& other) = default;
         bool operator<(const TimeoutEntry& other) const;
+        
     } ;
 
 
