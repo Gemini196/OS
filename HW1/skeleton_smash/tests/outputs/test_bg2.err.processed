@@ -1,2 +1,4 @@
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_M_construct null not valid
+smash error: bg: there is no stopped jobs to resume
+smash error: bg: job-id 2 is already running in the background
+smash error: bg: job-id 3 does not exist
+smash error: bg: invalid arguments

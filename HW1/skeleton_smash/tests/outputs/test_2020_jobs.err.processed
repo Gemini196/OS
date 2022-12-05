@@ -1,2 +1,11 @@
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_M_construct null not valid
+smash error: fg: job-id 20 does not exist
+smash error: fg: job-id 21 does not exist
+smash error: fg: job-id -2 does not exist
+smash error: bg: job-id 20 does not exist
+smash error: bg: job-id -1 does not exist
+smash error: bg: job-id 7 is already running in the background
+smash error: bg: job-id 8 is already running in the background
+smash error: kill: job-id 1 does not exist
+smash error: fg: job-id 4 does not exist
+smash error: bg: job-id 2 does not exist
+smash error: fg: job-id 1 does not exist

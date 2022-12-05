@@ -51,7 +51,7 @@ class PipeCommand : public Command {
     bool err_flag;
   public:
     PipeCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~PipeCommand() {}
+    virtual ~PipeCommand();
     void execute() override;
     int run_child_process(bool is_left, int fd[]);
 };
@@ -63,7 +63,7 @@ class RedirectionCommand : public Command {
     bool is_append;
   public:
     explicit RedirectionCommand(const char* cmd_line, SmallShell* smash);
-    virtual ~RedirectionCommand() {}
+    virtual ~RedirectionCommand();
     void execute() override;
     //void prepare() override;
     //void cleanup() override;
@@ -198,9 +198,11 @@ public:
     bool isEmpty();
     void printJobsList();
     void killAllJobs();
+    void deleteJobsList();
     void updateMaxJobId();
     void removeFinishedJobs();
     JobEntry * getJobById(int jobId);
+    JobEntry *getJobBypid(int pid);
     JobEntry *getLastStoppedJob(int *jobId);
     int get_last_job_id();
     void removeJobById(int jobId);
@@ -214,17 +216,16 @@ public:
 
 //------------------------------------ SmallShell ----------------------------------------------------
 
-class SmallShell {
-  private:
-    SmallShell();
-  
+class SmallShell {  
   public:
     string smash_name;
     char* last_working_dir;
+    char* cmd_line;
     JobsList* jobs_list;
     pid_t fg_pid;
     pid_t smash_pid;
 
+    SmallShell();
     Command *CreateCommand(const char* cmd_line);
     Command *CreateCommand(const char* cmd_line, SmallShell* smash);
     SmallShell(SmallShell const&)      = delete; // disable copy ctor

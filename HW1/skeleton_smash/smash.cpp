@@ -20,10 +20,10 @@ int main(int argc, char* argv[]) {
 
     SmallShell& smash = SmallShell::getInstance();
 
-    smash.smash_name = "smash";
+    /*    smash.smash_name = "smash";
     smash.jobs_list = new JobsList();
     smash.last_working_dir = nullptr; // because it is char*
-    smash.fg_pid = 0;
+    smash.fg_pid = 0;*/
 
     while(true) {
        if(close(0) == -1){
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         smash.jobs_list->removeFinishedJobs();
 //        smash.jobs_list->jobs_list->sort(compareJobs);
         smash.executeCommand(cmd_line.c_str());
-        smash.fg_pid = 0;
+        //smash.fg_pid = 0;
     }
 
 

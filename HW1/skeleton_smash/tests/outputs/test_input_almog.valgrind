@@ -1,0 +1,63 @@
+==41310== Memcheck, a memory error detector
+==41310== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==41310== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==41310== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==41310== Parent PID: 41306
+==41310== 
+==41310== 
+==41310== FILE DESCRIPTORS: 6 open at exit.
+==41310== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_input_almog.out
+==41310==    at 0x54EF957: dup2 (syscall-template.S:78)
+==41310==    by 0x1109FD: main (smash.cpp:41)
+==41310== 
+==41310== Open file descriptor 0:
+==41310==    at 0x54EF957: dup2 (syscall-template.S:78)
+==41310==    by 0x1109AB: main (smash.cpp:33)
+==41310== 
+==41310== Open file descriptor 5:
+==41310==    at 0x54EF927: dup (syscall-template.S:78)
+==41310==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==41310==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==41310==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==41310==    by 0x5400C17: (below main) (libc-start.c:266)
+==41310== 
+==41310== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_input_almog.out
+==41310==    at 0x54EF927: dup (syscall-template.S:78)
+==41310==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==41310==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==41310==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==41310==    by 0x5400C17: (below main) (libc-start.c:266)
+==41310== 
+==41310== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_input_almog.valgrind
+==41310==    <inherited from parent>
+==41310== 
+==41310== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_input_almog.err
+==41310==    <inherited from parent>
+==41310== 
+==41310== 
+==41310== HEAP SUMMARY:
+==41310==     in use at exit: 163 bytes in 2 blocks
+==41310==   total heap usage: 25 allocs, 23 frees, 82,656 bytes allocated
+==41310== 
+==41310== 3 bytes in 1 blocks are indirectly lost in loss record 1 of 2
+==41310==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==41310==    by 0x10B299: _parseCommandLine(char const*, char**) (Commands.cpp:47)
+==41310==    by 0x10D4A9: BackgroundCommand::execute() (Commands.cpp:564)
+==41310==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==41310==    by 0x110AA6: main (smash.cpp:51)
+==41310== 
+==41310== 163 (160 direct, 3 indirect) bytes in 1 blocks are definitely lost in loss record 2 of 2
+==41310==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==41310==    by 0x10D461: BackgroundCommand::execute() (Commands.cpp:558)
+==41310==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==41310==    by 0x110AA6: main (smash.cpp:51)
+==41310== 
+==41310== LEAK SUMMARY:
+==41310==    definitely lost: 160 bytes in 1 blocks
+==41310==    indirectly lost: 3 bytes in 1 blocks
+==41310==      possibly lost: 0 bytes in 0 blocks
+==41310==    still reachable: 0 bytes in 0 blocks
+==41310==         suppressed: 0 bytes in 0 blocks
+==41310== 
+==41310== For counts of detected and suppressed errors, rerun with: -v
+==41310== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

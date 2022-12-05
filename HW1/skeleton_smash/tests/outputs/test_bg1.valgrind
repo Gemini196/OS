@@ -1,0 +1,97 @@
+==40511== Memcheck, a memory error detector
+==40511== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==40511== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==40511== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==40511== Parent PID: 40507
+==40511== 
+==40511== Invalid read of size 8
+==40511==    at 0x10FC71: std::_List_iterator<JobsList::JobEntry*>::operator++() (stl_list.h:162)
+==40511==    by 0x10E4C0: JobsList::killAllJobs() (Commands.cpp:770)
+==40511==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
+==40511==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==40511==    by 0x110AA6: main (smash.cpp:51)
+==40511==  Address 0x5b820b0 is 0 bytes inside a block of size 24 free'd
+==40511==    at 0x4C3323B: operator delete(void*) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==40511==    by 0x11049F: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::deallocate(std::_List_node<JobsList::JobEntry*>*, unsigned long) (new_allocator.h:125)
+==40511==    by 0x110349: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::deallocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, std::_List_node<JobsList::JobEntry*>*, unsigned long) (alloc_traits.h:462)
+==40511==    by 0x110159: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_put_node(std::_List_node<JobsList::JobEntry*>*) (stl_list.h:387)
+==40511==    by 0x11005C: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_erase(std::_List_iterator<JobsList::JobEntry*>) (stl_list.h:1820)
+==40511==    by 0x10FDCA: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::remove(JobsList::JobEntry* const&) (list.tcc:340)
+==40511==    by 0x10EAA0: JobsList::removeJobById(int) (Commands.cpp:874)
+==40511==    by 0x10E4B4: JobsList::killAllJobs() (Commands.cpp:774)
+==40511==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
+==40511==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==40511==    by 0x110AA6: main (smash.cpp:51)
+==40511==  Block was alloc'd at
+==40511==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==40511==    by 0x110584: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::allocate(unsigned long, void const*) (new_allocator.h:111)
+==40511==    by 0x1104CA: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::allocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, unsigned long) (alloc_traits.h:436)
+==40511==    by 0x11036A: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_get_node() (stl_list.h:383)
+==40511==    by 0x110189: std::_List_node<JobsList::JobEntry*>* std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_create_node<JobsList::JobEntry* const&>(JobsList::JobEntry* const&) (stl_list.h:572)
+==40511==    by 0x10FF6D: void std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_insert<JobsList::JobEntry* const&>(std::_List_iterator<JobsList::JobEntry*>, JobsList::JobEntry* const&) (stl_list.h:1801)
+==40511==    by 0x10FBA7: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::push_back(JobsList::JobEntry* const&) (stl_list.h:1118)
+==40511==    by 0x10E12B: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:740)
+==40511==    by 0x1106B7: ctrlZHandler(int) (signals.cpp:39)
+==40511==    by 0x541DF0F: ??? (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==40511==    by 0x54C3334: waitpid (waitpid.c:30)
+==40511==    by 0x10BA4C: ExternalCommand::execute() (Commands.cpp:168)
+==40511==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==40511==    by 0x110AA6: main (smash.cpp:51)
+==40511== 
+==40511== 
+==40511== FILE DESCRIPTORS: 6 open at exit.
+==40511== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_bg1.out
+==40511==    at 0x54EF957: dup2 (syscall-template.S:78)
+==40511==    by 0x1109FD: main (smash.cpp:41)
+==40511== 
+==40511== Open file descriptor 0:
+==40511==    at 0x54EF957: dup2 (syscall-template.S:78)
+==40511==    by 0x1109AB: main (smash.cpp:33)
+==40511== 
+==40511== Open file descriptor 5:
+==40511==    at 0x54EF927: dup (syscall-template.S:78)
+==40511==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==40511==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==40511==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==40511==    by 0x5400C17: (below main) (libc-start.c:266)
+==40511== 
+==40511== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_bg1.out
+==40511==    at 0x54EF927: dup (syscall-template.S:78)
+==40511==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==40511==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==40511==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==40511==    by 0x5400C17: (below main) (libc-start.c:266)
+==40511== 
+==40511== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_bg1.valgrind
+==40511==    <inherited from parent>
+==40511== 
+==40511== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_bg1.err
+==40511==    <inherited from parent>
+==40511== 
+==40511== 
+==40511== HEAP SUMMARY:
+==40511==     in use at exit: 163 bytes in 2 blocks
+==40511==   total heap usage: 21 allocs, 19 frees, 82,269 bytes allocated
+==40511== 
+==40511== 3 bytes in 1 blocks are indirectly lost in loss record 1 of 2
+==40511==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==40511==    by 0x10B299: _parseCommandLine(char const*, char**) (Commands.cpp:47)
+==40511==    by 0x10D4A9: BackgroundCommand::execute() (Commands.cpp:564)
+==40511==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==40511==    by 0x110AA6: main (smash.cpp:51)
+==40511== 
+==40511== 163 (160 direct, 3 indirect) bytes in 1 blocks are definitely lost in loss record 2 of 2
+==40511==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==40511==    by 0x10D461: BackgroundCommand::execute() (Commands.cpp:558)
+==40511==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
+==40511==    by 0x110AA6: main (smash.cpp:51)
+==40511== 
+==40511== LEAK SUMMARY:
+==40511==    definitely lost: 160 bytes in 1 blocks
+==40511==    indirectly lost: 3 bytes in 1 blocks
+==40511==      possibly lost: 0 bytes in 0 blocks
+==40511==    still reachable: 0 bytes in 0 blocks
+==40511==         suppressed: 0 bytes in 0 blocks
+==40511== 
+==40511== For counts of detected and suppressed errors, rerun with: -v
+==40511== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)

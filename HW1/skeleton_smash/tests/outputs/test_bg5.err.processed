@@ -1,5 +1,0 @@
-smash error: bg: job-id 3 does not exist
-smash error: bg: job-id 4 does not exist
-smash error: bg: job-id 2 does not exist
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_M_construct null not valid
