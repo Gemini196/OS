@@ -14,5 +14,3 @@ smash> [1] ./printSignals.exe & : 2 X secs
 [4] sleep 500& : 6 X secs
 smash> smash: sending SIGKILL signal to 3 jobs:
 2: ./printSignals.exe &
-4: sleep 300&
-6: sleep 500&

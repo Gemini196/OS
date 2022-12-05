@@ -25,7 +25,3 @@ smash> [1] sleep 100 : 2 X secs
 [5] sleep 500 : 6 X secs
 smash> smash: sending SIGKILL signal to 5 jobs:
 2: sleep 100
-3: sleep 200
-4: sleep 300
-5: sleep 400
-6: sleep 500

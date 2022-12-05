@@ -1,4 +1,2 @@
-Try 'timeout --help' for more information.
-Try 'timeout --help' for more information.
-timeout: invalid option -- '4'
-Try 'timeout --help' for more information.
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid

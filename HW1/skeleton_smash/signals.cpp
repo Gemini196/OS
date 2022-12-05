@@ -16,6 +16,10 @@ using namespace std;
 
 using namespace std;
 
+// add to ctrlC & ctrlZ: if the fg process is timeout - 
+// CtrlC- remove it from timout_list
+// CtrlZ - add job_id to TimoutEntry of the process
+
 void ctrlZHandler(int sig_num) {
     cout << "smash: got ctrl-Z" << endl;
     SmallShell& smash = SmallShell::getInstance();
@@ -59,7 +63,10 @@ void ctrlCHandler(int sig_num) {
 }
 
 
-/*
+
+// FIND THE CLOSEST INSTANCE (IN TIMEOUT LIST) THAT NEEDS TO GET AN ALARM AND KILL IT
+
+// just got SIG_ALRM - time to smash some timeout
 void alarmHandler(int sig_num) 
 {  
   cout << "smash: got an alarm" << endl;
@@ -72,33 +79,35 @@ void alarmHandler(int sig_num)
     return;
   }
 
-
-  pid_t timedout_pid = (smash.TimeoutManager.top()).GetPid(); // the top of the queue is the one who timedout 
+  auto top = smash.jobs_list->timeout_queue->top();
+  JobsList::TimeoutEntry to_delete = *top;
+  pid_t timedout_pid = to_delete.pid;
   
   
-  // Piazza @92 (Assuming no more than 1 timeout per second)
+  // Assuming no more than 1 timeout per second
   int what = waitpid(timedout_pid, nullptr, WNOHANG); 
   if(what == 0) {
-    std::cout << "smash: " << (smash.TimeoutManager.top()).GetCMD() << " timed out!" << std::endl;
+    cout << "smash: " << to_delete.command << " timed out!" << endl;
     if(kill(timedout_pid, SIGKILL) == -1) {
       perror("smash error: kill failed");
       return;
     }
   }
-  smash.basic_list.removeJobByPid(timedout_pid);
-  smash.TimeoutManager.pop();
-  if (smash.TimeoutManager.size() == 0) { // no more timed commands
-    return;
-  }
+
+  // remove the bastard from all queues and lists
+  smash.jobs_list->removeJobBypid(timedout_pid);
+  smash.jobs_list->timeout_queue->pop();
+  delete &to_delete;
+
+
+  //if (smash.timeout_queue->timeout_queue.size() == 0) // no more timed commands
+  //  return;
     
-  // Set next alarm
-  const TimeoutInstance& next_timeout = smash.TimeoutManager.top();
-
+  // DO WE NEED TO SET THE NEXT ALARM??
+  //const TimeoutInstance& next_timeout = smash.TimeoutManager.top();
   //assert(next_timeout.end_time > current_time); // If the end time has passed, an alarm should've been made
+  //unsigned int next_alarm = (unsigned int)difftime(next_timeout.end_time, current_time);
+  //alarm(next_alarm);
 
-  unsigned int next_alarm = (unsigned int)difftime(next_timeout.end_time, current_time);
-  alarm(next_alarm);
-  return;
-  
-}*/
+}
 

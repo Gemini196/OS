@@ -366,14 +366,3 @@ smash: got ctrl-Z
 smash: process 22 was stopped
 smash> smash: sending SIGKILL signal to 12 jobs:
 6: sleep 500&
-7: sleep 600&
-8: sleep 700&
-9: sleep 800&
-10: sleep 900&
-12: sleep 1001&
-15: sleep 1100
-16: sleep 1200
-17: sleep 1200
-19: sleep 777&
-21: sleep 888
-22: sleep 100&
