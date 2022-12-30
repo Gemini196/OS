@@ -68,9 +68,8 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
     if (queue->total_request == queue->max_size)
     {
         Node temp_node;
-        if(!strcmp(queue->algo, "block")){
+        if(!strcmp(queue->algo, "block"))
             pthread_cond_wait(queue->enqueue_allowed, queue->queue_lock);
-        }
         else if(!strcmp(queue->algo, "dt")){ //drop tail (end)
             pthread_mutex_unlock(queue->queue_lock);
             Close(fd);
@@ -84,21 +83,21 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
                 free(to_add);
                 close(fd);
                 return;
-            }
-            temp_node = queue->head;
-            int fd_to_remove = temp_node->fd;
+        }
+        temp_node = queue->head;
+        int fd_to_remove = temp_node->fd;
 
-            // move the front forward
-            queue->head = queue->head->next;
-            queue->curr_size--;
-            queue->total_request = queue->total_request - 1;
+        // move the front forward
+        queue->head = queue->head->next;
+        queue->curr_size--;
+        queue->total_request = queue->total_request - 1;
 
-            // if we reached the end, throw 'back' away
-            if(queue->curr_size == 0) {
-                queue->tail = NULL;
-            }
-            free(temp_node);           // free the first node
-            close(fd_to_remove);       // close connection to oldest request
+        // if we reached the end, throw 'back' away
+        if(queue->curr_size == 0) {
+            queue->tail = NULL;
+        }
+        free(temp_node);           // free the first node
+        close(fd_to_remove);       // close connection to oldest request
         }
         else if(!strcmp(queue->algo, "random")){//drop random half
             // TODO implement this
@@ -108,14 +107,14 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
     if(queue->curr_size == 0) //if it is the first node
     {
         // make both front and rear points to the new node
-        queue->front = to_add;
-        queue->back  = to_add;
+        queue->head = to_add;
+        queue->tail  = to_add;
         queue->curr_size = 1;       // we have 1 node in queue
     }
     else // we have some nodes in the queue
     {
-        queue->back->next = to_add; // add newnode in back->next
-        queue->back = to_add;       // make the new node as the rear node
+        queue->tail->next = to_add; // add newnode in back->next
+        queue->tail = to_add;       // make the new node as the rear node
         queue->curr_size++;         // we have 1 more node in queue
     }
 
@@ -125,16 +124,5 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
     //release lock and signal to worker threads
     pthread_cond_signal(queue->dequeue_allowed); // Can be done outside but it's better this way =) [we know stuff]
     pthread_mutex_unlock(queue->queue_lock);
-}
-
-queue->curr_size++;         // we have 1 more node in queue
-}
-
-// Update the total request num
-queue->total_request = queue->total_request + 1;
-
-//release lock and signal to worker threads
-pthread_cond_signal(queue->dequeue_allowed); // Can be done outside but it's better this way =) [we know stuff]
-pthread_mutex_unlock(queue->queue_lock);
 }
 
