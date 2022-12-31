@@ -64,8 +64,15 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
     // try to lock
     pthread_mutex_lock(queue->queue_lock);
 
+    if(queue->curr_size == 0) //if it is the first node
+    {
+        queue->rear = to_add;
+        queue->front  = to_add;
+        queue->curr_size = 1;       // we have 1 node in queue
+    }
+
     // Attempted to insert to a full queue!! bad boy
-    if (queue->total_request == queue->max_size)
+    else if (queue->total_request == queue->max_size)
     {
         Node temp_node;
         if(!strcmp(queue->algo, "block"))
@@ -103,13 +110,7 @@ void enqueue(Queue queue, int fd, struct timeval arrival_time)
         }
     }
 
-    if(queue->curr_size == 0) //if it is the first node
-    {
-        // make both front and rear points to the new node
-        queue->rear = to_add;
-        queue->front  = to_add;
-        queue->curr_size = 1;       // we have 1 node in queue
-    }
+
     else // we have some nodes in the queue
     {
         queue->front->next = to_add; // add newnode in back->next
