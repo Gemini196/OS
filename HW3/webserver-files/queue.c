@@ -52,8 +52,11 @@ Queue queueCreate(int max_size, char* algo){
 }
 
 
-void enqueue(Queue queue, int fd, struct timeval arrival_time)
+void enqueue(Queue queue, int fd)
 {
+    struct timeval arrival_time;
+    gettimeofday(&arrival_time, NULL);
+
     Node to_add = (Node)malloc(sizeof(*to_add));
     if(to_add == NULL)
         return;

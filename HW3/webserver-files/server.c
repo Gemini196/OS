@@ -1,6 +1,7 @@
 #include "segel.h"
 #include "request.h"
 #include "queue.h"
+#include "request_stats.h"
 
 // 
 // server.c: A very, very simple web server
@@ -12,81 +13,104 @@
 // Most of the work is done within routines written in request.c
 //
 
+Queue request_queue;
+
 // HW3: Parse the new arguments too
-void getargs(int *port, int* threads_num, int* queue_max_size, int argc, char *argv[])
+void getargs(int *port, int* threads_num, int* queue_max_size, int argc, char *argv[], char **algo)
 {
-    if (argc < 4) {
+    if (argc < 5) {
 	fprintf(stderr, "Usage: %s <port>\n", argv[0]);
 	exit(1);
     }
     *port = atoi(argv[1]);
     *threads_num = atoi(argv[2]);
     *queue_max_size = atoi(argv[3]);
+    *algo = (char*)argv[4];
 }
 
 
 void* Start_routine(void* thread_id)
 {
+    if (thread_id == NULL)
+        pthread_exit((void*)1);
+
     int connfd; // dequeue into this
-//    struct timeval dispatch_time, curr_time, arrival_time;
-//
-//    // Initialize stats
-//    Stats* stats = malloc(sizeof(*stats));
-//    if (stats == NULL) {
-//        exit(1); // TODO - lmao XD YEET
-//    }
-//    stats->handler_thread_stats.handler_thread_id                = *(int*)thread_id;
-//    stats->handler_thread_stats.handler_thread_req_count         = 0;
-//    stats->handler_thread_stats.handler_thread_static_req_count  = 0;
-//    stats->handler_thread_stats.handler_thread_dynamic_req_count = 0;
+    struct timeval dispatch_time, curr_time, arrival_time;
+
+    ReqStats request_stats = malloc(sizeof(request_stats));
+    
+    if (request_stats == NULL)
+        pthread_exit((void*)1);
+    
+    // initialize request_stats
+    request_stats->thread_stats =  malloc(sizeof(ThreadStats));
+    if (request_stats->thread_stats == NULL){
+        free(request_stats);
+        pthread_exit((void*)1);
+    }
+    
+    request_stats->thread_stats->id = *(int*)thread_id;
+    request_stats->thread_stats->dynamic_req_count = 0;
+    request_stats->thread_stats->static_req_count = 0;
+    request_stats->thread_stats->req_count = 0;
 
     while(1)
     {
-        connfd = dequeue(to_do_tasks_queue, &arrival_time);    // Taking a task from the 'todo' queue
-//        gettimeofday(&curr_time, NULL);                        // Getting current time
-//        timersub(&curr_time, &arrival_time, &dispatch_time);
-//        //  ^^    (curr)   -  (arrival)  --> dispatch
+        // get task from queue
+        connfd = dequeue(request_queue, &arrival_time);
+        gettimeofday(&curr_time, NULL);                        
+        timersub(&curr_time, &arrival_time, &dispatch_time); // curr - arrival = dispatch
+        
+        // Update statistics
+        request_stats->arrival_time = arrival_time;
+        request_stats->dispatch_interval = dispatch_time;
+        request_stats->thread_stats->req_count++;
 
-//        // Stats preparation
-//        stats->arrival_time = arrival_time;
-//        stats->dispatch_interval = dispatch_time;
-//        stats->handler_thread_stats.handler_thread_req_count++;
-
-        requestHandle(connfd, stats);
-        queueUpdateRequest(to_do_tasks_queue);
+        requestHandle(connfd, request_stats);
+        queueUpdateRequest(request_queue);
         Close(connfd);
     }
 
-//    free(stats);
+    free(request_stats->thread_stats);
+    free(request_stats);
 }
 
 
 int main(int argc, char *argv[])
 {
-    int listenfd, connfd, port, clientlen, threads_num, max_requests_size, queue_max_size;
-    char* algo;
+    int listenfd, connfd, port, clientlen, threads_num, max_requests_size;
+    char* algo = NULL;
     struct sockaddr_in clientaddr;
-    Queue request_queue;
 
+    // Parse command arguments
+    getargs(&port, &threads_num, &max_requests_size, argc, argv, &algo);
 
-    getargs(&port, &threads_num, &max_requests_size, argc, argv);
-    // queue_max_size = max_requests_size - threads_num;
+    // Alloc thread_pool
     pthread_t* thread_pool = (pthread_t*) malloc(sizeof(pthread_t) * threads_num);
-    request_queue = queueCreate(max_requests_size, algo);
-    if(thread_pool == NULL || request_queue == NULL)
+    if(thread_pool == NULL || algo == NULL)
         exit(1);
+    
+    // Create Queue
+    request_queue = queueCreate(max_requests_size, algo);
+    if(request_queue == NULL){
+        free(thread_pool);
+        exit(1);
+    }
+
+    // Create threads (in threadpool)
     for (int i=0; i<threads_num; i++){
         pthread_create(&(thread_pool[i]), NULL, Start_routine, (void*)(&i));
     }
 
+    // Open server port to listen
     listenfd = Open_listenfd(port);
+
+    // Server is open for requests
     while (1) {
 	    clientlen = sizeof(clientaddr);
 	    connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *) &clientlen);
-
-        requestHandle(connfd);
-
-        Close(connfd);
+        // Insert new request node into queue
+        enqueue(request_queue, connfd);
     }
 
     for (int i=0; i<threads_num; i++) {
@@ -95,11 +119,4 @@ int main(int argc, char *argv[])
 
     queueDestroy(request_queue);
     free(thread_pool);
-
 }
-
-
-    
-
-
- 
