@@ -130,8 +130,6 @@ void enqueue(Queue queue, int fd)
 
 int dequeue(Queue queue, struct timeval* arrival_time)
 {
-
-
     // try to lock queue
     pthread_mutex_lock(queue->queue_lock);
 
