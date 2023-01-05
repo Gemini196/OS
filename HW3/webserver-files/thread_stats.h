@@ -6,6 +6,6 @@ typedef struct thread_stats_t {
     int req_count;
     int static_req_count;
     int dynamic_req_count;
-} *ThreadStats;
+} ThreadStats;
 
 #endif // THREAD_STATS

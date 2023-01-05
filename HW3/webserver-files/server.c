@@ -33,6 +33,7 @@ void* Start_routine(void* thread_id)
 {
     if (thread_id == NULL)
         pthread_exit((void*)1);
+    int id = *((int*)thread_id);
 
     int connfd; // dequeue into this
     struct timeval dispatch_time, curr_time, arrival_time;
@@ -42,17 +43,10 @@ void* Start_routine(void* thread_id)
     if (request_stats == NULL)
         pthread_exit((void*)1);
     
-    // initialize request_stats
-    request_stats->thread_stats =  malloc(sizeof(ThreadStats));
-    if (request_stats->thread_stats == NULL){
-        free(request_stats);
-        pthread_exit((void*)1);
-    }
-    
-    request_stats->thread_stats->id = *(int*)thread_id;
-    request_stats->thread_stats->dynamic_req_count = 0;
-    request_stats->thread_stats->static_req_count = 0;
-    request_stats->thread_stats->req_count = 0;
+    request_stats->thread_stats.id =  id;
+    request_stats->thread_stats.dynamic_req_count = 0;
+    request_stats->thread_stats.static_req_count = 0;
+    request_stats->thread_stats.req_count = 0;
 
     while(1)
     {
@@ -64,14 +58,13 @@ void* Start_routine(void* thread_id)
         // Update statistics
         request_stats->arrival_time = arrival_time;
         request_stats->dispatch_interval = dispatch_time;
-        request_stats->thread_stats->req_count++;
+        request_stats->thread_stats.req_count++;
 
         requestHandle(connfd, request_stats);
         queueUpdateRequest(request_queue);
         Close(connfd);
     }
 
-    free(request_stats->thread_stats);
     free(request_stats);
 }
 
@@ -99,7 +92,9 @@ int main(int argc, char *argv[])
 
     // Create threads (in threadpool)
     for (int i=0; i<threads_num; i++){
-        pthread_create(&(thread_pool[i]), NULL, Start_routine, (void*)(&i));
+        int* thread_id = (int*) malloc(sizeof(int)); // THIS MUST BE ALLOCATED!!
+        *thread_id = i;
+        pthread_create(&(thread_pool[i]), NULL, Start_routine, (void*)thread_id);
     }
 
     // Open server port to listen
