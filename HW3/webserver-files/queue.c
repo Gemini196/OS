@@ -67,56 +67,61 @@ void enqueue(Queue queue, int fd)
     // try to lock
     pthread_mutex_lock(queue->queue_lock);
 
-    // Attempted to insert to a full queue!! bad boy
-    if (queue->total_request == queue->max_size)
+    if(queue->curr_size == 0) //if it is the first node
+    {
+        queue->front = to_add;
+        queue->rear  = to_add;
+        queue->curr_size = 1;       // we have 1 node in queue
+    }
+
+    // Attempted to insert to a full queue!
+    else if (queue->total_request == queue->max_size)
     {
         Node temp_node;
         if(!strcmp(queue->algo, "block"))
             pthread_cond_wait(queue->enqueue_allowed, queue->queue_lock);
-        else if(!strcmp(queue->algo, "dt")){ //drop front (end)
+
+        else if(!strcmp(queue->algo, "dt")){ //drop tail
             pthread_mutex_unlock(queue->queue_lock);
             Close(fd);
             free(to_add);
             return;
         }
-        else if(!strcmp(queue->algo, "dh")){ //drop rear (begin)
-            Close(queue->rear->fd);
-            if(queue->curr_size == 0) {
-                pthread_mutex_unlock(queue->queue_lock);
-                free(to_add);
-                close(fd);
-                return;
-            }
+
+        else if(!strcmp(queue->algo, "dh")){ //drop front (begin)
+            
             temp_node = queue->rear;
-            int fd_to_remove = temp_node->fd;
+            int fd_to_remove = queue->front->fd;
 
-            // move the front forward
-            queue->rear = queue->rear->next;
-            queue->curr_size--;
-            queue->total_request = queue->total_request - 1;
+            // remove front
+            while (temp_node->next != queue->front)
+            {
+                temp_node = temp_node->next;
+            }
 
-            // if we reached the end, throw 'back' away
-            if(queue->curr_size == 0)
-                queue->front = NULL;
-            free(temp_node);           // free the first node
-            close(fd_to_remove);       // close connection to oldest request
+            free(temp_node->next);
+            
+            queue->front = temp_node;
+            queue->front->next = NULL;
+
+            // insert new node into rear
+            to_add->next = queue->rear;
+            queue->rear = to_add;
+
+            Close(fd_to_remove);       // close connection to oldest request
         }
+
         else if(!strcmp(queue->algo, "random")){//drop random half
             // TODO implement this
         }
     }
 
-    if(queue->curr_size == 0) //if it is the first node
+
+    else // ADD NODE TO NOT EMPTY QUEUE
     {
+        to_add->next = queue->rear;
         queue->rear = to_add;
-        queue->front  = to_add;
-        queue->curr_size = 1;       // we have 1 node in queue
-    }
-    else // we have some nodes in the queue
-    {
-        queue->front->next = to_add; // add newnode in back->next
-        queue->front = to_add;       // make the new node as the rear node
-        queue->curr_size++;         // we have 1 more node in queue
+        queue->curr_size++; 
     }
 
     // Update the total request num
@@ -128,6 +133,7 @@ void enqueue(Queue queue, int fd)
 }
 
 
+
 int dequeue(Queue queue, struct timeval* arrival_time)
 {
     // try to lock queue
@@ -136,28 +142,62 @@ int dequeue(Queue queue, struct timeval* arrival_time)
     // cannot dequeue empty queue
     while(queue->curr_size == 0)
         pthread_cond_wait(queue->dequeue_allowed, queue->queue_lock);
-        
-    // backup rear node
-    Node temp_node = queue->rear;
-    int fd = temp_node->fd;
 
-    *arrival_time = temp_node->arrival_time;
+    int fd = queue->front->fd;
+    *arrival_time = queue->front->arrival_time;
 
-    queue->rear = queue->rear->next;
-    queue->curr_size--;
-
-    // reached the end
-    if(queue->curr_size == 0)
+    // case: single node queue freed
+    if(queue->curr_size == 1)
+    {
+        free(queue->front);
         queue->rear = NULL;
-    
-    free(temp_node); //free the rear (huehuehue)
+        queue->front = NULL;
+    }
 
+    else
+    {
+        Node temp_node = queue->rear;
+
+        // remove front
+        while (temp_node->next != queue->front)
+        {
+            temp_node = temp_node->next;
+        }
+
+        free(temp_node->next);
+
+        queue->front = temp_node;
+        queue->front->next = NULL;
+    }
+
+    queue->curr_size--;
     //release lock and signal
     pthread_cond_signal(queue->enqueue_allowed);
     pthread_mutex_unlock(queue->queue_lock);
     return fd;
 }
 
+void queueDestroy(Queue queue)
+{
+    if (queue == NULL)
+        return;
+    
+    Node temp_node = NULL;
+    // Scan nodes and free them
+    while (queue->rear != NULL)
+    {
+        temp_node = queue->rear;
+        queue->rear = queue->rear->next;
+        free(temp_node);
+    }
+    pthread_cond_destroy(queue->dequeue_allowed);
+    pthread_cond_destroy(queue->enqueue_allowed);
+    pthread_mutex_destroy(queue->queue_lock);
+    free(queue->dequeue_allowed);
+    free(queue->enqueue_allowed);
+    free(queue->queue_lock);
+    free(queue);
+}
 
 void queueUpdateRequest(Queue queue)
 {

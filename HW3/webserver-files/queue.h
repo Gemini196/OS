@@ -11,4 +11,4 @@ void queueDestroy(Queue queue);
 void queueUpdateRequest(Queue queue);
 
 
-#endif //WEBSERVER_FILES_QUEUE_H
+#endif //WEBSERVER_FILES_QUEUE_H 
