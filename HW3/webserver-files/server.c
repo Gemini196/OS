@@ -55,15 +55,6 @@ void* Start_routine(void* thread_id)
         gettimeofday(&curr_time, NULL);                        
         timersub(&curr_time, &arrival_time, &dispatch_time); // curr - arrival = dispatch
 
-        printf("NOAAAA\n");
-        if (id != 0 )
-        {
-            printf("NOT ZERO\n");
-            printf("%sStat-Req-Arrival:: %lu.%06lu\r\n", arrival_time.tv_sec, arrival_time.tv_usec);
-            printf("%sStat-Req-Dispatch:: %lu.%06lu\r\n", dispatch_time.tv_sec, dispatch_time.tv_usec);
-        }
-   
-
         // Update statistics
         request_stats->arrival_time = arrival_time;
         request_stats->dispatch_interval = dispatch_time;
