@@ -1,9 +1,7 @@
 #ifndef __REQUEST_H__
-#define __REQUEST_H__
-#include "request_stats.h"
+#include "queue.h"
+#include "stats.h"
 
-//void requestHandle(int fd);
+void requestHandle(int fd, RequestStats in_stats);
 
-void requestHandle(int fd, ReqStats request_stats);
-
-#endif //__REQUEST_H__
+#endif
