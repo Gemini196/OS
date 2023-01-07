@@ -1,133 +1,133 @@
-==41943== Memcheck, a memory error detector
-==41943== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==41943== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==41943== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==41943== Parent PID: 41939
-==41943== 
-==41943== Invalid read of size 1
-==41943==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
-==41943==    by 0x10D95B: QuitCommand::execute() (Commands.cpp:639)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
-==41943== 
-==41943== 
-==41943== Process terminating with default action of signal 11 (SIGSEGV)
-==41943==  Access not within mapped region at address 0x0
-==41943==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
-==41943==    by 0x10D95B: QuitCommand::execute() (Commands.cpp:639)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943==  If you believe this happened as a result of a stack
-==41943==  overflow in your program's main thread (unlikely but
-==41943==  possible), you can try to increase the size of the
-==41943==  main thread stack using the --main-stacksize= flag.
-==41943==  The main thread stack size used in this run was 8388608.
-==41943== 
-==41943== FILE DESCRIPTORS: 6 open at exit.
-==41943== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.out
-==41943==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41943==    by 0x1109FD: main (smash.cpp:41)
-==41943== 
-==41943== Open file descriptor 0:
-==41943==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41943==    by 0x1109AB: main (smash.cpp:33)
-==41943== 
-==41943== Open file descriptor 5:
-==41943==    at 0x54EF927: dup (syscall-template.S:78)
-==41943==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==41943==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41943==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41943==    by 0x5400C17: (below main) (libc-start.c:266)
-==41943== 
-==41943== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.out
-==41943==    at 0x54EF927: dup (syscall-template.S:78)
-==41943==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==41943==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41943==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41943==    by 0x5400C17: (below main) (libc-start.c:266)
-==41943== 
-==41943== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.valgrind
-==41943==    <inherited from parent>
-==41943== 
-==41943== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.err
-==41943==    <inherited from parent>
-==41943== 
-==41943== 
-==41943== HEAP SUMMARY:
-==41943==     in use at exit: 789 bytes in 11 blocks
-==41943==   total heap usage: 18 allocs, 7 frees, 82,133 bytes allocated
-==41943== 
-==41943== 5 bytes in 1 blocks are still reachable in loss record 1 of 9
-==41943==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10B299: _parseCommandLine(char const*, char**) (Commands.cpp:47)
-==41943==    by 0x10D93E: QuitCommand::execute() (Commands.cpp:637)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== 16 bytes in 1 blocks are still reachable in loss record 2 of 9
-==41943==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10EC35: SmallShell::SmallShell() (Commands.cpp:901)
-==41943==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==41943==    by 0x110970: main (smash.cpp:21)
-==41943== 
-==41943== 24 bytes in 1 blocks are still reachable in loss record 3 of 9
-==41943==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10E017: JobsList::JobsList() (Commands.cpp:725)
-==41943==    by 0x10EC40: SmallShell::SmallShell() (Commands.cpp:901)
-==41943==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==41943==    by 0x110970: main (smash.cpp:21)
-==41943== 
-==41943== 24 bytes in 1 blocks are still reachable in loss record 4 of 9
-==41943==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10F07E: SmallShell::CreateCommand(char const*) (Commands.cpp:939)
-==41943==    by 0x10F19A: SmallShell::executeCommand(char const*) (Commands.cpp:946)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== 48 bytes in 2 blocks are still reachable in loss record 5 of 9
-==41943==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x110584: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::allocate(unsigned long, void const*) (new_allocator.h:111)
-==41943==    by 0x1104CA: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::allocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, unsigned long) (alloc_traits.h:436)
-==41943==    by 0x11036A: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_get_node() (stl_list.h:383)
-==41943==    by 0x110189: std::_List_node<JobsList::JobEntry*>* std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_create_node<JobsList::JobEntry* const&>(JobsList::JobEntry* const&) (stl_list.h:572)
-==41943==    by 0x10FF6D: void std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_insert<JobsList::JobEntry* const&>(std::_List_iterator<JobsList::JobEntry*>, JobsList::JobEntry* const&) (stl_list.h:1801)
-==41943==    by 0x10FBA7: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::push_back(JobsList::JobEntry* const&) (stl_list.h:1118)
-==41943==    by 0x10E12B: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:740)
-==41943==    by 0x10BA02: ExternalCommand::execute() (Commands.cpp:162)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== 112 bytes in 2 blocks are still reachable in loss record 6 of 9
-==41943==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10E0D7: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:738)
-==41943==    by 0x10BA02: ExternalCommand::execute() (Commands.cpp:162)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== 160 bytes in 1 blocks are still reachable in loss record 7 of 9
-==41943==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10D8F6: QuitCommand::execute() (Commands.cpp:632)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== 200 bytes in 1 blocks are still reachable in loss record 8 of 9
-==41943==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10EC52: SmallShell::SmallShell() (Commands.cpp:902)
-==41943==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==41943==    by 0x110970: main (smash.cpp:21)
-==41943== 
-==41943== 200 bytes in 1 blocks are still reachable in loss record 9 of 9
-==41943==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41943==    by 0x10D904: QuitCommand::execute() (Commands.cpp:633)
-==41943==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41943==    by 0x110AA6: main (smash.cpp:51)
-==41943== 
-==41943== LEAK SUMMARY:
-==41943==    definitely lost: 0 bytes in 0 blocks
-==41943==    indirectly lost: 0 bytes in 0 blocks
-==41943==      possibly lost: 0 bytes in 0 blocks
-==41943==    still reachable: 789 bytes in 11 blocks
-==41943==         suppressed: 0 bytes in 0 blocks
-==41943== 
-==41943== For counts of detected and suppressed errors, rerun with: -v
-==41943== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==46082== Memcheck, a memory error detector
+==46082== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==46082== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==46082== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==46082== Parent PID: 46080
+==46082== 
+==46082== Invalid read of size 1
+==46082==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
+==46082==    by 0x10DC7B: QuitCommand::execute() (Commands.cpp:639)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==46082== 
+==46082== 
+==46082== Process terminating with default action of signal 11 (SIGSEGV)
+==46082==  Access not within mapped region at address 0x0
+==46082==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
+==46082==    by 0x10DC7B: QuitCommand::execute() (Commands.cpp:639)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082==  If you believe this happened as a result of a stack
+==46082==  overflow in your program's main thread (unlikely but
+==46082==  possible), you can try to increase the size of the
+==46082==  main thread stack using the --main-stacksize= flag.
+==46082==  The main thread stack size used in this run was 8388608.
+==46082== 
+==46082== FILE DESCRIPTORS: 6 open at exit.
+==46082== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.out
+==46082==    at 0x54EF957: dup2 (syscall-template.S:78)
+==46082==    by 0x112CC9: main (smash.cpp:41)
+==46082== 
+==46082== Open file descriptor 0:
+==46082==    at 0x54EF957: dup2 (syscall-template.S:78)
+==46082==    by 0x112C77: main (smash.cpp:33)
+==46082== 
+==46082== Open file descriptor 5:
+==46082==    at 0x54EF927: dup (syscall-template.S:78)
+==46082==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==46082==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==46082==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==46082==    by 0x5400C17: (below main) (libc-start.c:266)
+==46082== 
+==46082== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.out
+==46082==    at 0x54EF927: dup (syscall-template.S:78)
+==46082==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==46082==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==46082==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==46082==    by 0x5400C17: (below main) (libc-start.c:266)
+==46082== 
+==46082== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.valgrind
+==46082==    <inherited from parent>
+==46082== 
+==46082== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_quitkill4.err
+==46082==    <inherited from parent>
+==46082== 
+==46082== 
+==46082== HEAP SUMMARY:
+==46082==     in use at exit: 797 bytes in 11 blocks
+==46082==   total heap usage: 18 allocs, 7 frees, 82,141 bytes allocated
+==46082== 
+==46082== 5 bytes in 1 blocks are still reachable in loss record 1 of 9
+==46082==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10B5B9: _parseCommandLine(char const*, char**) (Commands.cpp:47)
+==46082==    by 0x10DC5E: QuitCommand::execute() (Commands.cpp:637)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== 24 bytes in 1 blocks are still reachable in loss record 2 of 9
+==46082==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10F049: SmallShell::SmallShell() (Commands.cpp:911)
+==46082==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46082==    by 0x112C3C: main (smash.cpp:21)
+==46082== 
+==46082== 24 bytes in 1 blocks are still reachable in loss record 3 of 9
+==46082==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10E337: JobsList::JobsList() (Commands.cpp:725)
+==46082==    by 0x10F054: SmallShell::SmallShell() (Commands.cpp:911)
+==46082==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46082==    by 0x112C3C: main (smash.cpp:21)
+==46082== 
+==46082== 24 bytes in 1 blocks are still reachable in loss record 4 of 9
+==46082==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10F495: SmallShell::CreateCommand(char const*) (Commands.cpp:950)
+==46082==    by 0x10F5EA: SmallShell::executeCommand(char const*) (Commands.cpp:959)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== 48 bytes in 2 blocks are still reachable in loss record 5 of 9
+==46082==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x111DA6: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::allocate(unsigned long, void const*) (new_allocator.h:111)
+==46082==    by 0x111B4C: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::allocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, unsigned long) (alloc_traits.h:436)
+==46082==    by 0x1116EC: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_get_node() (stl_list.h:383)
+==46082==    by 0x110FF1: std::_List_node<JobsList::JobEntry*>* std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_create_node<JobsList::JobEntry* const&>(JobsList::JobEntry* const&) (stl_list.h:572)
+==46082==    by 0x110BDF: void std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_insert<JobsList::JobEntry* const&>(std::_List_iterator<JobsList::JobEntry*>, JobsList::JobEntry* const&) (stl_list.h:1801)
+==46082==    by 0x1107B9: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::push_back(JobsList::JobEntry* const&) (stl_list.h:1118)
+==46082==    by 0x10E463: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:741)
+==46082==    by 0x10BD22: ExternalCommand::execute() (Commands.cpp:162)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== 112 bytes in 2 blocks are still reachable in loss record 6 of 9
+==46082==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10E40F: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:739)
+==46082==    by 0x10BD22: ExternalCommand::execute() (Commands.cpp:162)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== 160 bytes in 1 blocks are still reachable in loss record 7 of 9
+==46082==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10DC16: QuitCommand::execute() (Commands.cpp:632)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== 200 bytes in 1 blocks are still reachable in loss record 8 of 9
+==46082==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10F066: SmallShell::SmallShell() (Commands.cpp:912)
+==46082==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==46082==    by 0x112C3C: main (smash.cpp:21)
+==46082== 
+==46082== 200 bytes in 1 blocks are still reachable in loss record 9 of 9
+==46082==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46082==    by 0x10DC24: QuitCommand::execute() (Commands.cpp:633)
+==46082==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==46082==    by 0x112D72: main (smash.cpp:51)
+==46082== 
+==46082== LEAK SUMMARY:
+==46082==    definitely lost: 0 bytes in 0 blocks
+==46082==    indirectly lost: 0 bytes in 0 blocks
+==46082==      possibly lost: 0 bytes in 0 blocks
+==46082==    still reachable: 797 bytes in 11 blocks
+==46082==         suppressed: 0 bytes in 0 blocks
+==46082== 
+==46082== For counts of detected and suppressed errors, rerun with: -v
+==46082== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

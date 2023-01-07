@@ -1,76 +1,45 @@
-==41345== Memcheck, a memory error detector
-==41345== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==41345== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==41345== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==41345== Parent PID: 41340
-==41345== 
-==41345== Invalid read of size 8
-==41345==    at 0x10FC71: std::_List_iterator<JobsList::JobEntry*>::operator++() (stl_list.h:162)
-==41345==    by 0x10E4C0: JobsList::killAllJobs() (Commands.cpp:770)
-==41345==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
-==41345==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41345==    by 0x110AA6: main (smash.cpp:51)
-==41345==  Address 0x5b82530 is 0 bytes inside a block of size 24 free'd
-==41345==    at 0x4C3323B: operator delete(void*) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41345==    by 0x11049F: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::deallocate(std::_List_node<JobsList::JobEntry*>*, unsigned long) (new_allocator.h:125)
-==41345==    by 0x110349: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::deallocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, std::_List_node<JobsList::JobEntry*>*, unsigned long) (alloc_traits.h:462)
-==41345==    by 0x110159: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_put_node(std::_List_node<JobsList::JobEntry*>*) (stl_list.h:387)
-==41345==    by 0x11005C: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_erase(std::_List_iterator<JobsList::JobEntry*>) (stl_list.h:1820)
-==41345==    by 0x10FDCA: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::remove(JobsList::JobEntry* const&) (list.tcc:340)
-==41345==    by 0x10EAA0: JobsList::removeJobById(int) (Commands.cpp:874)
-==41345==    by 0x10E4B4: JobsList::killAllJobs() (Commands.cpp:774)
-==41345==    by 0x10D9F1: QuitCommand::execute() (Commands.cpp:642)
-==41345==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41345==    by 0x110AA6: main (smash.cpp:51)
-==41345==  Block was alloc'd at
-==41345==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==41345==    by 0x110584: __gnu_cxx::new_allocator<std::_List_node<JobsList::JobEntry*> >::allocate(unsigned long, void const*) (new_allocator.h:111)
-==41345==    by 0x1104CA: std::allocator_traits<std::allocator<std::_List_node<JobsList::JobEntry*> > >::allocate(std::allocator<std::_List_node<JobsList::JobEntry*> >&, unsigned long) (alloc_traits.h:436)
-==41345==    by 0x11036A: std::__cxx11::_List_base<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_get_node() (stl_list.h:383)
-==41345==    by 0x110189: std::_List_node<JobsList::JobEntry*>* std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_create_node<JobsList::JobEntry* const&>(JobsList::JobEntry* const&) (stl_list.h:572)
-==41345==    by 0x10FF6D: void std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::_M_insert<JobsList::JobEntry* const&>(std::_List_iterator<JobsList::JobEntry*>, JobsList::JobEntry* const&) (stl_list.h:1801)
-==41345==    by 0x10FBA7: std::__cxx11::list<JobsList::JobEntry*, std::allocator<JobsList::JobEntry*> >::push_back(JobsList::JobEntry* const&) (stl_list.h:1118)
-==41345==    by 0x10E12B: JobsList::addJob(char const*, int, long, bool) (Commands.cpp:740)
-==41345==    by 0x10BA02: ExternalCommand::execute() (Commands.cpp:162)
-==41345==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==41345==    by 0x110AA6: main (smash.cpp:51)
-==41345== 
-==41345== 
-==41345== FILE DESCRIPTORS: 6 open at exit.
-==41345== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.out
-==41345==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41345==    by 0x1109FD: main (smash.cpp:41)
-==41345== 
-==41345== Open file descriptor 0:
-==41345==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41345==    by 0x1109AB: main (smash.cpp:33)
-==41345== 
-==41345== Open file descriptor 5:
-==41345==    at 0x54EF927: dup (syscall-template.S:78)
-==41345==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==41345==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41345==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41345==    by 0x5400C17: (below main) (libc-start.c:266)
-==41345== 
-==41345== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.out
-==41345==    at 0x54EF927: dup (syscall-template.S:78)
-==41345==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==41345==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41345==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41345==    by 0x5400C17: (below main) (libc-start.c:266)
-==41345== 
-==41345== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.valgrind
-==41345==    <inherited from parent>
-==41345== 
-==41345== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.err
-==41345==    <inherited from parent>
-==41345== 
-==41345== 
-==41345== HEAP SUMMARY:
-==41345==     in use at exit: 0 bytes in 0 blocks
-==41345==   total heap usage: 24 allocs, 24 frees, 82,434 bytes allocated
-==41345== 
-==41345== All heap blocks were freed -- no leaks are possible
-==41345== 
-==41345== For counts of detected and suppressed errors, rerun with: -v
-==41345== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==45570== Memcheck, a memory error detector
+==45570== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==45570== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==45570== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==45570== Parent PID: 45566
+==45570== 
+==45570== 
+==45570== FILE DESCRIPTORS: 6 open at exit.
+==45570== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.out
+==45570==    at 0x54EF957: dup2 (syscall-template.S:78)
+==45570==    by 0x112CC9: main (smash.cpp:41)
+==45570== 
+==45570== Open file descriptor 0:
+==45570==    at 0x54EF957: dup2 (syscall-template.S:78)
+==45570==    by 0x112C77: main (smash.cpp:33)
+==45570== 
+==45570== Open file descriptor 5:
+==45570==    at 0x54EF927: dup (syscall-template.S:78)
+==45570==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==45570==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==45570==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==45570==    by 0x5400C17: (below main) (libc-start.c:266)
+==45570== 
+==45570== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.out
+==45570==    at 0x54EF927: dup (syscall-template.S:78)
+==45570==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==45570==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==45570==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==45570==    by 0x5400C17: (below main) (libc-start.c:266)
+==45570== 
+==45570== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.valgrind
+==45570==    <inherited from parent>
+==45570== 
+==45570== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_jobs1.err
+==45570==    <inherited from parent>
+==45570== 
+==45570== 
+==45570== HEAP SUMMARY:
+==45570==     in use at exit: 0 bytes in 0 blocks
+==45570==   total heap usage: 24 allocs, 24 frees, 82,442 bytes allocated
+==45570== 
+==45570== All heap blocks were freed -- no leaks are possible
+==45570== 
+==45570== For counts of detected and suppressed errors, rerun with: -v
+==45570== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

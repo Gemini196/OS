@@ -1,122 +1,122 @@
-==40475== Memcheck, a memory error detector
-==40475== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==40475== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==40475== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==40475== Parent PID: 40471
-==40475== 
-==40475== Invalid read of size 1
-==40475==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
-==40475==    by 0x10D95B: QuitCommand::execute() (Commands.cpp:639)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
-==40475== 
-==40475== 
-==40475== Process terminating with default action of signal 11 (SIGSEGV)
-==40475==  Access not within mapped region at address 0x0
-==40475==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
-==40475==    by 0x10D95B: QuitCommand::execute() (Commands.cpp:639)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475==  If you believe this happened as a result of a stack
-==40475==  overflow in your program's main thread (unlikely but
-==40475==  possible), you can try to increase the size of the
-==40475==  main thread stack using the --main-stacksize= flag.
-==40475==  The main thread stack size used in this run was 8388608.
-==40475== 
-==40475== FILE DESCRIPTORS: 6 open at exit.
-==40475== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.out
-==40475==    at 0x54EF957: dup2 (syscall-template.S:78)
-==40475==    by 0x1109FD: main (smash.cpp:41)
-==40475== 
-==40475== Open file descriptor 0:
-==40475==    at 0x54EF957: dup2 (syscall-template.S:78)
-==40475==    by 0x1109AB: main (smash.cpp:33)
-==40475== 
-==40475== Open file descriptor 5:
-==40475==    at 0x54EF927: dup (syscall-template.S:78)
-==40475==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==40475==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==40475==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==40475==    by 0x5400C17: (below main) (libc-start.c:266)
-==40475== 
-==40475== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.out
-==40475==    at 0x54EF927: dup (syscall-template.S:78)
-==40475==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==40475==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==40475==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==40475==    by 0x5400C17: (below main) (libc-start.c:266)
-==40475== 
-==40475== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.valgrind
-==40475==    <inherited from parent>
-==40475== 
-==40475== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.err
-==40475==    <inherited from parent>
-==40475== 
-==40475== 
-==40475== HEAP SUMMARY:
-==40475==     in use at exit: 666 bytes in 8 blocks
-==40475==   total heap usage: 103 allocs, 95 frees, 87,774 bytes allocated
-==40475== 
-==40475== 5 bytes in 1 blocks are still reachable in loss record 1 of 8
-==40475==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10B299: _parseCommandLine(char const*, char**) (Commands.cpp:47)
-==40475==    by 0x10D93E: QuitCommand::execute() (Commands.cpp:637)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475== 
-==40475== 16 bytes in 1 blocks are still reachable in loss record 2 of 8
-==40475==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10EC35: SmallShell::SmallShell() (Commands.cpp:901)
-==40475==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==40475==    by 0x110970: main (smash.cpp:21)
-==40475== 
-==40475== 24 bytes in 1 blocks are still reachable in loss record 3 of 8
-==40475==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10E017: JobsList::JobsList() (Commands.cpp:725)
-==40475==    by 0x10EC40: SmallShell::SmallShell() (Commands.cpp:901)
-==40475==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==40475==    by 0x110970: main (smash.cpp:21)
-==40475== 
-==40475== 24 bytes in 1 blocks are still reachable in loss record 4 of 8
-==40475==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10F07E: SmallShell::CreateCommand(char const*) (Commands.cpp:939)
-==40475==    by 0x10F19A: SmallShell::executeCommand(char const*) (Commands.cpp:946)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475== 
-==40475== 37 bytes in 1 blocks are still reachable in loss record 5 of 8
-==40475==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x4F62AC6: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
-==40475==    by 0x4F62E18: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::operator=(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
-==40475==    by 0x10F90C: SmallShell::setName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.h:242)
-==40475==    by 0x10CA23: ChpromptCommand::execute() (Commands.cpp:400)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475== 
-==40475== 160 bytes in 1 blocks are still reachable in loss record 6 of 8
-==40475==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10D8F6: QuitCommand::execute() (Commands.cpp:632)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475== 
-==40475== 200 bytes in 1 blocks are still reachable in loss record 7 of 8
-==40475==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10EC52: SmallShell::SmallShell() (Commands.cpp:902)
-==40475==    by 0x1108A0: SmallShell::getInstance() (Commands.h:235)
-==40475==    by 0x110970: main (smash.cpp:21)
-==40475== 
-==40475== 200 bytes in 1 blocks are still reachable in loss record 8 of 8
-==40475==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==40475==    by 0x10D904: QuitCommand::execute() (Commands.cpp:633)
-==40475==    by 0x10F240: SmallShell::executeCommand(char const*) (Commands.cpp:958)
-==40475==    by 0x110AA6: main (smash.cpp:51)
-==40475== 
-==40475== LEAK SUMMARY:
-==40475==    definitely lost: 0 bytes in 0 blocks
-==40475==    indirectly lost: 0 bytes in 0 blocks
-==40475==      possibly lost: 0 bytes in 0 blocks
-==40475==    still reachable: 666 bytes in 8 blocks
-==40475==         suppressed: 0 bytes in 0 blocks
-==40475== 
-==40475== For counts of detected and suppressed errors, rerun with: -v
-==40475== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==44784== Memcheck, a memory error detector
+==44784== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==44784== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==44784== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==44784== Parent PID: 44780
+==44784== 
+==44784== Invalid read of size 1
+==44784==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
+==44784==    by 0x10DC7B: QuitCommand::execute() (Commands.cpp:639)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==44784== 
+==44784== 
+==44784== Process terminating with default action of signal 11 (SIGSEGV)
+==44784==  Access not within mapped region at address 0x0
+==44784==    at 0x5488B30: __strcmp_sse2_unaligned (strcmp-sse2-unaligned.S:24)
+==44784==    by 0x10DC7B: QuitCommand::execute() (Commands.cpp:639)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784==  If you believe this happened as a result of a stack
+==44784==  overflow in your program's main thread (unlikely but
+==44784==  possible), you can try to increase the size of the
+==44784==  main thread stack using the --main-stacksize= flag.
+==44784==  The main thread stack size used in this run was 8388608.
+==44784== 
+==44784== FILE DESCRIPTORS: 6 open at exit.
+==44784== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.out
+==44784==    at 0x54EF957: dup2 (syscall-template.S:78)
+==44784==    by 0x112CC9: main (smash.cpp:41)
+==44784== 
+==44784== Open file descriptor 0:
+==44784==    at 0x54EF957: dup2 (syscall-template.S:78)
+==44784==    by 0x112C77: main (smash.cpp:33)
+==44784== 
+==44784== Open file descriptor 5:
+==44784==    at 0x54EF927: dup (syscall-template.S:78)
+==44784==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==44784==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==44784==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==44784==    by 0x5400C17: (below main) (libc-start.c:266)
+==44784== 
+==44784== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.out
+==44784==    at 0x54EF927: dup (syscall-template.S:78)
+==44784==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==44784==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==44784==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==44784==    by 0x5400C17: (below main) (libc-start.c:266)
+==44784== 
+==44784== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.valgrind
+==44784==    <inherited from parent>
+==44784== 
+==44784== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_2020_chprompt.err
+==44784==    <inherited from parent>
+==44784== 
+==44784== 
+==44784== HEAP SUMMARY:
+==44784==     in use at exit: 674 bytes in 8 blocks
+==44784==   total heap usage: 103 allocs, 95 frees, 87,782 bytes allocated
+==44784== 
+==44784== 5 bytes in 1 blocks are still reachable in loss record 1 of 8
+==44784==    at 0x4C31B0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10B5B9: _parseCommandLine(char const*, char**) (Commands.cpp:47)
+==44784==    by 0x10DC5E: QuitCommand::execute() (Commands.cpp:637)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784== 
+==44784== 24 bytes in 1 blocks are still reachable in loss record 2 of 8
+==44784==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10F049: SmallShell::SmallShell() (Commands.cpp:911)
+==44784==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==44784==    by 0x112C3C: main (smash.cpp:21)
+==44784== 
+==44784== 24 bytes in 1 blocks are still reachable in loss record 3 of 8
+==44784==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10E337: JobsList::JobsList() (Commands.cpp:725)
+==44784==    by 0x10F054: SmallShell::SmallShell() (Commands.cpp:911)
+==44784==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==44784==    by 0x112C3C: main (smash.cpp:21)
+==44784== 
+==44784== 24 bytes in 1 blocks are still reachable in loss record 4 of 8
+==44784==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10F495: SmallShell::CreateCommand(char const*) (Commands.cpp:950)
+==44784==    by 0x10F5EA: SmallShell::executeCommand(char const*) (Commands.cpp:959)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784== 
+==44784== 37 bytes in 1 blocks are still reachable in loss record 5 of 8
+==44784==    at 0x4C3217F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x4F62AC6: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==44784==    by 0x4F62E18: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::operator=(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25)
+==44784==    by 0x11051E: SmallShell::setName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (Commands.h:264)
+==44784==    by 0x10CD43: ChpromptCommand::execute() (Commands.cpp:400)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784== 
+==44784== 160 bytes in 1 blocks are still reachable in loss record 6 of 8
+==44784==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10DC16: QuitCommand::execute() (Commands.cpp:632)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784== 
+==44784== 200 bytes in 1 blocks are still reachable in loss record 7 of 8
+==44784==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10F066: SmallShell::SmallShell() (Commands.cpp:912)
+==44784==    by 0x11255E: SmallShell::getInstance() (Commands.h:257)
+==44784==    by 0x112C3C: main (smash.cpp:21)
+==44784== 
+==44784== 200 bytes in 1 blocks are still reachable in loss record 8 of 8
+==44784==    at 0x4C3289F: operator new[](unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==44784==    by 0x10DC24: QuitCommand::execute() (Commands.cpp:633)
+==44784==    by 0x10F690: SmallShell::executeCommand(char const*) (Commands.cpp:971)
+==44784==    by 0x112D72: main (smash.cpp:51)
+==44784== 
+==44784== LEAK SUMMARY:
+==44784==    definitely lost: 0 bytes in 0 blocks
+==44784==    indirectly lost: 0 bytes in 0 blocks
+==44784==      possibly lost: 0 bytes in 0 blocks
+==44784==    still reachable: 674 bytes in 8 blocks
+==44784==         suppressed: 0 bytes in 0 blocks
+==44784== 
+==44784== For counts of detected and suppressed errors, rerun with: -v
+==44784== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

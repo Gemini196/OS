@@ -1,45 +1,45 @@
-==41040== Memcheck, a memory error detector
-==41040== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==41040== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==41040== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
-==41040== Parent PID: 41038
-==41040== 
-==41040== 
-==41040== FILE DESCRIPTORS: 6 open at exit.
-==41040== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.out
-==41040==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41040==    by 0x1109FD: main (smash.cpp:41)
-==41040== 
-==41040== Open file descriptor 0:
-==41040==    at 0x54EF957: dup2 (syscall-template.S:78)
-==41040==    by 0x1109AB: main (smash.cpp:33)
-==41040== 
-==41040== Open file descriptor 5:
-==41040==    at 0x54EF927: dup (syscall-template.S:78)
-==41040==    by 0x110B4B: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
-==41040==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41040==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41040==    by 0x5400C17: (below main) (libc-start.c:266)
-==41040== 
-==41040== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.out
-==41040==    at 0x54EF927: dup (syscall-template.S:78)
-==41040==    by 0x110B3B: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
-==41040==    by 0x110B67: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
-==41040==    by 0x110BEC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
-==41040==    by 0x5400C17: (below main) (libc-start.c:266)
-==41040== 
-==41040== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.valgrind
-==41040==    <inherited from parent>
-==41040== 
-==41040== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.err
-==41040==    <inherited from parent>
-==41040== 
-==41040== 
-==41040== HEAP SUMMARY:
-==41040==     in use at exit: 0 bytes in 0 blocks
-==41040==   total heap usage: 59 allocs, 59 frees, 85,111 bytes allocated
-==41040== 
-==41040== All heap blocks were freed -- no leaks are possible
-==41040== 
-==41040== For counts of detected and suppressed errors, rerun with: -v
-==41040== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==45301== Memcheck, a memory error detector
+==45301== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==45301== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==45301== Command: /home/student/Desktop/OS/HW1/skeleton_smash/smash
+==45301== Parent PID: 45299
+==45301== 
+==45301== 
+==45301== FILE DESCRIPTORS: 6 open at exit.
+==45301== Open file descriptor 1: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.out
+==45301==    at 0x54EF957: dup2 (syscall-template.S:78)
+==45301==    by 0x112CC9: main (smash.cpp:41)
+==45301== 
+==45301== Open file descriptor 0:
+==45301==    at 0x54EF957: dup2 (syscall-template.S:78)
+==45301==    by 0x112C77: main (smash.cpp:33)
+==45301== 
+==45301== Open file descriptor 5:
+==45301==    at 0x54EF927: dup (syscall-template.S:78)
+==45301==    by 0x112E17: __static_initialization_and_destruction_0(int, int) (smash.cpp:9)
+==45301==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==45301==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==45301==    by 0x5400C17: (below main) (libc-start.c:266)
+==45301== 
+==45301== Open file descriptor 4: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.out
+==45301==    at 0x54EF927: dup (syscall-template.S:78)
+==45301==    by 0x112E07: __static_initialization_and_destruction_0(int, int) (smash.cpp:8)
+==45301==    by 0x112E33: _GLOBAL__sub_I_stdout_dp (smash.cpp:57)
+==45301==    by 0x112EAC: __libc_csu_init (in /home/student/Desktop/OS/HW1/skeleton_smash/smash)
+==45301==    by 0x5400C17: (below main) (libc-start.c:266)
+==45301== 
+==45301== Open file descriptor 3: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.valgrind
+==45301==    <inherited from parent>
+==45301== 
+==45301== Open file descriptor 2: /home/student/Desktop/OS/HW1/skeleton_smash/tests/outputs/test_fg3.err
+==45301==    <inherited from parent>
+==45301== 
+==45301== 
+==45301== HEAP SUMMARY:
+==45301==     in use at exit: 0 bytes in 0 blocks
+==45301==   total heap usage: 59 allocs, 59 frees, 85,119 bytes allocated
+==45301== 
+==45301== All heap blocks were freed -- no leaks are possible
+==45301== 
+==45301== For counts of detected and suppressed errors, rerun with: -v
+==45301== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

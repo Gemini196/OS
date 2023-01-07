@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <list>
 #include <wait.h>
+#include <queue>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
@@ -128,17 +129,15 @@ class BackgroundCommand : public BuiltInCommand {
 };
 
 class TimeoutCommand : public BuiltInCommand {
-/* Optional */
-// TODO: Add your data members
   public:
-    explicit TimeoutCommand(const char* cmd_line);
+    explicit TimeoutCommand(const char* cmd_line, SmallShell* smash);
     virtual ~TimeoutCommand() {}
     void execute() override;
 };
 
+
+
 class FareCommand : public BuiltInCommand {
-    /* Optional */
-    // TODO: Add your data members
   public:
     FareCommand(const char* cmd_line);
     virtual ~FareCommand() {}
@@ -188,13 +187,36 @@ public:
         bool operator>=(const JobsList::JobEntry &job) { return job_id >= job.job_id; }
     };
 
+
+    class TimeoutEntry {
+      public:
+        int duration;
+        int pid;
+        string command;
+        time_t end_time;
+
+        TimeoutEntry(int duration, pid_t pid , time_t time_inserted, string &command):
+          duration(duration), pid(pid), command(command), end_time(time_inserted + duration){}
+        //TimeoutEntry(const TimeoutEntry& other) = default;
+        ~TimeoutEntry() {}
+        //pid_t GetPid() const;
+        //std::string GetCMD() const;
+        TimeoutEntry& operator=(const TimeoutEntry& other) = default;
+        bool operator<(const TimeoutEntry& other) const;
+        
+    } ;
+
+
 public:
     std::list<JobEntry *> *jobs_list;
+    std::priority_queue<TimeoutEntry *> *timeout_queue;
     int curr_max_job_id;
+
     public:
     JobsList();
     ~JobsList();
     void addJob(const char* cmd_line, int pid, time_t time, bool is_stopped);
+    void addTimeout(const char* cmd_line, int duration, pid_t pid , time_t time_inserted);
     bool isEmpty();
     void printJobsList();
     void killAllJobs();
@@ -206,6 +228,7 @@ public:
     JobEntry *getLastStoppedJob(int *jobId);
     int get_last_job_id();
     void removeJobById(int jobId);
+    void removeJobBypid(int pid);
 };
 
 

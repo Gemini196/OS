@@ -726,7 +726,8 @@ JobsList::JobsList() : curr_max_job_id(0) {
 }
 
 JobsList::~JobsList() {
-    deleteJobsList();
+    if (jobs_list->size())
+        deleteJobsList();
     delete jobs_list;
 }
 
@@ -765,24 +766,23 @@ void JobsList::printJobsList() {
 }
 
 void JobsList::killAllJobs() {
-    auto list_start = jobs_list->begin();
-    auto list_end = jobs_list->end();
-    for (; list_start != list_end; ++list_start) {
-        std::cout <<  (*list_start)->pid << ": " <<(*list_start)->command << std::endl;
-        if (kill((*list_start)->pid, SIGKILL) == -1)
+    std::list<JobEntry*>::iterator i = jobs_list->begin();
+    while (i != jobs_list->end())
+    {
+        cout <<  (*i)->pid << ": " << (*i)->command << endl;
+        if (kill((*i)->pid, SIGKILL) == -1)
             perror("smash error: kill failed");
-        removeJobById((*list_start)->job_id); 
+        removeJobById((*i++)->job_id); 
     }
 }
 
-
 void JobsList::deleteJobsList() {
-    auto list_start = jobs_list->begin();
-    auto list_end = jobs_list->end();
-    for (; list_start != list_end; ++list_start) {
-        if (kill((*list_start)->pid, SIGKILL) == -1) 
+    std::list<JobEntry*>::iterator i = jobs_list->begin();
+    while (i != jobs_list->end())
+    {
+        if (kill((*i)->pid, SIGKILL) == -1)
             perror("smash error: kill failed");
-        removeJobById((*list_start)->job_id);
+        removeJobById((*i++)->job_id); 
     }
 }
 
@@ -878,6 +878,20 @@ void JobsList::removeJobById(int jobId) {
 
 }
 
+void JobsList::removeJobBypid(int pid) {
+    auto first = jobs_list->begin();
+    if (*first == nullptr) {
+        return;
+    }
+    JobEntry *job = getJobBypid(pid);
+    if (job->pid == pid) {//remove job and update new max_job_id
+        jobs_list->remove(job);
+        delete job;
+        updateMaxJobId();
+    }
+
+}
+
 int JobsList::get_last_job_id() {
     auto it = jobs_list->begin();
     int max = -1;
@@ -889,11 +903,7 @@ int JobsList::get_last_job_id() {
         ++it;
     }
     return max;
-
-
 }
-
-
 
 //------------------------------------- SmallShell Implementation ------------------------------------
 
@@ -905,6 +915,7 @@ SmallShell::SmallShell() : smash_name("smash"), last_working_dir(nullptr), cmd_l
 SmallShell::~SmallShell() {
     delete[] cmd_line;   // maybe automatic??
     delete jobs_list;
+    //delete jobs_list->timeout_queue;
     delete[] last_working_dir;
 }
 
@@ -937,6 +948,8 @@ Command *SmallShell::CreateCommand(const char *cmd_line) {
         return new BackgroundCommand(cmd_line, this);
     else if (command == "quit")
         return new QuitCommand(cmd_line, this);
+    else if (command == "timeout")
+        return new TimeoutCommand(cmd_line, this);
     else
         return new ExternalCommand(cmd_line, this);
     return nullptr;
@@ -959,5 +972,121 @@ void SmallShell::executeCommand(const char *cmd_line) {
     delete cmd;
 
 }
+
+
+
+//==============================================================================================//
+//--------------------------------TIMEOUT COMMAND IMPLEMENTATION--------------------------------//
+//==============================================================================================//
+
+
+TimeoutCommand::TimeoutCommand(const char *cmd_line, SmallShell *smash) : BuiltInCommand(cmd_line, smash) {}
+
+void TimeoutCommand::execute() 
+{
+    char** parsed_cmd = new char*[COMMAND_MAX_ARGS];
+    char* copy_cmd = new char[COMMAND_ARGS_MAX_LENGTH];
+    strcpy(copy_cmd, cmd_line);
+    _removeBackgroundSign(copy_cmd);
+
+    int num_of_args = _parseCommandLine(copy_cmd, parsed_cmd);
+    int duration = stoi(parsed_cmd[1]);
+
+    if(num_of_args < 3 || duration <= 0){ // invalid num of args OR duration <= 0
+        cerr << "smash error: timeout: invalid arguments" << endl;
+        delete[] copy_cmd;
+        deleteParsedCmd(parsed_cmd, num_of_args);
+        return;
+    }
+
+    // run the command
+    string cmd_s = _trim(string(cmd_line));
+    string duration_str = cmd_s.substr(cmd_s.find_first_of(" \t") + 1);
+    string actual_command = duration_str.substr(duration_str.find_first_of(" \t") + 1);
+
+    int child_status = 0;
+    pid_t fork_pid;
+    fork_pid = fork();
+    
+    if (fork_pid == -1){        // fork failed
+        perror("smash error: fork failed");
+        delete[] copy_cmd;
+        deleteParsedCmd(parsed_cmd, num_of_args);
+        return;
+    }
+
+    if (fork_pid == 0) // son
+    {
+        setpgrp();
+        char* bash_args[] = {(char*)"/bin/bash", (char*)"-c", (char*)actual_command.c_str() ,NULL};
+        if (execv("/bin/bash", bash_args) == -1)
+        {
+            perror("smash error: execv failed");
+            exit(1); //exit child's process
+        }
+    }
+
+    else // father
+    {
+        // if son failed creation or returned 1 exit status - ABORT!!
+        if(kill(fork_pid, 0) != 0) {
+            delete[] copy_cmd;
+            deleteParsedCmd(parsed_cmd, num_of_args); 
+            return;
+        }
+    
+        //create an alarm
+        time_t current_time;
+        if(time(&current_time) == -1) {
+            perror("smash error: time failed");
+            delete[] copy_cmd;
+            deleteParsedCmd(parsed_cmd, num_of_args); 
+            return;
+        }
+
+        smash->jobs_list->addTimeout(cmd_line, duration, fork_pid, current_time);
+        alarm(duration);
+
+        // timeout is a background job
+        if (_isBackgroundCommand(cmd_line))
+            smash->jobs_list->addJob(cmd_line, fork_pid, current_time, false);  // add to jobs list
+
+        // timeout is a foreground job
+        else {
+            smash->fg_pid = fork_pid;
+            waitpid(fork_pid, &child_status, WUNTRACED); // waitpid failure? or something
+            smash->fg_pid = smash->smash_pid;
+
+            /*
+            if (!WIFSTOPPED(child_status))  // if child hasn't stopped- it has finished
+            {
+                JobsList::TimeoutEntry to_delete =  *(smash->jobs_list->timeout_queue->top());
+                smash->jobs_list->timeout_queue->pop();
+                delete &to_delete;
+            }*/
+        }
+
+    }
+}
+
+void JobsList::addTimeout(const char* cmd_line, int duration, pid_t pid , time_t time_inserted) {
+    string cmd(cmd_line);
+    auto* new_timeout = new JobsList::TimeoutEntry(duration, pid, time_inserted, cmd);
+    timeout_queue->push(new_timeout); // MUST DEFINE TO PRIORITY QUEUE WHAT'S PRIORITY!
+}
+
+// for priority queue sort
+bool JobsList::TimeoutEntry::operator<(const JobsList::TimeoutEntry& other) const {
+  return this->end_time > other.end_time;
+}
+
+/*
+pid_t TimeoutInstance::GetPid() const {
+  return this->pid;
+}
+
+std::string TimeoutInstance::GetCMD() const {
+  return this->cmd_line;
+}*/
 
 
