@@ -61,10 +61,12 @@ void enqueue(Queue queue, int fd)
 {
     struct timeval arrival_time; 
     gettimeofday(&arrival_time, NULL);
-    //create new node to insert
+
+    // New node
     Node to_add = (Node)malloc(sizeof(*to_add));
     if(to_add == NULL)
         return;
+
     to_add->fd = fd;
     to_add->previous = NULL;
     to_add->arrival_time = arrival_time;
@@ -72,78 +74,62 @@ void enqueue(Queue queue, int fd)
     // try to lock
     pthread_mutex_lock(queue->queue_lock);
     
-    // Attempted to insert to a full queue!! bad boy
+    // Attempt insertion into a full queue :: DROP using the relevant algorithm
     if (queue->total_request == queue->max_size)
     {
         Node temp_node;
         if(!strcmp(queue->algo, "block"))
         {
+            // Wait to insert for as long as the queue's full
             while (queue->total_request == queue->max_size) {
                 pthread_cond_wait(queue->enqueue_allowed, queue->queue_lock);
             }
-        }         
-        else if(!strcmp(queue->algo, "dt")){ //drop tail
+        }
+
+        else if(!strcmp(queue->algo, "dt") || queue->curr_size == 0){ //drop tail (or if curr_size=0)
             pthread_mutex_unlock(queue->queue_lock);
             free(to_add);
             close(fd);
-            return;
+            return;         // Ignore request and return
         }
-        
+
         else if(!strcmp(queue->algo, "random")){
-            if(queue->curr_size == 0) { // Piazza @311, if there are no waiting requests, drop current request
-                pthread_mutex_unlock(queue->queue_lock);
-                free(to_add);
-                close(fd);
-                return;
-            }
             // Drop 30% random elements from the queue 
             DropRandom(queue);
         }
         
-        
-        else if(!strcmp(queue->algo, "dh")){ //drop front (begin)
-            if(queue->curr_size == 0) {
-                pthread_mutex_unlock(queue->queue_lock);
-                free(to_add);
-                close(fd);
-                return;
-            }
+        else if(!strcmp(queue->algo, "dh")){ //drop front
             temp_node = queue->front;
             int fd_to_remove = temp_node->fd;
 
-            // move the front forward
+            // move the front
             queue->front = queue->front->previous;
             queue->curr_size--;
-            queue->total_request = queue->total_request - 1;
+            queue->total_request--;
 
             // if we reached the end, throw 'rear' away
-            if(queue->curr_size == 0) {
+            if(queue->curr_size == 0)
                 queue->rear = NULL;
-            }
+            
             free(temp_node);           // free the first node            
             close(fd_to_remove);       // close connection to oldest request
         }
     }
 
-    if(queue->curr_size == 0) //if it is the first node
-    {
-        // make both front and rear points to the new node
+    // case1: Insert into empty queue
+    if(queue->curr_size == 0)
         queue->front = to_add;
-        queue->rear  = to_add;
-        queue->curr_size = 1;       // we have 1 node in queue
-    }
-    else // we have some nodes in the queue
-    {
+    
+    // case2: Insert into non empty queue
+    else
         queue->rear->previous = to_add; // add newnode in rear->previous
-        queue->rear = to_add;       // make the new node as the rear node      
-        queue->curr_size++;         // we have 1 more node in queue  
-    }
 
-    // Update the total request num
-    queue->total_request = queue->total_request + 1;
+    queue->rear = to_add;        
+    queue->curr_size++;
+    queue->total_request++;
 
     //release lock and signal to worker threads
-    pthread_cond_signal(queue->dequeue_allowed); // Can be done outside but it's better this way =) [we know stuff]
+    pthread_cond_signal(queue->dequeue_allowed);
     pthread_mutex_unlock(queue->queue_lock);
 }
 
@@ -232,19 +218,15 @@ void DropRandom(Queue queue)
 
 int dequeue(Queue queue, struct timeval* arrival_time)
 {
-    // used for freeing the first node after dequeue
-    Node temp_node = NULL;
-    int fd = 0;
-
     // try to lock queue
     pthread_mutex_lock(queue->queue_lock);
 
     while(queue->curr_size == 0) {
         pthread_cond_wait(queue->dequeue_allowed, queue->queue_lock);
     }
-    // rearup the front node
-    temp_node     = queue->front;
-    fd            = temp_node->fd;
+
+    Node temp_node     = queue->front;
+    int fd            = temp_node->fd;
     *arrival_time = temp_node->arrival_time;
 
     // move the front forward
@@ -252,9 +234,9 @@ int dequeue(Queue queue, struct timeval* arrival_time)
     queue->curr_size--;
 
     // if we reached the end, throw 'rear' away
-    if(queue->curr_size == 0) {
+    if(queue->curr_size == 0)
         queue->rear = NULL;
-    }
+    
     free(temp_node); //free the first node
 
     //release lock and signal

@@ -28,11 +28,11 @@ void requestError(int fd, char *cause, RequestStats stats, char *errnum, char *s
 
    sprintf(buf, "Content-Length: %lu\r\n", strlen(body));
 
-   // print statistics
+   // REQUEST STATS
    sprintf(buf, "%sStat-Req-Arrival:: %lu.%06lu\r\n", buf, stats->arrival_time.tv_sec, stats->arrival_time.tv_usec);
    sprintf(buf, "%sStat-Req-Dispatch:: %lu.%06lu\r\n", buf, stats->dispatch_interval.tv_sec, stats->dispatch_interval.tv_usec);
 
-
+   // THREAD STATS
    sprintf(buf, "%sStat-Thread-Id:: %d\r\n", buf, stats->thread_stats.id);
    sprintf(buf, "%sStat-Thread-Count:: %d\r\n", buf,stats->thread_stats.req_count);
    sprintf(buf, "%sStat-Thread-Static:: %d\r\n", buf,stats->thread_stats.static_req_count);
@@ -116,21 +116,21 @@ void requestServeDynamic(int fd, char *filename, RequestStats stats, char *cgiar
 {
    char buf[MAXLINE], *emptylist[] = {NULL};
 
-   // The server does only a little bit of the header.  
-   // The CGI script has to finish writing out the header.
    sprintf(buf, "HTTP/1.0 200 OK\r\n");
    sprintf(buf, "%sServer: OS-HW3 Web Server\r\n", buf);
    
-   // print statistics
+   // REQUEST STATS
    sprintf(buf, "%sStat-Req-Arrival:: %lu.%06lu\r\n", buf, stats->arrival_time.tv_sec, stats->arrival_time.tv_usec);
    sprintf(buf, "%sStat-Req-Dispatch:: %lu.%06lu\r\n", buf, stats->dispatch_interval.tv_sec, stats->dispatch_interval.tv_usec);
+
+   // THREAD STATS
    sprintf(buf, "%sStat-Thread-Id:: %d\r\n", buf, stats->thread_stats.id);
    sprintf(buf, "%sStat-Thread-Count:: %d\r\n", buf,stats->thread_stats.req_count);
    sprintf(buf, "%sStat-Thread-Static:: %d\r\n", buf,stats->thread_stats.static_req_count);
    sprintf(buf, "%sStat-Thread-Dynamic:: %d\r\n", buf,stats->thread_stats.dynamic_req_count);
    
    Rio_writen(fd, buf, strlen(buf));
-   //TO DO - waitpid???
+
    pid_t fork_pid = Fork();
    if (fork_pid == 0) {
       /* Child process */
@@ -165,9 +165,11 @@ void requestServeStatic(int fd, char *filename, RequestStats stats, int filesize
    sprintf(buf, "%sContent-Length: %d\r\n", buf, filesize);
    sprintf(buf, "%sContent-Type: %s\r\n", buf, filetype);
 
-   // print statistics
+   // REQUEST STATS
    sprintf(buf, "%sStat-Req-Arrival:: %lu.%06lu\r\n", buf, stats->arrival_time.tv_sec, stats->arrival_time.tv_usec);
    sprintf(buf, "%sStat-Req-Dispatch:: %lu.%06lu\r\n", buf, stats->dispatch_interval.tv_sec, stats->dispatch_interval.tv_usec);
+
+   // THREAD STATS
    sprintf(buf, "%sStat-Thread-Id:: %d\r\n", buf, stats->thread_stats.id);
    sprintf(buf, "%sStat-Thread-Count:: %d\r\n", buf,stats->thread_stats.req_count);
    sprintf(buf, "%sStat-Thread-Static:: %d\r\n", buf,stats->thread_stats.static_req_count);
