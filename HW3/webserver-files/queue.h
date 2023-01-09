@@ -2,8 +2,9 @@
 #define _QUEUE_H
 
 #include <pthread.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
 
 // typedef struct node_t *Node;
 typedef struct node_t {
@@ -12,8 +13,6 @@ typedef struct node_t {
     struct node_t* previous;
     bool to_drop;
 } *Node;
-
-
 
 typedef struct queue_t {
     Node front;
@@ -29,13 +28,14 @@ typedef struct queue_t {
     pthread_mutex_t* queue_lock;
 } *Queue;
 
-
 Queue queueCreate(int max_size, char* algo);
 void queueDestroy(Queue queue);
 void enqueue(Queue queue, int fd);
 int dequeue(Queue queue, struct timeval* arrival_time);
 void queueUpdateRequest(Queue queue);
 void DropRandom(Queue queue);
-void DropRandom2(Queue queue);
+void ClearQueue(Queue queue);
+void RemoveIndexesFromQueue(Queue* queue, int* indexes_to_drop, int indexes_to_drop_count);
+/*void RemoveIndexesFromQueue(Queue queue, int* indexes_to_drop, int indexes_to_drop_count);*/
 
 #endif // _QUEUE_H
