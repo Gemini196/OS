@@ -2,13 +2,16 @@
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
+#include <sys/mman.h>
 #define MAX_DELTA 100000000
 #define MIN_BLOCK_SIZE 128
+#define MMAP_THRESHOLD 131072
 
 //------------------------------------- STRUCT -----------------------------------------------
 struct MallocMetadata {
     size_t size;
-    bool is_free; 
+    bool is_free;
+    bool is_mapped;
     MallocMetadata* next;
     MallocMetadata* prev;
     MallocMetadata* next_free;
@@ -16,7 +19,7 @@ struct MallocMetadata {
 };
 
 //-------------------------------- Global variables ------------------------------------------
-void* first_block = sbrk(0); // lets assume this works
+void* first_block = sbrk(0); // let's assume this works
 void* last_block = NULL; 
 
 void* first_free_block = NULL;
@@ -36,10 +39,13 @@ size_t _num_meta_data_bytes();
 size_t _size_meta_data();
 
 //void updateListStats(UpdateStatus status, MallocMetadata* meta);
-//void listRemoveSpecific(MallocMetadata* to_remove);
+void listRemoveSpecific(MallocMetadata* to_remove);
 void listRemoveSpecificFree(MallocMetadata* to_remove);
 void* splitBlock(MallocMetadata* meta, int size);
-//void mergeBlock(MallocMetadata* meta);
+//void mergeBlocks(MallocMetadata* meta);
+void* mergeBlocks(void* p);
+void* mergeWithPrevious(void* p);
+void* mergeWithNext(void* p);
 void freeListInsert(MallocMetadata *to_add);
 MallocMetadata* freeListRemove(size_t size);
 //void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size);
@@ -110,27 +116,45 @@ void* smalloc(size_t size)
         return NULL;
 
     size_t msize =  _size_meta_data();
+    void* ptr;
+    MallocMetadata* cast_ptr = (MallocMetadata*)ptr;
 
-    MallocMetadata* ptr = freeListRemove(size); // attempt to remove a free block of right size
-    
+    if(size >= MMAP_THRESHOLD){
+        ptr = mmap(NULL, size + msize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        if(!ptr)
+            return NULL;
+
+        MallocMetadata* meta = (MallocMetadata*) ptr;
+        meta->is_free = false;
+        meta->is_mapped = true;
+        meta->next = NULL;
+        meta->prev = NULL;
+        meta->next_free = NULL;
+        meta->prev_free = NULL;
+    }
+
+
+    else{
+        ptr = freeListRemove(size); // attempt to remove a free block of right size
+    }
+
     if (ptr != NULL)
     {
-        ptr->is_free = false;
+        cast_ptr->is_free = false;
         allocated_blocks++;
         free_blocks--;
-        allocated_bytes += ptr->size;
-        free_bytes -= ptr->size;
-        return ptr + msize;
+        allocated_bytes += cast_ptr->size;
+        free_bytes -= cast_ptr->size;
+        return cast_ptr + msize;
     }
 
     // No free blocks -> sbrk
-    void* ptr = sbrk(size + msize); 
+    ptr = sbrk(size + msize);
     if(ptr == (void*)-1)
         return NULL;
-    
 
     // new metadata block
-    struct MallocMetadata mdata = {size, false, NULL, (MallocMetadata*)last_block};
+    struct MallocMetadata mdata = {size, false, false, NULL, (MallocMetadata*)last_block};
     
     // if list not empty
     if (last_block != NULL)
@@ -189,9 +213,19 @@ void sfree(void* p)
     if(metadata->is_free)
         return;
 
-    metadata->is_free = true;
-    free_blocks++;
-    free_bytes += metadata->size;
+    if(metadata->is_mapped){
+        p = (void*)((char*)p - _size_meta_data());
+        munmap(p, metadata->size + _size_meta_data());
+        allocated_bytes -= metadata->size + _size_meta_data();
+        allocated_blocks--;
+    }
+    else{
+        metadata->is_free = true;
+        mergeBlocks((void*)metadata);
+        freeListInsert(metadata);
+        free_blocks++;
+        free_bytes += metadata->size;
+    }
 }
 
 
@@ -221,8 +255,18 @@ void* srealloc(void* oldp, size_t size)
 
     // go back to metadata to find size
     struct MallocMetadata* old_metadata = (MallocMetadata*) ((char*)oldp - _size_meta_data());
-
     size_t old_size = old_metadata->size;
+
+    if(old_metadata->is_mapped){
+        if(old_size == size)
+            return oldp;
+        void* newp = smalloc(size);
+        std::memmove(newp, oldp, old_size);
+        sfree(oldp);
+        return newp;
+    }
+
+
 
     // checking whether new size fits in old size, if so - do nothing
     if(size <= old_size)
@@ -256,6 +300,36 @@ void listRemoveSpecificFree(MallocMetadata* to_remove)
     else {
         last_free_block = to_remove->prev_free;
     } 
+}
+
+void listRemoveSpecific(MallocMetadata* to_remove){
+    MallocMetadata* temp = (MallocMetadata*)first_block;
+
+    //edge case: to_remove is the only one
+    if(temp == (MallocMetadata*)first_block && temp == (MallocMetadata*)last_block){
+        first_block = NULL;
+        last_block = NULL;
+    }
+    // deal with previous in both lists
+    if(to_remove->prev){
+        to_remove->prev->next = to_remove->next;
+    }
+    else{
+        first_block = to_remove->next;
+        if(to_remove->is_free){
+            first_free_block = to_remove->next_free;
+        }
+    }
+    // deal with next in both lists
+    if(to_remove->next){
+        to_remove->next->prev = to_remove->prev;
+    }
+    else{
+        last_block = to_remove->prev;
+        if(to_remove->is_free){
+            last_free_block = to_remove->prev_free;
+        }
+    }
 }
 
 void freeListInsert(MallocMetadata *to_add) 
@@ -311,33 +385,32 @@ MallocMetadata* freeListRemove(size_t size)
 {
     // assume size > 0 && size < Max
     MallocMetadata* to_remove = ((MallocMetadata *)first_free_block);
-    //bool splitted = _FALSE;
-
     while (to_remove && to_remove->size < size)
         to_remove = to_remove->next;
-    
-    
-    // no blocks of right size
-    if (to_remove == NULL)
-        return NULL;
 
+    // no blocks of right size
+    if (to_remove == NULL){
+        // challenge 3
+        to_remove = (MallocMetadata *)last_block;
+        if(!to_remove->is_free)
+            return NULL;
+
+        // enlarge wilderness (last block)
+        void* p = sbrk(size - to_remove->size);
+        to_remove->size = size;
+    }
 
     listRemoveSpecificFree(to_remove);
     
-    to_remove->next = NULL;
-    to_remove->prev = NULL;
-
+    to_remove->next_free = NULL;
+    to_remove->prev_free = NULL;
     
     //Challenge 1
     if (to_remove->size - size >= MIN_BLOCK_SIZE + sizeof(MallocMetadata)) {
-        to_remove = splitBlock(to_remove, size);
+        MallocMetadata* new_block = (MallocMetadata*)splitBlock(to_remove, size);
+        freeListInsert(new_block);
     }
-    // if(splitted) {
-    //     updateListStats(REMOVE_SPLIT, temp);
-    // }
-    // else {
-    //     updateListStats(REMOVE, temp);
-    // }
+    to_remove->is_mapped = false;
     return to_remove;
 }
 
@@ -354,32 +427,93 @@ void* splitBlock(void* p, size_t new_size){
     struct MallocMetadata* block2_ptr = (MallocMetadata*)block2;
 
     struct MallocMetadata* old_next = old_p->next;
-    struct MallocMetadata* old_next_free = old_p->next_free;
 
-    
     old_p->size = new_size;
     old_p->next = block2_ptr;
 
     block2_ptr->prev = old_p;
     block2_ptr->next = old_next;
+
+    // check if old block was the last block
     if(block2_ptr->next){
         (block2_ptr->next)->prev = block2_ptr;
     }
+    else{
+        last_block = block2_ptr;
+        last_free_block = block2_ptr;
+    }
+    // update rest of metadata
     block2_ptr->size = old_size - new_size - _size_meta_data();
-
-    //add new block to histogram
     block2_ptr->is_free = true;
-    addToHistogram(block2_ptr);
+    block2_ptr->is_mapped = false;
 
-    num_meta_data_bytes += _size_meta_data();
-    num_free_blocks++;
-    num_allocated_blocks++;
-    num_allocated_bytes -= _size_meta_data();
-    num_free_bytes -= _size_meta_data();
-    num_free_bytes += old_size - new_size;
-
+    metadata_bytes += _size_meta_data();
+    free_blocks++;
+    allocated_blocks++;
+    allocated_bytes -= _size_meta_data();
+    free_bytes -= _size_meta_data();
+    free_bytes += old_size - new_size;
     return (void*)block2_ptr;
-//    unsigned long long tmp3 = (unsigned long long)new_p;
-//    tmp3 += sizeof(MallocMetadata);
-//    return (void*)tmp3;
+
 }
+
+//void mergeBlocks(MallocMetadata* meta);
+
+
+void* mergeBlocks(void* p){
+    void* new_p1 = mergeWithNext(p);
+    void* new_p2 = mergeWithPrevious(p);
+    if (!new_p1 && !new_p2)
+        return NULL;
+    else if(new_p2)
+        return new_p2;
+    return p;
+}
+
+void* mergeWithPrevious(void* p){
+    MallocMetadata* curr_block = (MallocMetadata*)p;
+    MallocMetadata* prev_block = curr_block->prev;
+    if(!prev_block || !prev_block->is_free) //previous block doesn't exist or isn't free
+        return NULL;
+
+
+    // update metadata of prev
+    prev_block->size += curr_block->size + _size_meta_data();
+    // the rest happens here
+    listRemoveSpecific(curr_block);
+
+    // update stats
+    free_blocks--;
+    allocated_blocks--;
+    allocated_bytes += _size_meta_data();
+    free_bytes += _size_meta_data();
+    metadata_bytes -= _size_meta_data();
+    return (void*)prev_block;
+}
+
+void* mergeWithNext(void* p){
+    MallocMetadata* curr_block = (MallocMetadata*)p;
+    MallocMetadata* next_block = curr_block->next;
+    if(!next_block || !next_block->is_free) //previous block doesn't exist or isn't free
+        return NULL;
+
+
+    // update metadata of curr
+    curr_block->size += next_block->size + _size_meta_data();
+    // rest of updates happen here
+    listRemoveSpecific(next_block);
+
+    // update stats
+    free_blocks--;
+    allocated_blocks--;
+    allocated_bytes += _size_meta_data();
+    free_bytes += _size_meta_data();
+    metadata_bytes -= _size_meta_data();
+
+    return (void*)curr_block;
+}
+
+
+
+
+
