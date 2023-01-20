@@ -48,10 +48,11 @@ void* mergeWithPrevious(void* p);
 void* mergeWithNext(void* p);
 void freeListInsert(MallocMetadata *to_add);
 MallocMetadata* freeListRemove(size_t size);
-//void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size);
-//void* sreallocCaseC(MallocMetadata* meta, size_t size);
-//void* sreallocCaseD(MallocMetadata* meta, void* oldp, int size);
-//void* sreallocCaseE(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size);
+
+void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size);
+void* sreallocCaseC(MallocMetadata* meta, size_t size);
+void* sreallocCaseD(MallocMetadata* meta, void* oldp, int size);
+void* sreallocCaseE(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size);
 
 void* smalloc(size_t size);
 void* scalloc(size_t num, size_t size);
@@ -255,23 +256,74 @@ void* srealloc(void* oldp, size_t size)
 
     // go back to metadata to find size
     struct MallocMetadata* old_metadata = (MallocMetadata*) ((char*)oldp - _size_meta_data());
-    size_t old_size = old_metadata->size;
+    size_t size_to_copy = (old_metadata->size < size) ? old_metadata->size : size; // how many bytes to copy (take minimum)
 
+    // block was allocated using mmap
     if(old_metadata->is_mapped){
-        if(old_size == size)
-            return oldp;
-        void* newp = smalloc(size);
-        std::memmove(newp, oldp, old_size);
+        if(old_metadata->size == size)
+            return oldp; 
+
+        void* newp = smalloc(size);             // malloc does the rest
+        std::memmove(newp, oldp, size_to_copy);
         sfree(oldp);
         return newp;
     }
 
+    // If we're here: block wasn't allocated using mmap
 
-
-    // checking whether new size fits in old size, if so - do nothing
-    if(size <= old_size)
+    // Case A: If request fits in current block
+    if(size <= old_metadata->size){
+        // Check if can split (if so: SPLIT)
+        size_t diff = old_metadata->size - size;
+        if (MIN_BLOCK_SIZE+sizeof(MallocMetadata) <= diff) {
+            allocated_bytes -= diff;
+            free_blocks++;
+            free_bytes += diff - sizeof(MallocMetadata);
+            splitBlock((void*)old_metadata, size);
+        }
         return oldp;
-    
+    }
+
+    // CaseB: If the previous is freed AND merging with it SHALL SATISFY ME
+    if(old_metadata->prev && old_metadata->prev->is_free)
+    {
+        // merge with previous block is good enough
+        size_t merged_block_size = old_metadata->prev->size + old_metadata->size + sizeof(MallocMetadata);
+        if (merged_block_size >= size) {
+            return sreallocCaseB(old_metadata, size_to_copy, oldp, size);
+        }
+
+        // merge with previous block but we need to enlargen program break
+        else if(last_block == old_metadata) { // 
+            int delta = size - merged_block_size;
+            sbrk(delta);
+            old_metadata->size += delta;
+            allocated_bytes += delta;
+            return sreallocCaseB(old_metadata, size_to_copy, oldp, size);
+        }
+    }
+
+    ////////////////////////////////////////
+    ///////////////////////////////////////
+    // PLZ CONTINUE REALLOC CASES+ IMPLEMENTATION!!
+
+    /*
+    if(size <= old_size + (old_metadata->previous)->size + msize){
+        size_t previous_size = (old_metadata->previous)->size;
+        void* new_p = mergeWithPrevious((void*)old_metadata);
+        if (new_p != nullptr){
+            void* new_block = splitBlock(new_p, size);
+            if(new_block){
+                mergeWithNext(new_block);
+            }
+            unsigned long long tmp = (unsigned long long)new_p;
+            tmp += sizeof(MallocMetadata);
+            ((MallocMetadata*)new_p)->is_free = false;
+            num_free_bytes -= previous_size + msize;
+            return memcpy((void*)tmp, oldp, old_size);
+        }
+    }
+
     // we need to find space and then copy the content onto it
     void* newp = smalloc(size);
     if (newp == NULL)
@@ -280,6 +332,97 @@ void* srealloc(void* oldp, size_t size)
     std::memmove(newp, oldp, old_size);
     sfree(oldp);
     return newp;
+    */
+
+    /*
+    //a
+    // checking whether new size fits in old size, if so - do nothing
+    if(size <= old_size){
+
+    }
+
+    //b
+    if(size <= old_size + (old_metadata->previous)->size + msize){
+        size_t previous_size = (old_metadata->previous)->size;
+        void* new_p = mergeWithPrevious((void*)old_metadata);
+        if (new_p != nullptr){
+            void* new_block = splitBlock(new_p, size);
+            if(new_block){
+                mergeWithNext(new_block);
+            }
+            unsigned long long tmp = (unsigned long long)new_p;
+            tmp += sizeof(MallocMetadata);
+            ((MallocMetadata*)new_p)->is_free = false;
+            num_free_bytes -= previous_size + msize;
+            return memcpy((void*)tmp, oldp, old_size);
+        }
+    }
+
+    //check if oldp is wilderness chunk
+    if((void*)(old_metadata) == wilderness_chunk){
+        //first merge with previous before enlarging
+        size_t previous_size = (old_metadata->previous)->size;
+        void* new_p = mergeWithPrevious((void*)old_metadata);
+        if (new_p != nullptr){
+            ((MallocMetadata*)new_p)->is_free = false;
+            enlargeWildernessBlock(size);
+
+            unsigned long long tmp = (unsigned long long)new_p;
+            tmp += sizeof(MallocMetadata);
+            num_free_bytes -= old_size + _size_meta_data();
+            return memcpy((void*)tmp, oldp, old_size);
+        }
+
+        //enlarge without memcpy
+        enlargeWildernessBlock(size);
+        return oldp;
+    }
+
+    //c
+    if(size <= old_size + (old_metadata->next)->size + msize){
+        size_t next_size = (old_metadata->next)->size;
+        void* new_p = mergeWithNext((void*)old_metadata);
+        if (new_p != nullptr){
+            splitBlock(new_p, size);
+
+            unsigned long long tmp = (unsigned long long)new_p;
+            tmp += sizeof(MallocMetadata);
+            ((MallocMetadata*)new_p)->is_free = false;
+            num_free_bytes -= next_size + msize;
+            return oldp;
+            //return memcpy((void*)tmp, oldp, old_size);
+        }
+    }
+
+    //d
+    if((size <= old_size + (old_metadata->next)->size + (old_metadata->previous)->size + 2*msize) &&
+       (old_metadata->next)->is_free && (old_metadata->previous)->is_free){
+        size_t freed_bytes_size = (old_metadata->previous)->size + (old_metadata->next)->size  + 2*msize;
+
+        void* new_p = mergeBlocks((void*)old_metadata);
+        if (new_p != nullptr){ //merged with at least one of its neighbors
+            void* new_block = splitBlock(new_p, size);
+            if(new_block){
+                mergeWithNext(new_block);
+            }
+
+            ((MallocMetadata*)new_p)->is_free = false;
+            num_free_bytes -= freed_bytes_size;
+            unsigned long long tmp = (unsigned long long)new_p;
+            tmp += sizeof(MallocMetadata);
+            return memcpy((void*)tmp, oldp, old_size);
+        }
+    }
+
+    //e
+    // we need to find space and then copy the content onto it
+    void* new_p = smalloc(size);
+    if(!new_p){
+        return nullptr;
+    }
+    sfree(oldp);
+
+    return memcpy(new_p, oldp, old_size);*/
 }
 
 
@@ -453,8 +596,13 @@ void* splitBlock(void* p, size_t new_size){
     allocated_bytes -= _size_meta_data();
     free_bytes -= _size_meta_data();
     free_bytes += old_size - new_size;
-    return (void*)block2_ptr;
 
+    // In case we can merge
+    void* fin_block = mergeBlocks(block2_ptr);
+    if (fin_block)
+        return fin_block;
+
+    return (void*)block2_ptr;
 }
 
 //void mergeBlocks(MallocMetadata* meta);
@@ -513,7 +661,78 @@ void* mergeWithNext(void* p){
     return (void*)curr_block;
 }
 
+/*
+// Case1: realocation 
+void* srealloc_CASEB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size)
+{
+    MallocMetadata* new_meta = meta->prev_mem;
+    void* new_ptr = (void*)((char*)new_meta + sizeof(MallocMetadata));
+    
+    // Update stats
+    free_list.free_blocks--;
+    free_list.free_bytes -= meta->prev_mem->size;
+    free_list.allocated_bytes += meta->prev_mem->size + sizeof(MallocMetadata);
+
+    // update previous block's meta (size += <>, pointers etc)
+    meta->prev_mem->size += meta->size + sizeof(MallocMetadata);
+    meta->prev_mem->is_free = _FALSE;
+    listRemoveSpecificMem(meta);                            // Removes from the memory list
+    listRemoveSpecific(meta->prev_mem);                     // Removes previous block from free list
+    
+    // copy content of current block to previous block
+    std::memmove(new_ptr, oldp, size_to_copy);
+
+    if (BYTES_TO_BITE + sizeof(MallocMetadata) <= new_meta->size - size) {
+        free_list.allocated_bytes -= (new_meta->size - size);
+        free_list.free_blocks++;
+        free_list.free_bytes += (new_meta->size - size - sizeof(MallocMetadata));
+        splitBlock(new_meta, size);
+    }
+    return new_ptr;
+}
 
 
+void* sreallocCaseC(MallocMetadata* meta, size_t size)
+{
+    // sbrk
+    if (sbrk(size - meta->size) == NULL) {
+        return NULL;
+    }
+    
+    // Update stats
+    free_list.allocated_bytes += (size - meta->size);
+    meta->size = size;
+    return (void*)((char*)meta + sizeof(MallocMetadata));
+}
+
+void* sreallocCaseD(MallocMetadata* meta, void* oldp, int size)
+{
+    // Update stats
+    free_list.free_blocks--;
+    free_list.free_bytes -= meta->next_mem->size;
+    free_list.allocated_bytes += meta->next_mem->size + sizeof(MallocMetadata);
+
+    // update previous block's meta (size += <>, pointers etc)
+    meta->size += meta->next_mem->size + sizeof(MallocMetadata);
+    listRemoveSpecific(meta->next_mem);                               // Removes next block from free list
+    listRemoveSpecificMem(meta->next_mem);                            // Removes next from the memory list
+    
+    void* new_ptr = (void*)((char*)meta + sizeof(MallocMetadata));
+    
+    if (BYTES_TO_BITE + sizeof(MallocMetadata) <= meta->size - size) {
+        free_list.allocated_bytes -= (meta->size - size);
+        free_list.free_blocks++;
+        free_list.free_bytes += (meta->size - size - sizeof(MallocMetadata));
+        splitBlock(meta, size);
+    }
+    return new_ptr;
+}
+
+void* sreallocCaseE(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size)
+{
+    oldp = sreallocCaseD(meta, oldp, meta->size + meta->next_mem->size);               // Merge with the block AFTER meta
+    return sreallocCaseB(meta, size_to_copy, oldp, size);                              // Merge with the block BEFORE meta
+}
 
 
+*/
