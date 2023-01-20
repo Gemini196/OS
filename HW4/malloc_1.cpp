@@ -17,7 +17,7 @@ void* smalloc(size_t size)
         return NULL;
     
     void* ptr = sbrk(size);
-    if (ptr == NULL || *(int*)ptr == -1)
+    if (ptr == (void*)-1)
         return NULL;
 
     // success
