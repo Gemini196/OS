@@ -41,7 +41,7 @@ size_t _size_meta_data();
 //void updateListStats(UpdateStatus status, MallocMetadata* meta);
 void listRemoveSpecific(MallocMetadata* to_remove);
 void listRemoveSpecificFree(MallocMetadata* to_remove);
-void* splitBlock(MallocMetadata* meta, int size);
+void* splitBlock(void* p, size_t new_size);
 //void mergeBlocks(MallocMetadata* meta);
 void* mergeBlocks(void* p);
 void* mergeWithPrevious(void* p);
@@ -117,8 +117,7 @@ void* smalloc(size_t size)
         return NULL;
 
     size_t msize =  _size_meta_data();
-    void* ptr;
-    MallocMetadata* cast_ptr = (MallocMetadata*)ptr;
+    void* ptr;  
 
     if(size >= MMAP_THRESHOLD){
         ptr = mmap(NULL, size + msize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -140,6 +139,7 @@ void* smalloc(size_t size)
 
     if (ptr != NULL)
     {
+        MallocMetadata* cast_ptr = (MallocMetadata*)ptr;
         cast_ptr->is_free = false;
         allocated_blocks++;
         free_blocks--;
@@ -343,7 +343,11 @@ void* srealloc(void* oldp, size_t size)
                 return sreallocCaseD(old_metadata, oldp, size);
             }
         }
+
+        return NULL;
+        // not supposed to arrive here
     }
+
     else{
         void* newp = smalloc(size);
         if (newp == NULL)
@@ -352,6 +356,8 @@ void* srealloc(void* oldp, size_t size)
         sfree(oldp);
         return newp;
     }
+    // not supposed to arrive here
+    return NULL;
 }
 
 
@@ -469,6 +475,8 @@ MallocMetadata* freeListRemove(size_t size)
 
         // enlarge wilderness (last block)
         void* p = sbrk(size - to_remove->size);
+        if (p == NULL)
+            return NULL;
         to_remove->size = size;
     }
 
