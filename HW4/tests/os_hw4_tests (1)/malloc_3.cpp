@@ -154,11 +154,16 @@ void* smalloc(size_t size)
         return NULL;
 
     // new metadata block
-    struct MallocMetadata mdata = {size, false, false, NULL, (MallocMetadata*)last_block};
+    MallocMetadata* mdata = (MallocMetadata*)ptr;
+    mdata->size = size;
+    mdata->is_free = false;
+    mdata->is_mapped = false;
+    mdata->next = (MallocMetadata*)last_block;
+    mdata->prev = NULL;
     
     // if list not empty
     if (last_block != NULL)
-        *((MallocMetadata*)last_block)->next = mdata;
+        ((MallocMetadata*)last_block)->next = mdata;
 
     // update last block
     last_block = (void*) &mdata;

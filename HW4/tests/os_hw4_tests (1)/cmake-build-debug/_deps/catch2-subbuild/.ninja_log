@@ -1,0 +1,21 @@
+# ninja log v5
+0	7	1674304680451335611	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-mkdir	9097d7fa7fcf01d0
+0	7	1674304680451335611	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-mkdir	9097d7fa7fcf01d0
+0	22687	1674304720275037015	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-download	ccd1c2359a965b15
+0	22687	1674304720275037015	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-download	ccd1c2359a965b15
+22687	22699	0	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-update	a6aa3886825f8048
+22687	22699	0	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-update	a6aa3886825f8048
+22699	22707	1674304720295036866	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-patch	69a5407b011d6ebf
+22699	22707	1674304720295036866	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-patch	69a5407b011d6ebf
+22707	22713	1674304720303036805	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-configure	b5035e684708f864
+22707	22713	1674304720303036805	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-configure	b5035e684708f864
+22713	22718	1674304720307036775	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-build	d3bb498d1a80e66b
+22713	22718	1674304720307036775	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-build	d3bb498d1a80e66b
+22718	22724	1674304720315036715	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-install	6a27745addce64c7
+22718	22724	1674304720315036715	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-install	6a27745addce64c7
+22724	22730	1674304720319036685	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-test	c33a3532a88bcda
+22724	22730	1674304720319036685	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-test	c33a3532a88bcda
+22731	22738	1674304720327036625	CMakeFiles/catch2-populate-complete	dd1c08867e01356c
+22731	22738	1674304720327036625	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-done	dd1c08867e01356c
+22731	22738	1674304720327036625	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/CMakeFiles/catch2-populate-complete	dd1c08867e01356c
+22731	22738	1674304720327036625	/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-done	dd1c08867e01356c

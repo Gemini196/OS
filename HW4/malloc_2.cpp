@@ -118,7 +118,7 @@ void* smalloc(size_t size)
     metadata_bytes += msize;
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)last_block + msize;
+    unsigned long long tmp = (unsigned long long)ptr + msize;
 
     return (void*)tmp;
 }

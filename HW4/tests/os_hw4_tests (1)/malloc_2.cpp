@@ -15,11 +15,11 @@ struct MallocMetadata {
 //-------------------------------- Global variables ------------------------------------------
 void* first_block = sbrk(0); // lets assume this works
 void* last_block = NULL; 
-size_t free_blocks;
-size_t free_bytes;
-size_t allocated_blocks;
-size_t allocated_bytes;
-size_t metadata_bytes;
+size_t free_blocks = 0;
+size_t free_bytes = 0;
+size_t allocated_blocks = 0;
+size_t allocated_bytes = 0;
+size_t metadata_bytes = 0;
 
 //---------------------------------- stats methods -------------------------------------------
 
@@ -87,9 +87,9 @@ void* smalloc(size_t size)
         if(temp->is_free) {                     // found a place to allocate
             if(temp->size >= size) {
                 temp->is_free = false;
-                allocated_blocks++;
+                // allocated_blocks++;
                 free_blocks--;
-                allocated_bytes += temp->size;
+                // allocated_bytes += temp->size;
                 free_bytes -= temp->size;
                 return temp + msize;
             }
@@ -101,14 +101,18 @@ void* smalloc(size_t size)
     void* ptr = sbrk(size + msize); 
     if(ptr == (void*)-1)
         return NULL;
-    
+
 
     // new metadata block
-    struct MallocMetadata mdata = {size, false, NULL, (MallocMetadata*)last_block};
-    
+    MallocMetadata* mdata = (MallocMetadata*)ptr;
+    mdata->size = size;
+    mdata->is_free = false;
+    mdata->next = (MallocMetadata*)last_block;
+    mdata->prev = NULL;
+
     // if list not empty
     if (last_block != NULL)
-        *((MallocMetadata*)last_block)->next = mdata;
+        ((MallocMetadata*)last_block)->next = mdata;
 
     // update last block
     last_block = (void*) &mdata;
@@ -118,8 +122,7 @@ void* smalloc(size_t size)
     metadata_bytes += msize;
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)last_block + msize;
-
+    unsigned long long tmp = (unsigned long long)ptr + msize;
     return (void*)tmp;
 }
 
@@ -162,9 +165,12 @@ void sfree(void* p)
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
     if(metadata->is_free)
         return;
+
     metadata->is_free = true;
     free_blocks++;
+
     free_bytes += metadata->size;
+
 }
 
 

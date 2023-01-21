@@ -1,169 +1,170 @@
-malloc_1.Sanity 1 0.0163404
-malloc_1.Check size 1 0.0024203
-malloc_1.0 size 1 0.00229211
-malloc_1.Max size 1 0.00220532
-malloc_2.Sanity 0 0
-malloc_2.Check size 0 0
-malloc_2.0 size 1 0.0049671
-malloc_2.Max size 0 0
-malloc_2.free 0 0
-malloc_2.free 2 0 0
-malloc_2.free 3 0 0
+malloc_1.Sanity 2 0.00472976
+malloc_1.Check 0 1
+malloc_1.0 0 1
+malloc_1.Max 0 1
+malloc_2.Sanity 2 0.00681463
+malloc_2.Check 0 0
+malloc_2.0 0 1
+malloc_2.Max 0 0
+malloc_2.free 3 0
+malloc_2.free 3 0
+malloc_2.free 3 0
 malloc_2.Reuse 0 0
-malloc_2.Reuse two blocks 0 0
-malloc_2.Reuse two blocks reverse 0 0
-malloc_2.Reuse two blocks both 0 0
-malloc_2.Reuse two blocks sizes small 0 0
-malloc_2.Reuse two blocks sizes large 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
 malloc_2.scalloc 0 0
-malloc_2.scalloc taint 0 0
-malloc_2.scalloc 0 size 1 0.00229906
-malloc_2.scalloc Max size num 0 0
-malloc_2.scalloc Max size size 0 0
-malloc_2.scalloc Max size both 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
 malloc_2.realloc 0 0
-malloc_2.realloc shrink 0 0
-malloc_2.srealloc Max size 0 0
+malloc_2.realloc 0 0
+malloc_2.srealloc 0 0
 malloc_3.Sanity 0 0
-malloc_3.Check size 0 0
-malloc_3.0 size 1 0.00318326
-malloc_3.Max size 0 0
+malloc_3.Check 0 0
+malloc_3.0 0 1
+malloc_3.Max 0 0
 malloc_3.free 0 0
-malloc_3.free 2 0 0
-malloc_3.free 3 0 0
-malloc_3.free holes 1 0 0
-malloc_3.free holes 2 0 0
-malloc_3.free holes 3 0 0
-malloc_3.Wilderness available 0 0
-malloc_3.Wilderness available pad 0 0
-malloc_3.Large allocation 0 0
-malloc_3.Large unaligned allocation 0 0
+malloc_3.free 0 0
+malloc_3.free 0 0
+malloc_3.free 0 0
+malloc_3.free 0 0
+malloc_3.free 0 0
+malloc_3.Wilderness 0 0
+malloc_3.Wilderness 0 0
+malloc_3.Large 0 0
+malloc_3.Large 0 0
 malloc_3.Alignment 0 0
-malloc_3.Alignment unaligned base 0 0
-malloc_3.Alignment MMAP 0 0
+malloc_3.Alignment 0 0
+malloc_3.Alignment 0 0
 malloc_3.Reuse 0 0
-malloc_3.Reuse two blocks 0 0
-malloc_3.Reuse two blocks reverse 0 0
-malloc_3.Reuse two blocks both 0 0
-malloc_3.Reuse two blocks sizes small 0 0
-malloc_3.Reuse two blocks sizes small reversed 0 0
-malloc_3.Reuse two blocks sizes large 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
 malloc_3.scalloc 0 0
-malloc_3.scalloc taint 0 0
-malloc_3.scalloc 0 size 1 0.00258403
-malloc_3.scalloc Max size num 0 0
-malloc_3.scalloc Max size size 0 0
-malloc_3.scalloc Max size both 0 0
-malloc_3.Split block 0 0
-malloc_3.Split block under threshold 0 0
-malloc_3.Split block threshold 0 0
-malloc_3.Merge with prev block 0 0
-malloc_3.Merge with prev block pad 0 0
-malloc_3.Merge with next block 0 0
-malloc_3.Merge with next block pad 0 0
-malloc_3.Merge with both blocks 0 0
-malloc_3.Merge with both blocks pad 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.Split 0 0
+malloc_3.Split 0 0
+malloc_3.Split 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
 malloc_3.realloc 0 0
-malloc_3.realloc shrink 0 0
-malloc_3.srealloc Max size 0 0
-malloc_3.srealloc case a 0 0
-malloc_3.srealloc case a split 0 0
-malloc_3.srealloc case a mmap 0 0
-malloc_3.srealloc case b 0 0
-malloc_3.srealloc case b metadata 0 0
-malloc_3.srealloc case b split 0 0
-malloc_3.srealloc case b wilderness 0 0
-malloc_3.srealloc case b wilderness 2 0 0
-malloc_3.srealloc case c 0 0
-malloc_3.srealloc case c 2 0 0
-malloc_3.srealloc case d 0 0
-malloc_3.srealloc case d metadata 0 0
-malloc_3.srealloc case d split 0 0
-malloc_3.srealloc case e 0 0
-malloc_3.srealloc case e no pad 0 0
-malloc_3.srealloc case e split 0 0
-malloc_3.srealloc case fi 0 0
-malloc_3.srealloc case fii 0 0
-malloc_3.srealloc case g 0 0
-malloc_3.srealloc case h 0 0
+malloc_3.realloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_1.Check 0 1
+malloc_1.0 0 1
+malloc_1.Max 0 1
+malloc_2.Check 0 0
+malloc_2.0 0 1
+malloc_2.Max 0 1
+malloc_2.free 2 0
+malloc_2.free 3 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.Reuse 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.scalloc 0 0
+malloc_2.realloc 0 1
+malloc_2.srealloc 0 0
+malloc_3.Check 0 0
+malloc_3.0 0 1
+malloc_3.Max 0 0
+malloc_3.free 2 0
+malloc_3.free 3 0
+malloc_3.free 0 1
+malloc_3.free 0 2
+malloc_3.free 0 3
+malloc_3.Wilderness 0 0
+malloc_3.Wilderness 0 0
+malloc_3.Large 0 0
+malloc_3.Large 0 0
+malloc_3.Alignment 0 0
+malloc_3.Alignment 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.Reuse 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.scalloc 0 0
+malloc_3.Split 0 0
+malloc_3.Split 0 0
+malloc_3.Split 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.Merge 0 0
+malloc_3.realloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_3.srealloc 0 0
+malloc_2.Check 0 0
+malloc_2.Check 0 0
+malloc_2.Check 0 0
+malloc_2.Check size 0 0
 ---
-malloc_2.Sanity
 malloc_2.Check size
-malloc_2.Max size
-malloc_2.free
-malloc_2.free 2
-malloc_2.free 3
-malloc_2.Reuse
-malloc_2.Reuse two blocks
-malloc_2.Reuse two blocks reverse
-malloc_2.Reuse two blocks both
-malloc_2.Reuse two blocks sizes small
-malloc_2.Reuse two blocks sizes large
-malloc_2.scalloc
-malloc_2.scalloc taint
-malloc_2.scalloc Max size num
-malloc_2.scalloc Max size size
-malloc_2.scalloc Max size both
-malloc_2.realloc
-malloc_2.realloc shrink
-malloc_2.srealloc Max size
-malloc_3.Sanity
-malloc_3.Check size
-malloc_3.Max size
-malloc_3.free
-malloc_3.free 2
-malloc_3.free 3
-malloc_3.free holes 1
-malloc_3.free holes 2
-malloc_3.free holes 3
-malloc_3.Wilderness available
-malloc_3.Wilderness available pad
-malloc_3.Large allocation
-malloc_3.Large unaligned allocation
-malloc_3.Alignment
-malloc_3.Alignment unaligned base
-malloc_3.Alignment MMAP
-malloc_3.Reuse
-malloc_3.Reuse two blocks
-malloc_3.Reuse two blocks reverse
-malloc_3.Reuse two blocks both
-malloc_3.Reuse two blocks sizes small
-malloc_3.Reuse two blocks sizes small reversed
-malloc_3.Reuse two blocks sizes large
-malloc_3.scalloc
-malloc_3.scalloc taint
-malloc_3.scalloc Max size num
-malloc_3.scalloc Max size size
-malloc_3.scalloc Max size both
-malloc_3.Split block
-malloc_3.Split block under threshold
-malloc_3.Split block threshold
-malloc_3.Merge with prev block
-malloc_3.Merge with prev block pad
-malloc_3.Merge with next block
-malloc_3.Merge with next block pad
-malloc_3.Merge with both blocks
-malloc_3.Merge with both blocks pad
-malloc_3.realloc
-malloc_3.realloc shrink
-malloc_3.srealloc Max size
-malloc_3.srealloc case a
-malloc_3.srealloc case a split
-malloc_3.srealloc case a mmap
-malloc_3.srealloc case b
-malloc_3.srealloc case b metadata
-malloc_3.srealloc case b split
-malloc_3.srealloc case b wilderness
-malloc_3.srealloc case b wilderness 2
-malloc_3.srealloc case c
-malloc_3.srealloc case c 2
-malloc_3.srealloc case d
-malloc_3.srealloc case d metadata
-malloc_3.srealloc case d split
-malloc_3.srealloc case e
-malloc_3.srealloc case e no pad
-malloc_3.srealloc case e split
-malloc_3.srealloc case fi
-malloc_3.srealloc case fii
-malloc_3.srealloc case g
-malloc_3.srealloc case h

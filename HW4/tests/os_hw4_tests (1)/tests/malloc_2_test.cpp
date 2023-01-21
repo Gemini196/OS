@@ -57,6 +57,9 @@ TEST_CASE("Check size", "[malloc2]")
     verify_blocks(2, 11, 0, 0);
     verify_size(base);
 
+    printf("GGGGGGGGGGGGGGGGGGGGG\n");
+    printf("%zu", _num_meta_data_bytes());
+
     sfree(a);
     verify_blocks(2, 11, 1, 1);
     verify_size(base);
