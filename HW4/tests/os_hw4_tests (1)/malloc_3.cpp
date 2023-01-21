@@ -116,11 +116,10 @@ void* smalloc(size_t size)
     if (size == 0 || size > MAX_DELTA)
         return NULL;
 
-    size_t msize =  _size_meta_data();
     void* ptr;  
 
     if(size >= MMAP_THRESHOLD){
-        ptr = mmap(NULL, size + msize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        ptr = mmap(NULL, size + _size_meta_data(), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         if(!ptr)
             return NULL;
 
@@ -145,11 +144,11 @@ void* smalloc(size_t size)
         free_blocks--;
         allocated_bytes += cast_ptr->size;
         free_bytes -= cast_ptr->size;
-        return cast_ptr + msize;
+        return cast_ptr + _size_meta_data();
     }
 
     // No free blocks -> sbrk
-    ptr = sbrk(size + msize);
+    ptr = sbrk(size + _size_meta_data());
     if(ptr == (void*)-1)
         return NULL;
 
@@ -170,10 +169,10 @@ void* smalloc(size_t size)
 
     allocated_blocks++;
     allocated_bytes += size;
-    metadata_bytes += msize;
+    metadata_bytes += _size_meta_data();
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)last_block + msize;
+    unsigned long long tmp = (unsigned long long)last_block + _size_meta_data();
 
     return (void*)tmp;
 }
@@ -503,11 +502,10 @@ MallocMetadata* freeListRemove(size_t size)
 void* splitBlock(void* p, size_t new_size){
     struct MallocMetadata* old_p = (MallocMetadata*)p;
     size_t old_size = old_p->size;
-    size_t msize = _size_meta_data();
-
+    
     // find block2 start address
     unsigned long long block2 = (unsigned long long)p;
-    block2 += new_size + msize;
+    block2 += new_size + _size_meta_data();
 
     struct MallocMetadata* block2_ptr = (MallocMetadata*)block2;
 

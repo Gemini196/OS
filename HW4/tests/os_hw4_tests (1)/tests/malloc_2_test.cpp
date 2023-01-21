@@ -42,6 +42,7 @@ TEST_CASE("Check size", "[malloc2]")
 
     void *base = sbrk(0);
     char *a = (char *)smalloc(1);
+
     REQUIRE(a != nullptr);
     void *after = sbrk(0);
     REQUIRE(1 + _size_meta_data() == (size_t)after - (size_t)base);
@@ -50,15 +51,13 @@ TEST_CASE("Check size", "[malloc2]")
     verify_size(base);
 
     char *b = (char *)smalloc(10);
+
     REQUIRE(b != nullptr);
     after = sbrk(0);
     REQUIRE(11 + _size_meta_data() * 2 == (size_t)after - (size_t)base);
-
+    
     verify_blocks(2, 11, 0, 0);
     verify_size(base);
-
-    printf("GGGGGGGGGGGGGGGGGGGGG\n");
-    printf("%zu", _num_meta_data_bytes());
 
     sfree(a);
     verify_blocks(2, 11, 1, 1);

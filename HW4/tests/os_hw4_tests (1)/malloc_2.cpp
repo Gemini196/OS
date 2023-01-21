@@ -78,10 +78,9 @@ void* smalloc(size_t size)
     if (size == 0 || size > MAX_DELTA)
         return NULL;
 
-    size_t msize =  _size_meta_data();
-
     // Search list for free block
     MallocMetadata* temp = (MallocMetadata*)first_block;
+
     while(temp && free_blocks > 0)
     {
         if(temp->is_free) {                     // found a place to allocate
@@ -91,17 +90,16 @@ void* smalloc(size_t size)
                 free_blocks--;
                 // allocated_bytes += temp->size;
                 free_bytes -= temp->size;
-                return temp + msize;
+                return temp + _size_meta_data();
             }
         }
         temp = temp->next;
     }
 
     // No free blocks -> sbrk
-    void* ptr = sbrk(size + msize); 
+    void* ptr = sbrk(size + _size_meta_data()); 
     if(ptr == (void*)-1)
         return NULL;
-
 
     // new metadata block
     MallocMetadata* mdata = (MallocMetadata*)ptr;
@@ -119,10 +117,11 @@ void* smalloc(size_t size)
 
     allocated_blocks++;
     allocated_bytes += size;
-    metadata_bytes += msize;
+    metadata_bytes += _size_meta_data();
+
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)ptr + msize;
+    unsigned long long tmp = (unsigned long long)ptr + _size_meta_data();
     return (void*)tmp;
 }
 
