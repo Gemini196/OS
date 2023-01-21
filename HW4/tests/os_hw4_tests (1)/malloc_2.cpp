@@ -14,7 +14,7 @@ struct MallocMetadata {
     MallocMetadata* prev;
 };
 //-------------------------------- Global variables ------------------------------------------
-void* first_block = sbrk(0); // lets assume this works
+void* first_block = NULL;
 void* last_block = NULL; 
 size_t free_blocks = 0;
 size_t free_bytes = 0;
@@ -81,20 +81,20 @@ void* smalloc(size_t size)
 
     // Search list for free block
     MallocMetadata* temp = (MallocMetadata*)first_block;
-    printf("I AM THE FIRST BLOCK: %p\n",first_block);
 
     while(temp && free_blocks > 0)
     {
-        if(temp->is_free) {                     // found a place to allocate
-            if(temp->size >= size) {
-                printf("MY CURRENT ADDRESS: %p\n",(void*)(temp+_size_meta_data()));
+        if((temp->is_free) && (temp->size >= size)) // found a place to allocate
+        {
+                printf("FIRST: %zu\n", _size_meta_data());
+                printf("FIRST: %p\n", first_block);
+                printf("MY CURRENT ADDRESS: %p\n",(void*)temp);
                 temp->is_free = false;
                 // allocated_blocks++;
                 free_blocks--;
                 // allocated_bytes += temp->size;
                 free_bytes -= temp->size;
-                return temp + _size_meta_data();
-            }
+                return ++temp;   
         }
         temp = temp->next;
     }
@@ -111,16 +111,14 @@ void* smalloc(size_t size)
     mdata->next = (MallocMetadata*)last_block;
     mdata->prev = NULL;
 
-    // if (_num_allocated_blocks() == 0)
-    //     first_block = mdata;
+    if (first_block == NULL)    // if list empty
+        first_block = mdata;
     
-
-    // if list not empty
-    if (last_block != NULL)
+    else         // if list not empty
         ((MallocMetadata*)last_block)->next = mdata;
-
+    
     // update last block
-    last_block = (void*) &mdata;
+    last_block = mdata;
 
     allocated_blocks++;
     allocated_bytes += size;

@@ -22,7 +22,7 @@ struct MallocMetadata {
 };
 
 //-------------------------------- Global variables ------------------------------------------
-void* first_block = sbrk(0); // let's assume this works
+void* first_block = NULL; // let's assume this works
 void* last_block = NULL; 
 
 void* first_free_block = NULL;
@@ -158,7 +158,7 @@ void* smalloc(size_t size)
         free_blocks--;
         allocated_bytes += cast_ptr->size;
         free_bytes -= cast_ptr->size;
-        return cast_ptr + _size_meta_data();
+        return ++cast_ptr;              // adds size of metadata
     }
 
     // No free blocks -> sbrk
@@ -175,8 +175,10 @@ void* smalloc(size_t size)
     mdata->next = (MallocMetadata*)last_block;
     mdata->prev = NULL;
     
-    // if list not empty
-    if (last_block != NULL)
+    if (first_block == NULL)    // if list empty
+        first_block = mdata;
+    
+    else         // if list not empty
         ((MallocMetadata*)last_block)->next = mdata;
 
     // update last block
