@@ -1,0 +1,137 @@
+Start testing: Jan 21 14:53 UTC
+----------------------------------------------------------
+9/88 Testing: malloc_2.free
+9/88 Test: malloc_2.free
+Command: "/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests/malloc_2_test" "free"
+Directory: /home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests
+"malloc_2.free" start time: Jan 21 14:53 UTC
+Output:
+----------------------------------------------------------
+Filters: free
+Randomness seeded to: 373547223
+I AM THE FIRST BLOCK: 0x557ca6aa1000
+I AM THE FIRST BLOCK: 0x557ca6aa1000
+I AM THE FIRST BLOCK: 0x557ca6aa1000
+HELLO MY NAME IS A: 0x557ca6ae2020
+HELLO MY NAME IS B: 0x557ca6ae204a
+HELLO MY NAME IS C: 0x557ca6ae2074
+HELLO MY NAME IS A: 0x557ca6ae2020
+HELLO MY NAME IS B: 0x557ca6ae204a
+HELLO MY NAME IS C: 0x557ca6ae2074
+I AM THE FIRST BLOCK: 0x557ca6aa1000
+MY CURRENT ADDRESS: 0x557ca6aa1400
+0x557ca6aa1400
+0x557ca6ae2020
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+malloc_2_test is a Catch2 v3.0.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+free
+-------------------------------------------------------------------------------
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:105
+...............................................................................
+
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:143: FAILED:
+  REQUIRE( a == new_a )
+with expansion:
+  "" == "(tabs, newlines)0"
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 33 | 32 passed | 1 failed
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Failed.
+"malloc_2.free" end time: Jan 21 14:53 UTC
+"malloc_2.free" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/88 Testing: malloc_2.free 2
+10/88 Test: malloc_2.free 2
+Command: "/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests/malloc_2_test" "free 2"
+Directory: /home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests
+"malloc_2.free 2" start time: Jan 21 14:53 UTC
+Output:
+----------------------------------------------------------
+Filters: free 2
+Randomness seeded to: 1900119886
+I AM THE FIRST BLOCK: 0x5602a4fb8000
+I AM THE FIRST BLOCK: 0x5602a4fb8000
+I AM THE FIRST BLOCK: 0x5602a4fb8000
+I AM THE FIRST BLOCK: 0x5602a4fb8000
+MY CURRENT ADDRESS: 0x5602a4fb8400
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+malloc_2_test is a Catch2 v3.0.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+free 2
+-------------------------------------------------------------------------------
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:164
+...............................................................................
+
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:190: FAILED:
+  REQUIRE( a == new_a )
+with expansion:
+  "" == "(tabs, newlines)0"
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 33 | 32 passed | 1 failed
+
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"malloc_2.free 2" end time: Jan 21 14:53 UTC
+"malloc_2.free 2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/88 Testing: malloc_2.free 3
+11/88 Test: malloc_2.free 3
+Command: "/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests/malloc_2_test" "free 3"
+Directory: /home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests
+"malloc_2.free 3" start time: Jan 21 14:53 UTC
+Output:
+----------------------------------------------------------
+Filters: free 3
+Randomness seeded to: 3648346783
+I AM THE FIRST BLOCK: 0x555a7c2ca000
+I AM THE FIRST BLOCK: 0x555a7c2ca000
+I AM THE FIRST BLOCK: 0x555a7c2ca000
+I AM THE FIRST BLOCK: 0x555a7c2ca000
+MY CURRENT ADDRESS: 0x555a7c2ca400
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+malloc_2_test is a Catch2 v3.0.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+free 3
+-------------------------------------------------------------------------------
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:210
+...............................................................................
+
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_2_test.cpp:236: FAILED:
+  REQUIRE( a == new_a )
+with expansion:
+  "" == "(tabs, newlines)0"
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 33 | 32 passed | 1 failed
+
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Failed.
+"malloc_2.free 3" end time: Jan 21 14:53 UTC
+"malloc_2.free 3" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jan 21 14:53 UTC
