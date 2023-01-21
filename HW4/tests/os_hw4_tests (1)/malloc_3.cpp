@@ -3,12 +3,15 @@
 #include <iostream>
 #include <cstring>
 #include <sys/mman.h>
+#include <random>
+#include <stdbool.h>
 #define MAX_DELTA 100000000
 #define MIN_BLOCK_SIZE 128
 #define MMAP_THRESHOLD 131072
 
 //------------------------------------- STRUCT -----------------------------------------------
 struct MallocMetadata {
+    size_t cookies;
     size_t size;
     bool is_free;
     bool is_mapped;
@@ -25,11 +28,12 @@ void* last_block = NULL;
 void* first_free_block = NULL;
 void* last_free_block = NULL;
 
-size_t free_blocks;
-size_t free_bytes;
-size_t allocated_blocks;
-size_t allocated_bytes;
-size_t metadata_bytes;
+size_t free_blocks = 0;
+size_t free_bytes = 0;
+size_t allocated_blocks = 0;
+size_t allocated_bytes = 0;
+size_t metadata_bytes = 0;
+size_t global_cookies = rand();
 //-----------------------------------Declarations---------------------------------------------
 size_t _num_free_blocks();
 size_t _num_free_bytes();
@@ -58,6 +62,8 @@ void* smalloc(size_t size);
 void* scalloc(size_t num, size_t size);
 void sfree(void* p);
 void* srealloc(void* oldp, size_t size);
+
+bool isOverflow(MallocMetadata* meta);
 
 //---------------------------------- stats methods -------------------------------------------
 
@@ -95,6 +101,13 @@ size_t _size_meta_data(){
 }
 
 
+bool isOverflow(MallocMetadata* meta)
+{
+    if (meta == NULL)
+        return false;
+    
+    return meta->cookies != global_cookies;
+}
 
 //-------------------------------------- memory management methods ---------------------------------------
 
@@ -124,6 +137,7 @@ void* smalloc(size_t size)
             return NULL;
 
         MallocMetadata* meta = (MallocMetadata*) ptr;
+        meta->cookies = global_cookies;
         meta->is_free = false;
         meta->is_mapped = true;
         meta->next = NULL;
@@ -154,6 +168,7 @@ void* smalloc(size_t size)
 
     // new metadata block
     MallocMetadata* mdata = (MallocMetadata*)ptr;
+    mdata->cookies = global_cookies;
     mdata->size = size;
     mdata->is_free = false;
     mdata->is_mapped = false;
@@ -214,6 +229,10 @@ void sfree(void* p)
         return;
     // arithmetic stuff
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
+
+    if (isOverflow(metadata))
+        exit(0xdeadbeef);
+
     if(metadata->is_free)
         return;
 
@@ -259,6 +278,9 @@ void* srealloc(void* oldp, size_t size)
 
     // go back to metadata to find size
     struct MallocMetadata* old_metadata = (MallocMetadata*) ((char*)oldp - _size_meta_data());
+    if (isOverflow(old_metadata))
+        exit(0xdeadbeef);
+
     size_t size_to_copy = (old_metadata->size < size) ? old_metadata->size : size; // how many bytes to copy (take minimum)
 
     // block was allocated using mmap
@@ -386,7 +408,7 @@ void listRemoveSpecificFree(MallocMetadata* to_remove)
 
 void listRemoveSpecific(MallocMetadata* to_remove){
     MallocMetadata* temp = (MallocMetadata*)first_block;
-
+    
     //edge case: to_remove is the only one
     if(temp == (MallocMetadata*)first_block && temp == (MallocMetadata*)last_block){
         first_block = NULL;
@@ -502,7 +524,7 @@ MallocMetadata* freeListRemove(size_t size)
 void* splitBlock(void* p, size_t new_size){
     struct MallocMetadata* old_p = (MallocMetadata*)p;
     size_t old_size = old_p->size;
-    
+
     // find block2 start address
     unsigned long long block2 = (unsigned long long)p;
     block2 += new_size + _size_meta_data();
@@ -560,6 +582,10 @@ void* mergeBlocks(void* p){
 void* mergeWithPrevious(void* p){
     MallocMetadata* curr_block = (MallocMetadata*)p;
     MallocMetadata* prev_block = curr_block->prev;
+
+    if (isOverflow(curr_block) || isOverflow(prev_block))
+        exit(0xdeadbeef);
+
     if(!prev_block || !prev_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
 
@@ -581,6 +607,10 @@ void* mergeWithPrevious(void* p){
 void* mergeWithNext(void* p){
     MallocMetadata* curr_block = (MallocMetadata*)p;
     MallocMetadata* next_block = curr_block->next;
+
+    if (isOverflow(curr_block) || isOverflow(next_block))
+        exit(0xdeadbeef);
+
     if(!next_block || !next_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
 

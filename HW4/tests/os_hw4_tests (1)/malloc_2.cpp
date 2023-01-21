@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
+#include <random>
 #define MAX_DELTA 100000000
 
 
@@ -80,11 +81,13 @@ void* smalloc(size_t size)
 
     // Search list for free block
     MallocMetadata* temp = (MallocMetadata*)first_block;
+    printf("I AM THE FIRST BLOCK: %p\n",first_block);
 
     while(temp && free_blocks > 0)
     {
         if(temp->is_free) {                     // found a place to allocate
             if(temp->size >= size) {
+                printf("MY CURRENT ADDRESS: %p\n",(void*)(temp+_size_meta_data()));
                 temp->is_free = false;
                 // allocated_blocks++;
                 free_blocks--;
@@ -108,6 +111,10 @@ void* smalloc(size_t size)
     mdata->next = (MallocMetadata*)last_block;
     mdata->prev = NULL;
 
+    // if (_num_allocated_blocks() == 0)
+    //     first_block = mdata;
+    
+
     // if list not empty
     if (last_block != NULL)
         ((MallocMetadata*)last_block)->next = mdata;
@@ -121,10 +128,8 @@ void* smalloc(size_t size)
 
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)ptr + _size_meta_data();
-    return (void*)tmp;
+    return (char*)ptr + _size_meta_data();
 }
-
 
 /*
 2. void* scalloc(size_t num, size_t size):

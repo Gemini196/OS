@@ -55,7 +55,7 @@ TEST_CASE("Check size", "[malloc2]")
     REQUIRE(b != nullptr);
     after = sbrk(0);
     REQUIRE(11 + _size_meta_data() * 2 == (size_t)after - (size_t)base);
-    
+
     verify_blocks(2, 11, 0, 0);
     verify_size(base);
 
@@ -117,6 +117,10 @@ TEST_CASE("free", "[malloc2]")
     verify_blocks(3, 30, 0, 0);
     verify_size(base);
 
+    printf("HELLO MY NAME IS A: %p\n",a);
+    printf("HELLO MY NAME IS B: %p\n",b);
+    printf("HELLO MY NAME IS C: %p\n",c);
+
     sfree(a);
     verify_blocks(3, 30, 1, 10);
     verify_size(base);
@@ -127,8 +131,17 @@ TEST_CASE("free", "[malloc2]")
     verify_blocks(3, 30, 3, 30);
     verify_size(base);
 
+    printf("HELLO MY NAME IS A: %p\n",a);
+    printf("HELLO MY NAME IS B: %p\n",b);
+    printf("HELLO MY NAME IS C: %p\n",c);
+
+
     char *new_a = (char *)smalloc(10);
+    printf("%p\n",new_a);
+    printf("%p\n",a);
+
     REQUIRE(a == new_a);
+    
     char *new_b = (char *)smalloc(10);
     REQUIRE(b == new_b);
     char *new_c = (char *)smalloc(10);
