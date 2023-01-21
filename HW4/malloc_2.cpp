@@ -162,7 +162,6 @@ void sfree(void* p)
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
     if(metadata->is_free)
         return;
-
     metadata->is_free = true;
     free_blocks++;
     free_bytes += metadata->size;
