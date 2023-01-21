@@ -106,7 +106,7 @@ bool isOverflow(MallocMetadata* meta)
     if (meta == NULL)
         return false;
     
-    return meta->cookies != global_cookies;
+    return (meta->cookies != global_cookies);
 }
 
 //-------------------------------------- memory management methods ---------------------------------------
@@ -131,6 +131,7 @@ void* smalloc(size_t size)
 
     void* ptr;  
 
+    // use mmap
     if(size >= MMAP_THRESHOLD){
         ptr = mmap(NULL, size + _size_meta_data(), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         if(!ptr)
@@ -146,9 +147,8 @@ void* smalloc(size_t size)
         meta->prev_free = NULL;
     }
 
-    else{
+    else
         ptr = freeListRemove(size); // attempt to remove a free block of right size
-    }
 
     if (ptr != NULL)
     {
@@ -161,7 +161,6 @@ void* smalloc(size_t size)
         return ++cast_ptr;              // adds size of metadata
     }
 
-    // No free blocks -> sbrk
     ptr = sbrk(size + _size_meta_data());
     if(ptr == (void*)-1)
         return NULL;
@@ -182,16 +181,14 @@ void* smalloc(size_t size)
         ((MallocMetadata*)last_block)->next = mdata;
 
     // update last block
-    last_block = (void*) &mdata;
+    last_block = mdata;
 
     allocated_blocks++;
     allocated_bytes += size;
     metadata_bytes += _size_meta_data();
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)last_block + _size_meta_data();
-
-    return (void*)tmp;
+    return (char*)last_block + _size_meta_data();
 }
 
 
@@ -231,13 +228,12 @@ void sfree(void* p)
         return;
     // arithmetic stuff
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
-
+    
     if (isOverflow(metadata))
         exit(0xdeadbeef);
 
     if(metadata->is_free)
         return;
-
     if(metadata->is_mapped){
         p = (void*)((char*)p - _size_meta_data());
         munmap(p, metadata->size + _size_meta_data());
@@ -489,6 +485,9 @@ void freeListInsert(MallocMetadata *to_add)
 // Returns a pointer to a FREE block of size <size>
 MallocMetadata* freeListRemove(size_t size)
 {
+    if (first_free_block == NULL) // if list is empty
+        return NULL;
+
     // assume size > 0 && size < Max
     MallocMetadata* to_remove = ((MallocMetadata *)first_free_block);
     while (to_remove && to_remove->size < size)
