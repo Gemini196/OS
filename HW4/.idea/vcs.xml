@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tests/os_hw4_tests (1)/build/_deps/catch2-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tests/os_hw4_tests (1)/cmake-build-debug/_deps/catch2-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tests/os_hw4_tests (1)/tests/cmake-build-debug/_deps/catch2-src" vcs="Git" />
+  </component>
+</project>

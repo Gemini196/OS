@@ -8,25 +8,25 @@
 		},
 		"paths" : 
 		{
-			"cmake" : "/opt/clion-2022.2.4/bin/cmake/linux/bin/cmake",
-			"cpack" : "/opt/clion-2022.2.4/bin/cmake/linux/bin/cpack",
-			"ctest" : "/opt/clion-2022.2.4/bin/cmake/linux/bin/ctest",
-			"root" : "/opt/clion-2022.2.4/bin/cmake/linux/share/cmake-3.23"
+			"cmake" : "/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/cmake/linux/bin/cmake",
+			"cpack" : "/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/cmake/linux/bin/cpack",
+			"ctest" : "/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/cmake/linux/bin/ctest",
+			"root" : "/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/cmake/linux/share/cmake-3.24"
 		},
 		"version" : 
 		{
 			"isDirty" : false,
 			"major" : 3,
-			"minor" : 23,
+			"minor" : 24,
 			"patch" : 2,
-			"string" : "3.23.2",
+			"string" : "3.24.2",
 			"suffix" : ""
 		}
 	},
 	"objects" : 
 	[
 		{
-			"jsonFile" : "codemodel-v2-ed211a3d9dd15bcd5967.json",
+			"jsonFile" : "codemodel-v2-d6c26a4fc2bbae1a17f8.json",
 			"kind" : "codemodel",
 			"version" : 
 			{
@@ -35,7 +35,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cache-v2-bcec440cdfda8310f76a.json",
+			"jsonFile" : "cache-v2-2fb7f828296efc5d8ee9.json",
 			"kind" : "cache",
 			"version" : 
 			{
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cmakeFiles-v1-ae1f2e9ab08fc9479d8a.json",
+			"jsonFile" : "cmakeFiles-v1-bd87a5f6f6f0ac5ebd58.json",
 			"kind" : "cmakeFiles",
 			"version" : 
 			{
@@ -66,7 +66,7 @@
 	{
 		"cache-v2" : 
 		{
-			"jsonFile" : "cache-v2-bcec440cdfda8310f76a.json",
+			"jsonFile" : "cache-v2-2fb7f828296efc5d8ee9.json",
 			"kind" : "cache",
 			"version" : 
 			{
@@ -76,7 +76,7 @@
 		},
 		"cmakeFiles-v1" : 
 		{
-			"jsonFile" : "cmakeFiles-v1-ae1f2e9ab08fc9479d8a.json",
+			"jsonFile" : "cmakeFiles-v1-bd87a5f6f6f0ac5ebd58.json",
 			"kind" : "cmakeFiles",
 			"version" : 
 			{
@@ -86,7 +86,7 @@
 		},
 		"codemodel-v2" : 
 		{
-			"jsonFile" : "codemodel-v2-ed211a3d9dd15bcd5967.json",
+			"jsonFile" : "codemodel-v2-d6c26a4fc2bbae1a17f8.json",
 			"kind" : "codemodel",
 			"version" : 
 			{

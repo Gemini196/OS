@@ -1,14 +1,14 @@
-Start testing: Jan 21 23:42 UTC
+Start testing: Jan 22 18:46 UTC
 ----------------------------------------------------------
 28/88 Testing: malloc_3.Check size
 28/88 Test: malloc_3.Check size
 Command: "/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests/malloc_3_test" "Check size"
 Directory: /home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/build/tests
-"malloc_3.Check size" start time: Jan 21 23:42 UTC
+"malloc_3.Check size" start time: Jan 22 18:46 UTC
 Output:
 ----------------------------------------------------------
 Filters: Check size
-Randomness seeded to: 2043297017
+Randomness seeded to: 3312194988
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 malloc_3_test is a Catch2 v3.0.1 host application.
@@ -20,7 +20,7 @@ Check size
 /home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_3_test_basic.cpp:69
 ...............................................................................
 
-/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_3_test_basic.cpp:85: FAILED:
+/home/student/Desktop/OS/HW4/tests/os_hw4_tests (1)/tests/malloc_3_test_basic.cpp:86: FAILED:
   REQUIRE( 24 + _size_meta_data() * 2 == (size_t)after - (size_t)base )
 with expansion:
   136 == 123
@@ -33,8 +33,8 @@ assertions: 15 | 14 passed | 1 failed
 Test time =   0.02 sec
 ----------------------------------------------------------
 Test Failed.
-"malloc_3.Check size" end time: Jan 21 23:42 UTC
+"malloc_3.Check size" end time: Jan 22 18:46 UTC
 "malloc_3.Check size" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Jan 21 23:42 UTC
+End testing: Jan 22 18:46 UTC

@@ -1,4 +1,4 @@
-/opt/clion-2022.2.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion-2022.2.4/bin/ninja/linux/ninja -G Ninja -S /home/student/Desktop/OS_old_2/HW1/skeleton_smash -B /home/student/Desktop/OS_old_2/HW1/skeleton_smash/cmake-build-debug
+/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/student/.cache/JetBrains/RemoteDev/dist/1e90e5f5fc61f_CLion-2022.3.1/bin/ninja/linux/ninja -G Ninja -S /home/student/Desktop/OS/HW1/skeleton_smash -B /home/student/Desktop/OS/HW1/skeleton_smash/cmake-build-debug
 -- The C compiler identification is GNU 7.5.0
 -- The CXX compiler identification is GNU 7.5.0
 -- Detecting C compiler ABI info
@@ -13,4 +13,4 @@
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/student/Desktop/OS_old_2/HW1/skeleton_smash/cmake-build-debug
+-- Build files have been written to: /home/student/Desktop/OS/HW1/skeleton_smash/cmake-build-debug
