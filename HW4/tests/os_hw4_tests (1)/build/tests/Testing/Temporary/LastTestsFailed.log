@@ -1,1 +1,45 @@
-29:malloc_3.Max size
+30:malloc_3.free
+31:malloc_3.free 2
+32:malloc_3.free 3
+33:malloc_3.free holes 1
+34:malloc_3.free holes 2
+35:malloc_3.free holes 3
+37:malloc_3.Wilderness available pad
+39:malloc_3.Large unaligned allocation
+40:malloc_3.Alignment
+41:malloc_3.Alignment unaligned base
+43:malloc_3.Reuse
+44:malloc_3.Reuse two blocks
+45:malloc_3.Reuse two blocks reverse
+46:malloc_3.Reuse two blocks both
+47:malloc_3.Reuse two blocks sizes small
+48:malloc_3.Reuse two blocks sizes small reversed
+49:malloc_3.Reuse two blocks sizes large
+50:malloc_3.scalloc
+51:malloc_3.scalloc taint
+56:malloc_3.Split block
+57:malloc_3.Split block under threshold
+58:malloc_3.Split block threshold
+60:malloc_3.Merge with prev block pad
+61:malloc_3.Merge with next block
+62:malloc_3.Merge with next block pad
+63:malloc_3.Merge with both blocks
+64:malloc_3.Merge with both blocks pad
+67:malloc_3.srealloc Max size
+68:malloc_3.srealloc case a
+69:malloc_3.srealloc case a split
+71:malloc_3.srealloc case b
+72:malloc_3.srealloc case b metadata
+73:malloc_3.srealloc case b split
+74:malloc_3.srealloc case b wilderness
+75:malloc_3.srealloc case b wilderness 2
+78:malloc_3.srealloc case d
+79:malloc_3.srealloc case d metadata
+80:malloc_3.srealloc case d split
+81:malloc_3.srealloc case e
+82:malloc_3.srealloc case e no pad
+83:malloc_3.srealloc case e split
+84:malloc_3.srealloc case fi
+85:malloc_3.srealloc case fii
+86:malloc_3.srealloc case g
+87:malloc_3.srealloc case h

@@ -125,7 +125,7 @@ bool isOverflow(MallocMetadata* meta)
 */
 void* smalloc(size_t size)
 {
-
+    printf("first_free_block but in smalloc: %p \n", first_free_block);
     // validate
     if (size == 0 || size > MAX_DELTA)
         return NULL;
@@ -160,6 +160,7 @@ void* smalloc(size_t size)
     else{
         // check if empty block can fit
         MallocMetadata* mdata_ptr = freeListRemove(size); // attempt to remove a free block of right size
+        printf("JUST GOT THIS NEW ADDR: %p\n", (void*)mdata_ptr);
         ptr = (void*)mdata_ptr;
         // if block not found, check if wilderness is free
         if (ptr == NULL && wilderness && wilderness->is_free){
@@ -183,7 +184,6 @@ void* smalloc(size_t size)
             mdata_ptr->is_free = false;
             allocated_blocks++;
             free_blocks--;
-            allocated_bytes += mdata_ptr->size;
             free_bytes -= mdata_ptr->size;
             return ++mdata_ptr;              // adds size of metadata
         }
@@ -199,15 +199,20 @@ void* smalloc(size_t size)
     mdata->size = size;
     mdata->is_free = false;
     mdata->is_mapped = false;
-    mdata->next = (MallocMetadata*)last_block;
-    mdata->prev = NULL;
 
     if (first_block == NULL)    // if list empty
+    {   
         first_block = mdata;
+        mdata->prev = NULL;
+        mdata->next = NULL;
+    }
 
-    else         // if list not empty
-    ((MallocMetadata*)last_block)->next = mdata;
-
+    else                       // if list not empty
+    {
+        mdata->prev = (MallocMetadata*)last_block;
+        ((MallocMetadata*)last_block)->next = mdata; 
+    }
+    
     // update last block
     last_block = mdata;
 
@@ -253,6 +258,7 @@ void* scalloc(size_t num, size_t size)
 */
 void sfree(void* p)
 {
+    printf("first_free_block in free: %p \n", first_free_block);
     if (p == NULL)
         return;
     // arithmetic stuff
@@ -272,8 +278,10 @@ void sfree(void* p)
     }
     else{
         metadata->is_free = true;
-        mergeBlocks((void*)metadata);
         freeListInsert(metadata);
+        printf("first_free_block before merge: %p \n", first_free_block);
+        mergeBlocks((void*)metadata);
+        printf("first_free_block afer merge: %p \n", first_free_block);
         free_blocks++;
         free_bytes += metadata->size;
     }
@@ -419,19 +427,18 @@ void* srealloc(void* oldp, size_t size)
 
 void listRemoveSpecificFree(MallocMetadata* to_remove) 
 {
-    if (to_remove->prev_free) {                            // prev <--> to_remove <--> next
-        to_remove->prev_free->next_free = to_remove->next_free;  // prev --> next
-    }
-    else { // to_remove is list_mem_head
-        first_free_block = to_remove->next_free;
-    }
+    if (first_free_block == NULL)
+        return;
 
-    if (to_remove->next_free) {                                // prev <--> to_remove <--> next
-        to_remove->next_free->prev_free = to_remove->prev_free;  // prev <-- next
-    }
-    else {
+    if (to_remove->prev_free)                           // prev <--> to_remove <--> next
+        to_remove->prev_free->next_free = to_remove->next_free;  // prev --> next
+    else  // to_remove is list_mem_head
+        first_free_block = to_remove->next_free;
+    
+    if (to_remove->next_free)                               // prev <--> to_remove <--> next
+        to_remove->next_free->prev_free = to_remove->prev_free;  // prev <-- next   
+    else 
         last_free_block = to_remove->prev_free;
-    } 
 }
 
 void listRemoveSpecific(MallocMetadata* to_remove){
@@ -442,36 +449,38 @@ void listRemoveSpecific(MallocMetadata* to_remove){
         first_block = NULL;
         last_block = NULL;
     }
+
     // deal with previous in both lists
-    if(to_remove->prev){
+    if(to_remove->prev)
         to_remove->prev->next = to_remove->next;
-    }
-    else{
-        first_block = to_remove->next;
-        if(to_remove->is_free){
+    else{                                           // to_remove is first block
+        if(to_remove->is_free)
             first_free_block = to_remove->next_free;
-        }
+        first_block = to_remove->next;
     }
     // deal with next in both lists
-    if(to_remove->next){
+    if(to_remove->next)
         to_remove->next->prev = to_remove->prev;
-    }
+    
     else{
         last_block = to_remove->prev;
-        if(to_remove->is_free){
+        if(to_remove->is_free)
             last_free_block = to_remove->prev_free;
-        }
+        
     }
 }
 
 void freeListInsert(MallocMetadata *to_add) 
-{    
-    // If list is empty
-    if (_num_free_bytes()==0){
+{   
+    // if list is empty: update first and last
+    if (first_free_block == NULL){
         first_free_block = to_add;
         last_free_block = to_add;
         return;
     }
+
+    printf("ffb : %zu\n", ((MallocMetadata *)first_free_block)->size);
+    printf("ro add size: %zu\n", to_add->size);
 
     // Case 1: Add to list head
     if(to_add->size < ((MallocMetadata *)first_free_block)->size || 
@@ -505,7 +514,6 @@ void freeListInsert(MallocMetadata *to_add)
         temp->next_free->prev_free = to_add;
     temp->next_free = to_add;
 
-
     // If to_add was added last
     if (temp == first_free_block)
         last_free_block = to_add;
@@ -519,39 +527,33 @@ MallocMetadata* freeListRemove(size_t size)
         return NULL;
 
     // assume size > 0 && size < Max
-    MallocMetadata* to_remove = ((MallocMetadata *)first_free_block);
-    while (to_remove && to_remove->size < size)
-        to_remove = to_remove->next;
-
-    // no blocks of right size
-    if (to_remove == NULL){
-        return NULL;
-//        // challenge 3
-//        to_remove = (MallocMetadata *)last_block;
-//        if(!to_remove->is_free)
-//            return NULL;
-//
-//        // enlarge wilderness (last block)
-//        size_t diff = size - to_remove->size;
-//        printf("diff size is: %zu\n", diff);
-//        void* p = sbrk(diff);
-//        if (p == NULL)
-//            return NULL;
-//        p = (void*) to_remove;
-//        to_remove->size = size;
+    MallocMetadata* to_remove = (MallocMetadata *)first_free_block;
+    printf("FIRST FREE BLOCK111 %p\n", first_free_block);
+    printf("TO REMOVE1111 %p\n", (void*)to_remove);
+    if (size > to_remove->size)
+    {
+        while (to_remove && to_remove->size < size)
+            to_remove = to_remove->next_free;
     }
+
+    printf("TO REMOVE2222 %p\n", (void*)to_remove);
+    // no blocks of right size
+    if (to_remove == NULL)
+        return NULL;
 
     listRemoveSpecificFree(to_remove);
     to_remove->next_free = NULL;
     to_remove->prev_free = NULL;
+    printf("TO REMOVE3333 %p\n", (void*)to_remove);
     
     //Challenge 1
     if (to_remove->size - size >= MIN_BLOCK_SIZE + _size_meta_data()) {
         MallocMetadata* new_block = (MallocMetadata*)splitBlock(to_remove, size);
         freeListInsert(new_block);
     }
+    printf("TO REMOVE4444 %p\n", (void*)to_remove);
     to_remove->is_mapped = false;
-    return to_remove;;
+    return to_remove;
 }
 
 
@@ -620,9 +622,9 @@ void* mergeWithPrevious(void* p){
     if (isOverflow(curr_block) || isOverflow(prev_block))
         exit(0xdeadbeef);
 
-    if(!prev_block || !prev_block->is_free) //previous block doesn't exist or isn't free
+    if(prev_block == NULL || !prev_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
-
+    
 
     // update metadata of prev
     prev_block->size += curr_block->size + _size_meta_data();
@@ -645,7 +647,7 @@ void* mergeWithNext(void* p){
     if (isOverflow(curr_block) || isOverflow(next_block))
         exit(0xdeadbeef);
 
-    if(!next_block || !next_block->is_free) //previous block doesn't exist or isn't free
+    if(next_block == NULL || !next_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
 
     // update metadata of curr
