@@ -141,6 +141,7 @@ void* smalloc(size_t size)
 
         MallocMetadata* meta = (MallocMetadata*) ptr;
         meta->cookies = global_cookies;
+        meta->size = size;
         meta->is_free = false;
         meta->is_mapped = true;
         meta->next = NULL;
@@ -162,7 +163,6 @@ void* smalloc(size_t size)
         ptr = (void*)mdata_ptr;
         // if block not found, check if wilderness is free
         if (ptr == NULL && wilderness && wilderness->is_free){
-
             // enlarge wilderness (last block)
             size_t diff = size - wilderness->size;
             ptr = sbrk(diff);
@@ -172,11 +172,11 @@ void* smalloc(size_t size)
             ptr = (void*) last_block;
             listRemoveSpecificFree(wilderness);
 
-            mdata_ptr->is_free = false;
+            wilderness->is_free = false;
             free_blocks--;
             allocated_bytes += diff;
-            free_bytes -= mdata_ptr->size - diff;
-            return ++mdata_ptr;              // adds size of metadata
+            free_bytes -= (wilderness->size - diff);
+            return ++wilderness;              // adds size of metadata
         }
         // found free block so update its metadata
         else if (ptr){
@@ -257,17 +257,18 @@ void sfree(void* p)
         return;
     // arithmetic stuff
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
-    
+
     if (isOverflow(metadata))
         exit(0xdeadbeef);
 
     if(metadata->is_free)
         return;
     if(metadata->is_mapped){
-        p = (void*)((char*)p - _size_meta_data());
-        munmap(p, metadata->size + _size_meta_data());
-        allocated_bytes -= metadata->size + _size_meta_data();
+        p = (void*)(metadata);
+        allocated_bytes -= metadata->size;
         allocated_blocks--;
+        metadata_bytes -= _size_meta_data();
+        munmap(p, metadata->size + _size_meta_data());
     }
     else{
         metadata->is_free = true;
@@ -297,7 +298,7 @@ new allocated space and frees the oldp.
 void* srealloc(void* oldp, size_t size)
 {
     // validate
-    if(size == 0 || size > MAX_DELTA)
+    if(size == 0 || size >= MAX_DELTA)
         return NULL;
     
     if(oldp == NULL)

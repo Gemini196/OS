@@ -172,6 +172,20 @@ malloc_3.srealloc 0 0
 malloc_3.srealloc 0 0
 malloc_3.srealloc 0 0
 malloc_3.srealloc 0 0
-malloc_3.Check size 0 0
+malloc_3.Check 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 0
+malloc_3.Max 0 1
 ---
-malloc_3.Check size
