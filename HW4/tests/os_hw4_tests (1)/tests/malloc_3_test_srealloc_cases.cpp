@@ -165,21 +165,40 @@ TEST_CASE("srealloc case bb", "[malloc3]")
     verify_size(base);
     populate_array(b, 32);
 
+    printf("a address %p\n",a);
+    printf("b address %p\n",b);
+    printf("c address %p\n",c);
+    //ok
+
     sfree(a);
     sfree(c);
+
     verify_blocks(3, 32 * 3, 2, 32 * 2);
     verify_size(base);
+    //[a-free=32][b=32][c-free=32]
     char *new_b = (char *)srealloc(b, 64);
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
+    //[   new-b=64  ][c-free=32]
+    printf("a address %p\n",a);
+    printf("new_b address %p\n",new_b);
+    //ok
 
     verify_blocks(2, 32 * 3 + _size_meta_data(), 1, 32);
     verify_size(base);
     validate_array(new_b, 32);
 
-    char *new_b2 = (char *)srealloc(new_b, 64 + _size_meta_data());
+    //[   new-b  ][c-free=32]
+    char *new_b2 = (char *)srealloc(new_b, 64 + _size_meta_data()); // I think this is a special case
+    // here we're trying to "steal" c's metadata space.
+    // c is technically too small for split..
+    // a new block must be allocated after c...
+    // //[ new-b + c_mdata][free 32]
     REQUIRE(new_b2 != nullptr);
     REQUIRE(new_b2 == new_b);
+    printf("new_b address %p\n",new_b);
+    printf("new_b2 address %p\n",new_b2);
+    printf("num_free_bytes: %zu\n", _num_free_bytes());
     verify_blocks(2, 32 * 3 + _size_meta_data(), 1, 32);
     verify_size(base);
     validate_array(new_b2, 32);
@@ -242,10 +261,14 @@ TEST_CASE("srealloc case b split", "[malloc3]")
     sfree(c);
     verify_blocks(3, MIN_SPLIT_SIZE + 32 * 3, 2, MIN_SPLIT_SIZE + 32 * 2);
     verify_size(base);
+    // here number of free bytes is 192
+    printf("num free bytes: %zu\n",  _num_free_bytes());
 
     char *new_b = (char *)srealloc(b, 64);
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
+
+    printf("num free bytes: %zu\n",  _num_free_bytes());
     verify_blocks(2, MIN_SPLIT_SIZE + 32 * 3 + _size_meta_data(), 1, MIN_SPLIT_SIZE + 32 + _size_meta_data());
     verify_size(base);
     validate_array(new_b, 32);
