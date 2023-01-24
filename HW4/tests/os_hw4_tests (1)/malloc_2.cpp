@@ -213,6 +213,8 @@ void* srealloc(void* oldp, size_t size)
     void* newp = smalloc(size);
     if (newp == NULL)
         return NULL;
+//    char* new_data = (char*)newp + _size_meta_data();
+//    char* old_data = (char*)oldp + _size_meta_data();
 
     std::memmove(newp, oldp, old_size);
     sfree(oldp);

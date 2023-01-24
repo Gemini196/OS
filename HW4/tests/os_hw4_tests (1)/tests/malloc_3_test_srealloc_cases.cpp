@@ -76,6 +76,7 @@ TEST_CASE("srealloc case a", "[malloc3]")
     verify_size(base);
     populate_array(b, 32);
 
+
     char *c = (char *)srealloc(b, 32);
     REQUIRE(c != nullptr);
     REQUIRE(c == b);
@@ -105,9 +106,7 @@ TEST_CASE("srealloc case a split", "[malloc3]")
     verify_blocks(1, 32 + MIN_SPLIT_SIZE + _size_meta_data(), 0, 0);
     verify_size(base);
     populate_array(a, 32 + MIN_SPLIT_SIZE + _size_meta_data());
-    printf("BEFORE REALLOC\n");
     char *b = (char *)srealloc(a, 32);
-    printf("AFTER REALLOC\n");
 
     REQUIRE(b != nullptr);
     REQUIRE(b == a);
@@ -115,9 +114,7 @@ TEST_CASE("srealloc case a split", "[malloc3]")
     verify_size(base);
     validate_array(b, 32);
 
-    printf("BEFORE FREE\n");
     sfree(b);
-    printf("AFTER FREE\n");
     verify_blocks(1, 32 + MIN_SPLIT_SIZE + _size_meta_data(), 1, 32 + MIN_SPLIT_SIZE + _size_meta_data());
     verify_size(base);
 }
@@ -152,13 +149,14 @@ TEST_CASE("srealloc case a mmap", "[malloc3]")
     verify_size(base);
 }
 
-TEST_CASE("srealloc case b", "[malloc3]")
+TEST_CASE("srealloc case bb", "[malloc3]")
 {
     verify_blocks(0, 0, 0, 0);
     void *base = sbrk(0);
     char *a = (char *)smalloc(32);
     char *b = (char *)smalloc(32);
     char *c = (char *)smalloc(32);
+
     REQUIRE(a != nullptr);
     REQUIRE(b != nullptr);
     REQUIRE(c != nullptr);
@@ -171,10 +169,10 @@ TEST_CASE("srealloc case b", "[malloc3]")
     sfree(c);
     verify_blocks(3, 32 * 3, 2, 32 * 2);
     verify_size(base);
-
     char *new_b = (char *)srealloc(b, 64);
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
+
     verify_blocks(2, 32 * 3 + _size_meta_data(), 1, 32);
     verify_size(base);
     validate_array(new_b, 32);
@@ -185,10 +183,12 @@ TEST_CASE("srealloc case b", "[malloc3]")
     verify_blocks(2, 32 * 3 + _size_meta_data(), 1, 32);
     verify_size(base);
     validate_array(new_b2, 32);
-
+    // this free isn't merging with next!!!!!!!
+    // which means that realloc case b is fucking stuff up:(
     sfree(new_b2);
     verify_blocks(1, 32 * 3 + 2 * _size_meta_data(), 1, 32 * 3 + 2 * _size_meta_data());
     verify_size(base);
+
 }
 
 TEST_CASE("srealloc case b metadata", "[malloc3]")
