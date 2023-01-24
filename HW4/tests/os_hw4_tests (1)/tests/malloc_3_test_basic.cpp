@@ -489,7 +489,7 @@ TEST_CASE("Wilderness available pad", "[malloc3]")
     printf("NoT HeRE\n\n\n\n");
     char *wilderness = (char *)smalloc(10);
     REQUIRE(wilderness != nullptr);
-    verify_blocks(2, 32, 0, 0);
+    verify_blocks(2, 32, 0, 0); // why is the num. of allocated bytes 32 and not 20?..
     verify_size(base);
 
     sfree(wilderness);
