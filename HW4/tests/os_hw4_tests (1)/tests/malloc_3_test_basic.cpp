@@ -148,24 +148,21 @@ TEST_CASE("free", "[malloc3]")
     verify_size(base);
 
     printf("number of allocated bytes: %zu \n", _num_allocated_bytes());
-
+    printf("\nFREEING A\n");
     sfree(a);
     verify_blocks(3, 10 * 3, 1, 10);
     verify_size(base);
-    
+    printf("\nFREEING B\n");
     sfree(b);
     verify_blocks(2, 10 * 3 + _size_meta_data(), 1, 10 * 2 + _size_meta_data());
 
     verify_size(base);
+    printf("\nFREEING C\n");
     sfree(c);
     verify_blocks(1, 10 * 3 + _size_meta_data() * 2, 1, 10 * 3 + _size_meta_data() * 2);
     verify_size(base);
 
     char *new_a = (char *)smalloc(10);
-    printf("number of allocated bytes: %zu \n", _num_allocated_bytes());
-    printf("metadata size: %zu\n", _size_meta_data());
-    printf("a's addr: %p\n",a);
-    printf("new_a's addr: %p\n",new_a);
 
     REQUIRE(a == new_a);
     char *new_b = (char *)smalloc(10);
