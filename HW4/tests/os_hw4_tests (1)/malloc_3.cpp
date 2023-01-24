@@ -308,7 +308,7 @@ new allocated space and frees the oldp.
 void* srealloc(void* oldp, size_t size)
 {
     // validate
-    if(size == 0 || size >= MAX_DELTA)
+    if(size == 0 || size > MAX_DELTA)
         return NULL;
     
     if(oldp == NULL)
@@ -334,18 +334,11 @@ void* srealloc(void* oldp, size_t size)
 
     // If we're here: block wasn't allocated using mmap
 
-    // Case A: If request fits in current block
+    // Case A: If request fits in current block;
     if(size <= old_metadata->size){
         // Check if can split (if so: SPLIT)
         if (canSplit(old_metadata,size))
-        {
-            //size_t diff = old_metadata->size - size;
-            //if (MIN_BLOCK_SIZE+sizeof(MallocMetadata) <= diff) {
-    //            free_blocks++;
-    //            free_bytes += diff - _size_meta_data();
-                splitBlock(old_metadata, size);
-            //}
-        }
+            splitBlock(old_metadata, size);
         return oldp;
     }
 
@@ -440,11 +433,12 @@ void listRemoveSpecificFree(MallocMetadata* to_remove)
 
     if (to_remove->prev_free)                           // prev <--> to_remove <--> next
         to_remove->prev_free->next_free = to_remove->next_free;  // prev --> next
-    else  // to_remove is list_mem_head
+    else 
         first_free_block = to_remove->next_free;
     
     if (to_remove->next_free)                               // prev <--> to_remove <--> next
-        to_remove->next_free->prev_free = to_remove->prev_free;  // prev <-- next   
+        to_remove->next_free->prev_free = to_remove->prev_free;  // prev <-- next  
+    
     else 
         last_free_block = to_remove->prev_free;
 }
@@ -485,6 +479,8 @@ void freeListInsert(MallocMetadata *to_add)
     if (first_free_block == NULL){
         first_free_block = to_add;
         last_free_block = to_add;
+        to_add->next_free = NULL;
+        to_add->prev_free = NULL;
         return;
     }
 
@@ -562,9 +558,16 @@ MallocMetadata* freeListRemove(size_t size)
 
 void splitBlock(void* p, size_t size){
     // MASSIVE_BLOCK --> [size_meta  size] [size_meta remaining_block_size]
+    bool original_was_free = false;
+
     MallocMetadata* new_block;
     MallocMetadata* old_block = (MallocMetadata*)p;
-    
+
+    if (old_block == NULL)
+        return;
+
+    original_was_free = old_block->is_free;
+
     // modify new block
     new_block = (MallocMetadata*)((char*)p + size + _size_meta_data()); // new_block will now point at the new block
     new_block->cookies   = global_cookies;
@@ -588,12 +591,15 @@ void splitBlock(void* p, size_t size){
     }
     old_block->next = new_block;
 
-    // update stats
     free_blocks++;
     allocated_blocks++;
     allocated_bytes -= _size_meta_data();
-    free_bytes -= _size_meta_data();
     metadata_bytes += _size_meta_data();
+
+    if (original_was_free)
+        free_bytes -= _size_meta_data();
+    else
+        free_bytes += new_block->size;
 
     mergeBlocks(new_block);  // In case splitted block has a free block after it
 }
@@ -641,12 +647,12 @@ void* mergeWithNext(void* p){
     MallocMetadata* curr_block = (MallocMetadata*)p;
     MallocMetadata* next_block = curr_block->next;
 
+    if(next_block == NULL || !next_block->is_free) //previous block doesn't exist or isn't free
+        return NULL;
+
     if (isOverflow(curr_block) || isOverflow(next_block))
         exit(0xdeadbeef);
 
-    if(next_block == NULL || !next_block->is_free) //previous block doesn't exist or isn't free
-        return NULL;
-    
     // update metadata of curr
     curr_block->size += next_block->size + _size_meta_data();
     // rest of updates happen here
@@ -687,13 +693,11 @@ void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int s
 
     // copy content of current block to previous block
     std::memmove(new_ptr, oldp, size_to_copy);
-    size_t diff = new_meta->size - size;
 
     // check if can split
-    if (MIN_BLOCK_SIZE + _size_meta_data() <= diff) {
-//        free_blocks++;
-//        free_bytes += diff - _size_meta_data();
+    if (canSplit(new_meta, size)) {
         splitBlock(new_meta, size);
+            // update stats
     }
     return new_ptr;
 }

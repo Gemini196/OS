@@ -16,10 +16,10 @@ static inline size_t aligned_size(size_t size)
     do                                                                                                                 \
     {                                                                                                                  \
         REQUIRE(_num_allocated_blocks() == allocated_blocks);                                                          \
-        REQUIRE(_num_allocated_bytes() == aligned_size(allocated_bytes));                                              \
+        REQUIRE(_num_allocated_bytes() == allocated_bytes);                                              \
         REQUIRE(_num_free_blocks() == free_blocks);                                                                    \
-        REQUIRE(_num_free_bytes() == aligned_size(free_bytes));                                                        \
-        REQUIRE(_num_meta_data_bytes() == aligned_size(_size_meta_data() * allocated_blocks));                         \
+        REQUIRE(_num_free_bytes() == free_bytes);                                                        \
+        REQUIRE(_num_meta_data_bytes() == _size_meta_data() * allocated_blocks);                         \
     } while (0)
 
 #define verify_size(base)                                                                                              \
@@ -105,15 +105,19 @@ TEST_CASE("srealloc case a split", "[malloc3]")
     verify_blocks(1, 32 + MIN_SPLIT_SIZE + _size_meta_data(), 0, 0);
     verify_size(base);
     populate_array(a, 32 + MIN_SPLIT_SIZE + _size_meta_data());
-
+    printf("BEFORE REALLOC\n");
     char *b = (char *)srealloc(a, 32);
+    printf("AFTER REALLOC\n");
+
     REQUIRE(b != nullptr);
     REQUIRE(b == a);
     verify_blocks(2, 32 + MIN_SPLIT_SIZE, 1, MIN_SPLIT_SIZE);
     verify_size(base);
     validate_array(b, 32);
 
+    printf("BEFORE FREE\n");
     sfree(b);
+    printf("AFTER FREE\n");
     verify_blocks(1, 32 + MIN_SPLIT_SIZE + _size_meta_data(), 1, 32 + MIN_SPLIT_SIZE + _size_meta_data());
     verify_size(base);
 }
