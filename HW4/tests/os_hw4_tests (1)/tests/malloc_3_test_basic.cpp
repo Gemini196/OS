@@ -163,7 +163,6 @@ TEST_CASE("free", "[malloc3]")
     verify_size(base);
 
     char *new_a = (char *)smalloc(10);
-
     REQUIRE(a == new_a);
     char *new_b = (char *)smalloc(10);
     REQUIRE(b != new_b);

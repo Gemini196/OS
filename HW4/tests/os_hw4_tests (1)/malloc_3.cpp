@@ -45,7 +45,7 @@ size_t _size_meta_data();
 //void updateListStats(UpdateStatus status, MallocMetadata* meta);
 void listRemoveSpecific(MallocMetadata* to_remove);
 void listRemoveSpecificFree(MallocMetadata* to_remove);
-void* splitBlock(void* p, size_t new_size);
+void splitBlock(void* p, size_t new_size);
 //void mergeBlocks(MallocMetadata* meta);
 void* mergeBlocks(void* p);
 void* mergeWithPrevious(void* p);
@@ -109,6 +109,12 @@ bool isOverflow(MallocMetadata* meta)
     return (meta->cookies != global_cookies);
 }
 
+bool canSplit(MallocMetadata* meta, size_t new_blockSize)
+{
+    size_t remaining_data = meta->size - new_blockSize;
+    return remaining_data>=MIN_BLOCK_SIZE+_size_meta_data();
+}
+
 //-------------------------------------- memory management methods ---------------------------------------
 
 
@@ -160,6 +166,7 @@ void* smalloc(size_t size)
         // check if empty block can fit
         MallocMetadata* mdata_ptr = freeListRemove(size); // attempt to remove a free block of right size
         ptr = (void*)mdata_ptr;
+
         // if block not found, check if wilderness is free
         if (ptr == NULL && wilderness && wilderness->is_free){
             // enlarge wilderness (last block)
@@ -280,7 +287,6 @@ void sfree(void* p)
         freeListInsert(metadata);
         mergeBlocks((void*)metadata);
     }
-     printf("number of free bytes: %zu\n", _num_free_bytes());
 }
 
 
@@ -331,11 +337,14 @@ void* srealloc(void* oldp, size_t size)
     // Case A: If request fits in current block
     if(size <= old_metadata->size){
         // Check if can split (if so: SPLIT)
-        size_t diff = old_metadata->size - size;
-        if (MIN_BLOCK_SIZE+sizeof(MallocMetadata) <= diff) {
-//            free_blocks++;
-//            free_bytes += diff - _size_meta_data();
-            splitBlock(old_metadata, size);
+        if (canSplit(old_metadata,size))
+        {
+            //size_t diff = old_metadata->size - size;
+            //if (MIN_BLOCK_SIZE+sizeof(MallocMetadata) <= diff) {
+    //            free_blocks++;
+    //            free_bytes += diff - _size_meta_data();
+                splitBlock(old_metadata, size);
+            //}
         }
         return oldp;
     }
@@ -520,11 +529,12 @@ void freeListInsert(MallocMetadata *to_add)
 // Returns a pointer to a FREE block of size <size>
 MallocMetadata* freeListRemove(size_t size)
 {
-    if (first_free_block == NULL) // if list is empty
+    MallocMetadata* to_remove = (MallocMetadata *)first_free_block;
+    if (first_free_block == NULL || isOverflow(to_remove)) // if list is empty
         return NULL;
 
     // assume size > 0 && size < Max
-    MallocMetadata* to_remove = (MallocMetadata *)first_free_block;
+    
     if (size > to_remove->size)
     {
         while (to_remove && to_remove->size < size)
@@ -540,9 +550,9 @@ MallocMetadata* freeListRemove(size_t size)
     to_remove->prev_free = NULL;
     
     //Challenge 1
-    if (to_remove->size - size >= MIN_BLOCK_SIZE + _size_meta_data()) {
-        MallocMetadata* new_block = (MallocMetadata*)splitBlock(to_remove, size);
-        freeListInsert(new_block);
+    if(canSplit(to_remove,size)){
+        splitBlock(to_remove, size);
+        //freeListInsert(new_block);
     }
 
     to_remove->is_mapped = false;
@@ -550,49 +560,42 @@ MallocMetadata* freeListRemove(size_t size)
 }
 
 
-void* splitBlock(void* p, size_t new_size){
-    struct MallocMetadata* old_p = (MallocMetadata*)p;
-    size_t old_size = old_p->size;
+void splitBlock(void* p, size_t size){
+    // MASSIVE_BLOCK --> [size_meta  size] [size_meta remaining_block_size]
+    MallocMetadata* new_block;
+    MallocMetadata* old_block = (MallocMetadata*)p;
+    
+    // modify new block
+    new_block = (MallocMetadata*)((char*)p + size + _size_meta_data()); // new_block will now point at the new block
+    new_block->cookies   = global_cookies;
+    new_block->is_free   = true;
+    new_block->next      = NULL;
+    new_block->prev      = NULL;
+    new_block->is_mapped = false;
+    new_block->next  = old_block->next;
+    new_block->prev  = old_block;
+    new_block->size      = old_block->size - (size + _size_meta_data());
+    freeListInsert(new_block);
 
-    // find block2 start address
-    unsigned long long block2 = (unsigned long long)p;
-    block2 += new_size + _size_meta_data();
-
-    struct MallocMetadata* block2_ptr = (MallocMetadata*)block2;
-
-    struct MallocMetadata* old_next = old_p->next;
-
-    old_p->size = new_size;
-    old_p->next = block2_ptr;
-
-    block2_ptr->prev = old_p;
-    block2_ptr->next = old_next;
-
-    // check if old block was the last block
-    if(block2_ptr->next){
-        (block2_ptr->next)->prev = block2_ptr;
+    // modify current block
+    old_block->is_free = false;
+    old_block->size = size;
+    if (old_block->next) {                   // meta <--> new <--> next
+        old_block->next->prev = new_block;
     }
-    else{
-        last_block = block2_ptr;
-        last_free_block = block2_ptr;
+    else {
+        last_free_block = new_block;
     }
-    // update rest of metadata
-    block2_ptr->size = old_size - new_size - _size_meta_data();
-    block2_ptr->is_free = true;
-    block2_ptr->is_mapped = false;
+    old_block->next = new_block;
 
-    metadata_bytes += _size_meta_data();
+    // update stats
     free_blocks++;
     allocated_blocks++;
+    allocated_bytes -= _size_meta_data();
     free_bytes -= _size_meta_data();
-    free_bytes += old_size - new_size;
+    metadata_bytes += _size_meta_data();
 
-    // In case we can merge
-    void* fin_block = mergeBlocks(block2_ptr);
-    if (fin_block)
-        return fin_block;
-
-    return (void*)block2_ptr;
+    mergeBlocks(new_block);  // In case splitted block has a free block after it
 }
 
 //void mergeBlocks(MallocMetadata* meta);
@@ -643,7 +646,7 @@ void* mergeWithNext(void* p){
 
     if(next_block == NULL || !next_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
-
+    
     // update metadata of curr
     curr_block->size += next_block->size + _size_meta_data();
     // rest of updates happen here

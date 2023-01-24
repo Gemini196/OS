@@ -1,5 +1,3 @@
-53:malloc_3.Split block
-55:malloc_3.Split block threshold
 64:malloc_3.srealloc Max size
 66:malloc_3.srealloc case a split
 68:malloc_3.srealloc case b
