@@ -110,8 +110,25 @@ bool isOverflow(MallocMetadata* meta)
 
 bool canSplit(MallocMetadata* meta, size_t new_blockSize)
 {
+    if (new_blockSize < 0 || !meta)
+        return false;
+    // WHEN CAN I SPLIT?
+    // option 1: the remaining block size excluding mdata is larger than 128
     size_t remaining_data = meta->size - new_blockSize;
     return remaining_data>=MIN_BLOCK_SIZE+_size_meta_data();
+    /*
+        return true;
+
+    // option 2: the next block is free AND it can help me create block size excluding mdata that's is larger than 128
+    if (!meta->next)
+        return false;
+    
+    remaining_data += meta->next->size+_size_meta_data();
+    if (remaining_data>=MIN_BLOCK_SIZE+_size_meta_data()){
+        return true;
+    }
+
+    return false;*/
 }
 
 //-------------------------------------- memory management methods ---------------------------------------
@@ -269,9 +286,11 @@ void sfree(void* p)
 
     if (isOverflow(metadata))
         exit(0xdeadbeef);
+    
 
     if(metadata->is_free)
         return;
+    
     if(metadata->is_mapped){
         p = (void*)(metadata);
         allocated_bytes -= metadata->size;
@@ -330,7 +349,6 @@ void* srealloc(void* oldp, size_t size)
         sfree(oldp);
         return newp;
     }
-
     // If we're here: block wasn't allocated using mmap
     // Case A: If request fits in current block;
     if(size <= old_metadata->size){
@@ -348,7 +366,6 @@ void* srealloc(void* oldp, size_t size)
         if (merged_block_size >= size){
             oldp = (void*)((char*)oldp - _size_meta_data()); // this was the issue!!!
             void* tmp = sreallocCaseB(old_metadata, size_to_copy, oldp, size);
-            printf("address of C!!! here is: %p \n ", (void*)((MallocMetadata*)(tmp))->next);
             return tmp;
         }
 
@@ -361,7 +378,7 @@ void* srealloc(void* oldp, size_t size)
             return sreallocCaseB(old_metadata, size_to_copy, oldp, size);
         }
     }
-
+    
     // CASE C :: If the block is the wilderness chunk, enlarge it.
     else if((MallocMetadata*)last_block == old_metadata) {
         size_t diff = size - old_metadata->size;
@@ -624,9 +641,9 @@ void* mergeWithPrevious(void* p){
 
     bool original_was_free = curr_block->is_free;
 
-    if (isOverflow(curr_block) || isOverflow(prev_block)){
+    if (isOverflow(curr_block) || isOverflow(prev_block))
         exit(0xdeadbeef);
-    }
+    
 
     if(prev_block == NULL || !prev_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
@@ -634,11 +651,11 @@ void* mergeWithPrevious(void* p){
 
     // update metadata of prev
     prev_block->size += curr_block->size + _size_meta_data();
+    prev_block->is_free = curr_block->is_free;
 
     // the rest happens here
     listRemoveSpecific(curr_block);
     listRemoveSpecificFree(curr_block);
-
 
     // update stats
     free_blocks--;
@@ -648,12 +665,10 @@ void* mergeWithPrevious(void* p){
 
     // if we merge to realloc, the original prev isn't free because it's now becoming next after merging
     // so no free bytes were added
-    if (original_was_free){
+    if (original_was_free)
         free_bytes += _size_meta_data();
-    }
-    else{
+    else
         free_bytes -= curr_block->size;
-    }
     return (void*)prev_block;
 }
 
@@ -668,6 +683,7 @@ void* mergeWithNext(void* p){
 
     // update metadata of curr
     curr_block->size += next_block->size + _size_meta_data();
+    
     // rest of updates happen here
     listRemoveSpecific(next_block);
     listRemoveSpecificFree(next_block);
@@ -704,7 +720,6 @@ void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int s
     MallocMetadata* new_meta = meta->prev;
 
     void* new_ptr = mergeWithPrevious(oldp);
-    printf("address of c is: %p\n\n", (void*)(new_meta->next));
     char* new_data = (char*)new_ptr + _size_meta_data();
     char* old_data = (char*)oldp + _size_meta_data();
     // copy content of current block to previous block
@@ -712,10 +727,9 @@ void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int s
     std::memmove((void*)new_data, (void *)old_data, size_to_copy);
 
     // check if can split
-    if (canSplit(new_meta, size)){
+    if (canSplit(new_meta, size))
         splitBlock(new_meta, size);
-    }
-    printf("address of C bnefore return!!! here is: %p \n ", (void*)(new_meta->next));
+
     //return (void*)((char*)new_ptr + _size_meta_data());
     return (void*) (new_meta + 1);
 }
