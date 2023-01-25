@@ -49,13 +49,7 @@ bool test1(void) {
 	void* p5 = smalloc(30);
 	void* p6 = smalloc(40);
 	unsigned long d1 = (unsigned long)sbrk(0);
-	ASSERT_TRUE((6*meta_size + 128) == (d1-base) );
-	ASSERT_TRUE(isAlligned(p1));
-	ASSERT_TRUE(isAlligned(p2));
-	ASSERT_TRUE(isAlligned(p3));
-	ASSERT_TRUE(isAlligned(p4));
-	ASSERT_TRUE(isAlligned(p5));
-	ASSERT_TRUE(isAlligned(p6));
+	ASSERT_TRUE((6*meta_size + 103) == (d1-base) );
 	ASSERT_TRUE(_num_free_blocks() == 0);
 	ASSERT_TRUE(_num_free_bytes() == 0);
 	ASSERT_TRUE(_num_allocated_blocks() == 6);

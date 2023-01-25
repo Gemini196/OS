@@ -63,7 +63,7 @@ void sfree(void* p);
 void* srealloc(void* oldp, size_t size);
 
 bool isOverflow(MallocMetadata* meta);
-
+bool canSplit(MallocMetadata* meta, size_t new_blockSize);
 //---------------------------------- stats methods -------------------------------------------
 
 /* Returns the number of allocated blocks in the heap that are currently free.*/
@@ -113,22 +113,9 @@ bool canSplit(MallocMetadata* meta, size_t new_blockSize)
     if (new_blockSize < 0 || !meta)
         return false;
     // WHEN CAN I SPLIT?
-    // option 1: the remaining block size excluding mdata is larger than 128
+    //the remaining block size excluding mdata is larger than 128
     size_t remaining_data = meta->size - new_blockSize;
     return remaining_data>=MIN_BLOCK_SIZE+_size_meta_data();
-    /*
-        return true;
-
-    // option 2: the next block is free AND it can help me create block size excluding mdata that's is larger than 128
-    if (!meta->next)
-        return false;
-    
-    remaining_data += meta->next->size+_size_meta_data();
-    if (remaining_data>=MIN_BLOCK_SIZE+_size_meta_data()){
-        return true;
-    }
-
-    return false;*/
 }
 
 //-------------------------------------- memory management methods ---------------------------------------
@@ -419,21 +406,15 @@ void* srealloc(void* oldp, size_t size)
                 return sreallocCaseD(old_metadata, size);
             }
         }
+    }
 
+    void* newp = smalloc(size);
+    if (newp == NULL)
         return NULL;
-        // not supposed to arrive here
-    }
-
-    else{
-        void* newp = smalloc(size);
-        if (newp == NULL)
-            return NULL;
-        std::memmove(newp, oldp, old_metadata->size);
-        sfree(oldp);
-        return newp;
-    }
-    // not supposed to arrive here
-    return NULL;
+    std::memmove(newp, oldp, old_metadata->size);
+    sfree(oldp);
+    return newp;
+    
 }
 
 
@@ -596,6 +577,7 @@ void splitBlock(void* p, size_t size){
     new_block->size      = old_block->size - (size + _size_meta_data());
     freeListInsert(new_block);
 
+
     // modify current block
     old_block->is_free = false;
     old_block->size = size;
@@ -606,6 +588,14 @@ void splitBlock(void* p, size_t size){
         last_free_block = new_block;
     }
     old_block->next = new_block;
+
+    // special case: if we're splitting the last block: THEN we must update pointers
+    if (old_block == last_block)
+        last_block = new_block;
+
+    if (old_block == last_free_block){
+        last_free_block = new_block;
+    }
 
     free_blocks++;
     allocated_blocks++;

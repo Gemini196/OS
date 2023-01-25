@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
+#include <random>
 #define MAX_DELTA 100000000
 
 
@@ -13,13 +14,13 @@ struct MallocMetadata {
     MallocMetadata* prev;
 };
 //-------------------------------- Global variables ------------------------------------------
-void* first_block = sbrk(0); // lets assume this works
+void* first_block = NULL;
 void* last_block = NULL; 
-size_t free_blocks;
-size_t free_bytes;
-size_t allocated_blocks;
-size_t allocated_bytes;
-size_t metadata_bytes;
+size_t free_blocks = 0;
+size_t free_bytes = 0;
+size_t allocated_blocks = 0;
+size_t allocated_bytes = 0;
+size_t metadata_bytes = 0;
 
 //---------------------------------- stats methods -------------------------------------------
 
@@ -78,51 +79,55 @@ void* smalloc(size_t size)
     if (size == 0 || size > MAX_DELTA)
         return NULL;
 
-    size_t msize =  _size_meta_data();
-
     // Search list for free block
     MallocMetadata* temp = (MallocMetadata*)first_block;
+
     while(temp && free_blocks > 0)
     {
-        if(temp->is_free) {                     // found a place to allocate
-            if(temp->size >= size) {
+        if((temp->is_free) && (temp->size >= size)) // found a place to allocate
+        {
+                printf("FIRST: %zu\n", _size_meta_data());
+                printf("FIRST: %p\n", first_block);
+                printf("MY CURRENT ADDRESS: %p\n",(void*)temp);
                 temp->is_free = false;
-                allocated_blocks++;
+                // allocated_blocks++;
                 free_blocks--;
-                allocated_bytes += temp->size;
+                // allocated_bytes += temp->size;
                 free_bytes -= temp->size;
-                return temp + msize;
-            }
+                return ++temp;   
         }
         temp = temp->next;
     }
 
     // No free blocks -> sbrk
-    void* ptr = sbrk(size + msize); 
+    void* ptr = sbrk(size + _size_meta_data()); 
     if(ptr == (void*)-1)
         return NULL;
-    
 
     // new metadata block
-    struct MallocMetadata mdata = {size, false, NULL, (MallocMetadata*)last_block};
-    
-    // if list not empty
-    if (last_block != NULL)
-        *((MallocMetadata*)last_block)->next = mdata;
+    MallocMetadata* mdata = (MallocMetadata*)ptr;
+    mdata->size = size;
+    mdata->is_free = false;
+    mdata->next = (MallocMetadata*)last_block;
+    mdata->prev = NULL;
 
+    if (first_block == NULL)    // if list empty
+        first_block = mdata;
+    
+    else         // if list not empty
+        ((MallocMetadata*)last_block)->next = mdata;
+    
     // update last block
-    last_block = (void*) &mdata;
+    last_block = mdata;
 
     allocated_blocks++;
     allocated_bytes += size;
-    metadata_bytes += msize;
+    metadata_bytes += _size_meta_data();
+
 
     // Arithmetic chaos
-    unsigned long long tmp = (unsigned long long)last_block + msize;
-
-    return (void*)tmp;
+    return (char*)ptr + _size_meta_data();
 }
-
 
 /*
 2. void* scalloc(size_t num, size_t size):
@@ -162,9 +167,12 @@ void sfree(void* p)
     struct MallocMetadata* metadata = (MallocMetadata*) ((char*)(p) - _size_meta_data());
     if(metadata->is_free)
         return;
+
     metadata->is_free = true;
     free_blocks++;
+
     free_bytes += metadata->size;
+
 }
 
 
@@ -205,6 +213,8 @@ void* srealloc(void* oldp, size_t size)
     void* newp = smalloc(size);
     if (newp == NULL)
         return NULL;
+//    char* new_data = (char*)newp + _size_meta_data();
+//    char* old_data = (char*)oldp + _size_meta_data();
 
     std::memmove(newp, oldp, old_size);
     sfree(oldp);

@@ -280,7 +280,6 @@ void test_challenge_3_1()
     void* p2 = smalloc(4000);
     void* p3 = smalloc(3000);//      p1         p2          p3
     sfree(p3); //               [40,2000,al][40,4000,al][40,3000,f]
-
     s.set();
     s.compare(1,3000,3,9000,3*MD_SIZE,MD_SIZE,__LINE__);
 
