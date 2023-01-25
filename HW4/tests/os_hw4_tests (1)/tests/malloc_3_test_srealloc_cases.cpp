@@ -330,6 +330,7 @@ TEST_CASE("srealloc case b wilderness 2", "[malloc3]")
     verify_size(base);
 
     char *new_b = (char *)srealloc(b, 64 * 3);
+
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
     verify_blocks(1, 64 * 3, 0, 0);
@@ -411,10 +412,11 @@ TEST_CASE("srealloc case d", "[malloc3]")
     sfree(c);
     verify_blocks(3, 32 * 3, 1, 32);
     verify_size(base);
-
+    printf("num free bytes: %zu", _num_free_bytes());
     char *new_b = (char *)srealloc(b, 64);
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == b);
+    printf("num free bytes: %zu", _num_free_bytes());
     verify_blocks(2, 32 * 3 + _size_meta_data(), 0, 0);
     verify_size(base);
     validate_array(new_b, 32);
@@ -656,8 +658,10 @@ TEST_CASE("srealloc case fi", "[malloc3]")
     sfree(c);
     verify_blocks(4, 32 * 3 + pad_size, 2, 32 * 2);
     verify_size(base);
-
+    
+    printf("start F\n");
     char *new_b = (char *)srealloc(b, 32 * 4 + _size_meta_data() * 2);
+    printf("end F\n");
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
     verify_blocks(2, 32 * 4 + 2 * _size_meta_data() + pad_size, 0, 0);
