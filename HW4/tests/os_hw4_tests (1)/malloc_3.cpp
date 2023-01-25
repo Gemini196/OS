@@ -357,7 +357,7 @@ void* srealloc(void* oldp, size_t size)
             splitBlock(old_metadata, size);
         return oldp;
     }
-    
+    printf("to realloc\n");
     // CaseB previous is freed AND merging with it SHALL SATISFY ME
     if(old_metadata->prev && old_metadata->prev->is_free)
     {
@@ -377,15 +377,15 @@ void* srealloc(void* oldp, size_t size)
     }
     
     // CASE C :: If the block is the wilderness chunk, enlarge it.
-    else if((MallocMetadata*)last_block == old_metadata) {
+    if((MallocMetadata*)last_block == old_metadata) {
         size_t diff = size - old_metadata->size;
         return sreallocCaseC(old_metadata, diff);
     }
 
     // Try to merge with the adjacent block with the higher address (Case D) OR
     // both adjacent blocks with higher and lower addresses (Case E)
-    else if(old_metadata->next && old_metadata->next->is_free){
-        
+    if(old_metadata->next && old_metadata->next->is_free){
+         printf("to reall9999oc\n");
         size_t merged_with_next = old_metadata->next->size + old_metadata->size + _size_meta_data();
         // merge with next block is good enough (case D)
         if( merged_with_next >= size){
@@ -396,7 +396,10 @@ void* srealloc(void* oldp, size_t size)
         //CASE E :: merge with next block is NOT enough - if previous is free and has enough space take it as well
         else if (old_metadata->prev && old_metadata->prev->is_free &&
                 old_metadata->prev->size + merged_with_next + _size_meta_data() >= size)
+        {
+            printf("here to case e!\n");
             return sreallocCaseE(old_metadata, size_to_copy, oldp, size);
+        }
         
         // CASE F: merge + enlarge wilderness
         // else if old_metadata->next is the wilderness (last) block and it's free
@@ -753,8 +756,9 @@ void* sreallocCaseD(MallocMetadata* meta, int size)
 
 void* sreallocCaseE(MallocMetadata* meta, size_t size_to_copy, void* oldp, int size)
 {
-    void* ptr = sreallocCaseD(meta, meta->size + meta->next->size); // Merge with the block AFTER meta
-    meta = (MallocMetadata*)((char*)ptr -_size_meta_data());  
+    sreallocCaseD(meta, meta->size + meta->next->size); // Merge with the block AFTER meta
+  //  void* ptr = sreallocCaseD(meta, meta->size + meta->next->size); // Merge with the block AFTER meta
+    //meta = (MallocMetadata*)((char*)ptr -_size_meta_data());  
     return sreallocCaseB(meta, size_to_copy, size);                              // Merge with the block BEFORE meta
 }
 
