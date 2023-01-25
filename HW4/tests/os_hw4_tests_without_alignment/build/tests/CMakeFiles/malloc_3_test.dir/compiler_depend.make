@@ -1524,6 +1524,27 @@ tests/CMakeFiles/malloc_3_test.dir/malloc_3_test_srealloc_cases.cpp.o: /home/stu
   _deps/catch2-src/src/catch2/internal/catch_test_registry.hpp \
   _deps/catch2-src/src/catch2/interfaces/catch_interfaces_testcase.hpp \
   _deps/catch2-src/src/catch2/internal/catch_preprocessor_remove_parens.hpp \
+  /usr/include/x86_64-linux-gnu/sys/wait.h \
+  /usr/include/signal.h \
+  /usr/include/x86_64-linux-gnu/bits/signum.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+  /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+  /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
   /usr/include/unistd.h \
   /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
@@ -1531,6 +1552,26 @@ tests/CMakeFiles/malloc_3_test.dir/malloc_3_test_srealloc_cases.cpp.o: /home/stu
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h
 
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigstack.h:
+
+/usr/include/x86_64-linux-gnu/sys/ucontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum.h:
+
+/usr/include/x86_64-linux-gnu/sys/wait.h:
 
 /home/student/Desktop/OS/HW4/tests/os_hw4_tests_without_alignment/tests/malloc_3_test_srealloc_cases.cpp:
 
@@ -1640,6 +1681,10 @@ _deps/catch2-src/src/catch2/internal/catch_test_registry.hpp:
 
 /usr/include/c++/7/bits/stl_iterator_base_types.h:
 
+/usr/include/x86_64-linux-gnu/bits/siginfo-arch.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
+
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
 /usr/include/c++/7/iosfwd:
@@ -1736,7 +1781,11 @@ _deps/catch2-src/src/catch2/interfaces/catch_interfaces_testcase.hpp:
 
 /usr/include/features.h:
 
+/usr/include/x86_64-linux-gnu/bits/sigthread.h:
+
 /usr/include/c++/7/ext/new_allocator.h:
+
+/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
 
 /usr/include/c++/7/exception:
 
@@ -1757,6 +1806,8 @@ _deps/catch2-src/src/catch2/internal/catch_lazy_expr.hpp:
 /usr/include/c++/7/bits/memoryfwd.h:
 
 /usr/include/stdc-predef.h:
+
+/usr/include/signal.h:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
@@ -1810,6 +1861,8 @@ _deps/catch2-src/src/catch2/internal/catch_section.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/getopt_core.h:
 
+/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
+
 /usr/include/c++/7/ostream:
 
 /usr/include/c++/7/bits/locale_classes.h:
@@ -1844,6 +1897,8 @@ _deps/catch2-src/src/catch2/catch_totals.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/7/include/stdarg.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/stack_t.h:
+
 _deps/catch2-src/src/catch2/interfaces/catch_interfaces_capture.hpp:
 
 /usr/include/x86_64-linux-gnu/c++/7/bits/cpu_defines.h:
@@ -1854,11 +1909,15 @@ _deps/catch2-src/src/catch2/internal/catch_compiler_capabilities.hpp:
 
 /usr/include/x86_64-linux-gnu/c++/7/bits/c++config.h:
 
+/usr/include/x86_64-linux-gnu/bits/sigevent-consts.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/7/include/stdint.h:
 
 /usr/include/c++/7/ios:
 
 /usr/include/c++/7/bits/localefwd.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h:
 
 /usr/include/x86_64-linux-gnu/c++/7/bits/c++locale.h:
 
@@ -1928,6 +1987,8 @@ _deps/catch2-src/src/catch2/interfaces/catch_interfaces_registry_hub.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h:
+
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
@@ -1979,6 +2040,8 @@ _deps/catch2-src/src/catch2/interfaces/catch_interfaces_registry_hub.hpp:
 /usr/include/c++/7/cstdlib:
 
 /usr/include/asm-generic/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigaction.h:
 
 /usr/include/c++/7/random:
 
