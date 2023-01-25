@@ -292,11 +292,14 @@ TEST_CASE("srealloc case b wilderness", "[malloc3]")
     verify_size(base);
     populate_array(b, 32);
 
+    printf("freeing a: %p\n",a);
     sfree(a);
     verify_blocks(2, 32 * 2, 1, 32);
     verify_size(base);
 
+    printf("here\n");
     char *new_b = (char *)srealloc(b, 32 * 3 + _size_meta_data());
+    printf("here\n");//no
     REQUIRE(new_b != nullptr);
     REQUIRE(new_b == a);
     verify_blocks(1, 32 * 3 + _size_meta_data(), 0, 0);
@@ -304,6 +307,7 @@ TEST_CASE("srealloc case b wilderness", "[malloc3]")
     validate_array(new_b, 32);
 
     sfree(new_b);
+    printf("here\n");//no
     verify_blocks(1, 32 * 3 + _size_meta_data(), 1, 32 * 3 + _size_meta_data());
     verify_size(base);
 }

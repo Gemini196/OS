@@ -287,7 +287,6 @@ void sfree(void* p)
     if (isOverflow(metadata))
         exit(0xdeadbeef);
     
-
     if(metadata->is_free)
         return;
     
@@ -366,13 +365,14 @@ void* srealloc(void* oldp, size_t size)
         size_t merged_block_size = old_metadata->prev->size + old_metadata->size + sizeof(MallocMetadata);
         if (merged_block_size >= size){
             oldp = (void*)((char*)oldp - _size_meta_data());
-            void* tmp = sreallocCaseB(old_metadata, size_to_copy, oldp, size);
-            return tmp;
+            return sreallocCaseB(old_metadata, size_to_copy, oldp, size);
+            //return tmp;
         }
 
         // merge with previous block but we need to enlarge program break
         else if(last_block == old_metadata) { // 
-            int delta = size - merged_block_size;
+            size_t delta = size - merged_block_size;
+            oldp = (void*)((char*)oldp - _size_meta_data());
             sbrk(delta);
             old_metadata->size += delta;
             allocated_bytes += delta;
@@ -639,15 +639,13 @@ void* mergeWithPrevious(void* p){
     MallocMetadata* curr_block = (MallocMetadata*)p;
     MallocMetadata* prev_block = curr_block->prev;
 
-    bool original_was_free = curr_block->is_free;
-    
-
-    if (isOverflow(curr_block) || isOverflow(prev_block))
-        exit(0xdeadbeef);
-    
     if(prev_block == NULL || !prev_block->is_free) //previous block doesn't exist or isn't free
         return NULL;
 
+    if (isOverflow(curr_block) || isOverflow(prev_block))
+        exit(0xdeadbeef);
+
+    bool original_was_free = curr_block->is_free;
     size_t prev_old_size = prev_block->size;
     // update metadata of prev
     prev_block->size += curr_block->size + _size_meta_data();
@@ -711,7 +709,6 @@ void* sreallocCaseB(MallocMetadata* meta, size_t size_to_copy, void* oldp, int s
 {
     MallocMetadata* new_meta = meta->prev;
     void* new_ptr = mergeWithPrevious(oldp);
-
     char* new_data = (char*)new_ptr + _size_meta_data();
     char* old_data = (char*)oldp + _size_meta_data();
     // copy content of current block to previous block
